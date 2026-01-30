@@ -1,0 +1,94 @@
+// Re-export all database types
+export * from './database.types';
+
+// Navigation Types
+export type RootStackParamList = {
+  Auth: undefined;
+  CoachApp: undefined;
+  SwimmerApp: undefined;
+  Onboarding: undefined;
+};
+
+export type AuthStackParamList = {
+  Login: undefined;
+  Register: undefined;
+};
+
+export type OnboardingStackParamList = {
+  ClubSetup: undefined;
+  JoinClub: undefined;
+};
+
+export type CoachTabParamList = {
+  Dashboard: undefined;
+  Calendar: undefined;
+  Workouts: undefined;
+  Groups: undefined;
+  Profile: undefined;
+};
+
+export type SwimmerTabParamList = {
+  Dashboard: undefined;
+  Calendar: undefined;
+  Profile: undefined;
+};
+
+// Day of Week
+export const DAYS_OF_WEEK = [
+  'Dimanche',
+  'Lundi',
+  'Mardi',
+  'Mercredi',
+  'Jeudi',
+  'Vendredi',
+  'Samedi',
+] as const;
+
+export type DayOfWeek = (typeof DAYS_OF_WEEK)[number];
+
+// Group Levels
+export const GROUP_LEVELS = {
+  beginner: 'Debutant',
+  intermediate: 'Intermediaire',
+  advanced: 'Avance',
+  competition: 'Competition',
+} as const;
+
+export type GroupLevel = keyof typeof GROUP_LEVELS;
+
+// Workout Types
+export const WORKOUT_TYPES = {
+  endurance: 'Endurance',
+  sprint: 'Sprint',
+  technique: 'Technique',
+  recovery: 'Recuperation',
+  other: 'Autre',
+} as const;
+
+export type WorkoutType = keyof typeof WORKOUT_TYPES;
+
+// Stroke Types (French labels)
+export const STROKE_LABELS = {
+  freestyle: 'Crawl',
+  backstroke: 'Dos',
+  breaststroke: 'Brasse',
+  butterfly: 'Papillon',
+  individual_medley: '4 Nages',
+  choice: 'Choix',
+  kick: 'Jambes',
+  pull: 'Bras',
+  drill: 'Educatifs',
+  fins: 'Palmes',
+  pull_buoy: 'Pull-Buoy',
+  paddles: 'Plaquettes',
+} as const;
+
+// Intensity Labels (French)
+export const INTENSITY_LABELS = {
+  recovery: 'Recuperation',
+  easy: 'Facile',
+  moderate: 'Modere',
+  threshold: 'Soutenu',
+  hard: 'Intense',
+  sprint: 'Sprint',
+} as const;
