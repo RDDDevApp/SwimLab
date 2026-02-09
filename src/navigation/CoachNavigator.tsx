@@ -1,4 +1,5 @@
 import React from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,11 +8,17 @@ import CalendarScreen from '../screens/coach/CalendarScreen';
 import WorkoutsScreen from '../screens/coach/WorkoutsScreen';
 import GroupsScreen from '../screens/coach/GroupsScreen';
 import ProfileScreen from '../screens/coach/ProfileScreen';
-import { CoachTabParamList } from '../types';
+import CreateGroupScreen from '../screens/coach/CreateGroupScreen';
+import SlotsScreen from '../screens/coach/SlotsScreen';
+import CreateSlotScreen from '../screens/coach/CreateSlotScreen';
+import CreateWorkoutScreen from '../screens/coach/CreateWorkoutScreen';
+import AssignWorkoutScreen from '../screens/coach/AssignWorkoutScreen';
+import { CoachTabParamList, CoachStackParamList } from '../types';
 
 const Tab = createBottomTabNavigator<CoachTabParamList>();
+const Stack = createNativeStackNavigator<CoachStackParamList>();
 
-export default function CoachNavigator() {
+function CoachTabs() {
   const theme = useTheme();
 
   return (
@@ -75,5 +82,18 @@ export default function CoachNavigator() {
         options={{ tabBarLabel: 'Profil' }}
       />
     </Tab.Navigator>
+  );
+}
+
+export default function CoachNavigator() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="CoachTabs" component={CoachTabs} />
+      <Stack.Screen name="CreateGroup" component={CreateGroupScreen} />
+      <Stack.Screen name="Slots" component={SlotsScreen} />
+      <Stack.Screen name="CreateSlot" component={CreateSlotScreen} />
+      <Stack.Screen name="CreateWorkout" component={CreateWorkoutScreen} />
+      <Stack.Screen name="AssignWorkout" component={AssignWorkoutScreen} />
+    </Stack.Navigator>
   );
 }

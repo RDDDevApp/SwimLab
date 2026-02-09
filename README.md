@@ -30,6 +30,10 @@ SwimLab digitalise l'entraînement en natation pour créer un lien fort entre co
 - **Navigation** : React Navigation 6
 - **State** : Zustand
 
+### Conventions UI
+
+- **React Native / Paper uniquement** : aucun composant HTML/CSS web. On utilise exclusivement les composants React Native et React Native Paper pour garantir la compatibilite cross-platform (Web, iOS, Android) sans effort supplementaire.
+
 ## 📂 Structure du Projet
 
 ```
@@ -82,6 +86,9 @@ npm start
 - Calendrier Nageur
 - Émargement + Feedback
 - Stats coach
+
+### 📋 Backlog (Sprint futur)
+- Flow création / rejoindre un club (onboarding coach + nageur)
 
 ### 📅 Prévu (V0.5)
 - Bibliothèque d'exercices
