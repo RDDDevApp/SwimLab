@@ -27,6 +27,15 @@ export type CoachTabParamList = {
   Profile: undefined;
 };
 
+export type CoachStackParamList = {
+  CoachTabs: undefined;
+  CreateGroup: { clubId?: string } | undefined;
+  Slots: { groupId?: string } | undefined;
+  CreateSlot: { groupId?: string; slot?: any } | undefined;
+  CreateWorkout: { workout?: any; clubId?: string } | undefined;
+  AssignWorkout: { slotId: string; slotName: string; date: string };
+};
+
 export type SwimmerTabParamList = {
   Dashboard: undefined;
   Calendar: undefined;

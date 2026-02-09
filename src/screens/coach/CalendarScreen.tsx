@@ -1,25 +1,120 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Text, IconButton } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
+import { TrainingSlot, WorkoutAssignment } from '../../types';
+import { trainingSlotService, workoutAssignmentService } from '../../services';
+import { useAuthStore } from '../../stores/authStore';
+import { getWeekDates, formatWeekRange, toISODate } from '../../utils/dateHelpers';
+import WeekView from '../../components/calendar/WeekView';
 
-export default function CalendarScreen() {
+interface Props {
+  navigation: any;
+}
+
+export default function CalendarScreen({ navigation }: Props) {
+  const { user } = useAuthStore();
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [slots, setSlots] = useState<TrainingSlot[]>([]);
+  const [assignments, setAssignments] = useState<WorkoutAssignment[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const weekDates = getWeekDates(currentDate);
+
+  const loadData = useCallback(async () => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      const coachSlots = await trainingSlotService.getByCoach(user.id);
+      setSlots(coachSlots);
+
+      if (coachSlots.length > 0) {
+        const slotIds = coachSlots.map((s) => s.id);
+        const dates = getWeekDates(currentDate);
+        const startDate = toISODate(dates[0]);
+        const endDate = toISODate(dates[6]);
+        const weekAssignments = await workoutAssignmentService.getByDateRange(
+          slotIds,
+          startDate,
+          endDate,
+        );
+        setAssignments(weekAssignments);
+      } else {
+        setAssignments([]);
+      }
+    } catch (err) {
+      console.error('Error loading calendar:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [user, currentDate]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [loadData]),
+  );
+
+  const goToPrevWeek = () => {
+    const d = new Date(currentDate);
+    d.setDate(d.getDate() - 7);
+    setCurrentDate(d);
+  };
+
+  const goToNextWeek = () => {
+    const d = new Date(currentDate);
+    d.setDate(d.getDate() + 7);
+    setCurrentDate(d);
+  };
+
+  const goToToday = () => {
+    setCurrentDate(new Date());
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <Text variant="headlineMedium" style={styles.title}>
           Calendrier
         </Text>
+        <View style={styles.weekNav}>
+          <IconButton icon="chevron-left" onPress={goToPrevWeek} />
+          <Text
+            variant="titleSmall"
+            style={styles.weekRange}
+            onPress={goToToday}
+          >
+            {formatWeekRange(currentDate)}
+          </Text>
+          <IconButton icon="chevron-right" onPress={goToNextWeek} />
+        </View>
       </View>
 
-      <View style={styles.emptyState}>
-        <Text variant="bodyLarge" style={styles.emptyText}>
-          Aucun entrainement planifie
-        </Text>
-        <Text variant="bodyMedium" style={styles.emptySubtext}>
-          Creez des creneaux et assignez des entrainements
-        </Text>
-      </View>
+      {slots.length === 0 && !loading ? (
+        <View style={styles.emptyState}>
+          <Text variant="bodyLarge" style={styles.emptyText}>
+            Aucun creneau configure
+          </Text>
+          <Text variant="bodyMedium" style={styles.emptySubtext}>
+            Creez des creneaux pour voir votre calendrier
+          </Text>
+        </View>
+      ) : (
+        <WeekView
+          dates={weekDates}
+          slots={slots}
+          assignments={assignments}
+          onSlotPress={() => {}}
+          onEmptySlotPress={(slot, date) => {
+            navigation.navigate('AssignWorkout', {
+              slotId: slot.id,
+              slotName: slot.name,
+              date: toISODate(date),
+            });
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -31,6 +126,7 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 16,
+    paddingBottom: 8,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
@@ -38,6 +134,16 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: 'bold',
     color: '#1F2937',
+  },
+  weekNav: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 4,
+  },
+  weekRange: {
+    color: '#374151',
+    fontWeight: '500',
   },
   emptyState: {
     flex: 1,
