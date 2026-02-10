@@ -34,6 +34,12 @@ export type CoachStackParamList = {
   CreateSlot: { groupId?: string; slot?: any } | undefined;
   CreateWorkout: { workout?: any; clubId?: string } | undefined;
   AssignWorkout: { slotId: string; slotName: string; date: string };
+  Attendance: { assignmentId: string; groupId: string; workoutTitle?: string };
+};
+
+export type SwimmerStackParamList = {
+  SwimmerTabs: undefined;
+  Feedback: { sessionId: string; workoutTitle?: string };
 };
 
 export type SwimmerTabParamList = {
