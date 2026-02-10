@@ -13,6 +13,7 @@ import SlotsScreen from '../screens/coach/SlotsScreen';
 import CreateSlotScreen from '../screens/coach/CreateSlotScreen';
 import CreateWorkoutScreen from '../screens/coach/CreateWorkoutScreen';
 import AssignWorkoutScreen from '../screens/coach/AssignWorkoutScreen';
+import AttendanceScreen from '../screens/coach/AttendanceScreen';
 import { CoachTabParamList, CoachStackParamList } from '../types';
 
 const Tab = createBottomTabNavigator<CoachTabParamList>();
@@ -94,6 +95,7 @@ export default function CoachNavigator() {
       <Stack.Screen name="CreateSlot" component={CreateSlotScreen} />
       <Stack.Screen name="CreateWorkout" component={CreateWorkoutScreen} />
       <Stack.Screen name="AssignWorkout" component={AssignWorkoutScreen} />
+      <Stack.Screen name="Attendance" component={AttendanceScreen} />
     </Stack.Navigator>
   );
 }

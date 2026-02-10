@@ -1,15 +1,18 @@
 import React from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import DashboardScreen from '../screens/swimmer/DashboardScreen';
 import CalendarScreen from '../screens/swimmer/CalendarScreen';
 import ProfileScreen from '../screens/swimmer/ProfileScreen';
-import { SwimmerTabParamList } from '../types';
+import FeedbackScreen from '../screens/swimmer/FeedbackScreen';
+import { SwimmerTabParamList, SwimmerStackParamList } from '../types';
 
 const Tab = createBottomTabNavigator<SwimmerTabParamList>();
+const Stack = createNativeStackNavigator<SwimmerStackParamList>();
 
-export default function SwimmerNavigator() {
+function SwimmerTabs() {
   const theme = useTheme();
 
   return (
@@ -57,5 +60,14 @@ export default function SwimmerNavigator() {
         options={{ tabBarLabel: 'Profil' }}
       />
     </Tab.Navigator>
+  );
+}
+
+export default function SwimmerNavigator() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="SwimmerTabs" component={SwimmerTabs} />
+      <Stack.Screen name="Feedback" component={FeedbackScreen} />
+    </Stack.Navigator>
   );
 }
