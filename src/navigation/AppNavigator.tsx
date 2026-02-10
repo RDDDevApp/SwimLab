@@ -1,23 +1,51 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { useAuthStore } from '../stores/authStore';
+import { clubService } from '../services';
 import AuthNavigator from './AuthNavigator';
 import CoachNavigator from './CoachNavigator';
 import SwimmerNavigator from './SwimmerNavigator';
+import ClubSetupScreen from '../screens/onboarding/ClubSetupScreen';
+import JoinClubScreen from '../screens/onboarding/JoinClubScreen';
 import { RootStackParamList } from '../types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
-  const { session, profile, isLoading, isInitialized, initialize } = useAuthStore();
+  const { session, user, profile, isLoading, isInitialized, initialize, setClubId } = useAuthStore();
+  const [hasClub, setHasClub] = useState<boolean | null>(null);
+  const [checkingClub, setCheckingClub] = useState(false);
 
   useEffect(() => {
     initialize();
   }, []);
 
+  // Check if user has a club when profile loads
+  useEffect(() => {
+    const checkClub = async () => {
+      if (!user || !profile) {
+        setHasClub(null);
+        return;
+      }
+      setCheckingClub(true);
+      try {
+        const clubs = await clubService.getByUser(user.id);
+        setHasClub(clubs.length > 0);
+        if (clubs.length > 0) {
+          setClubId(clubs[0].id);
+        }
+      } catch {
+        setHasClub(false);
+      } finally {
+        setCheckingClub(false);
+      }
+    };
+    checkClub();
+  }, [user, profile]);
+
   // Show loading screen while initializing
-  if (!isInitialized || isLoading) {
+  if (!isInitialized || isLoading || (session && hasClub === null) || checkingClub) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#06B6D4" />
@@ -30,11 +58,17 @@ export default function AppNavigator() {
       {!session ? (
         // Not authenticated
         <Stack.Screen name="Auth" component={AuthNavigator} />
+      ) : !hasClub && profile?.role === 'coach' ? (
+        // Coach without a club -> onboarding
+        <Stack.Screen name="Onboarding" component={ClubSetupScreen} />
+      ) : !hasClub && profile?.role === 'swimmer' ? (
+        // Swimmer without a club -> join
+        <Stack.Screen name="Onboarding" component={JoinClubScreen} />
       ) : profile?.role === 'coach' ? (
-        // Authenticated as Coach
+        // Authenticated coach with club
         <Stack.Screen name="CoachApp" component={CoachNavigator} />
       ) : (
-        // Authenticated as Swimmer
+        // Authenticated swimmer with club
         <Stack.Screen name="SwimmerApp" component={SwimmerNavigator} />
       )}
     </Stack.Navigator>

@@ -7,12 +7,14 @@ interface AuthState {
   session: Session | null;
   user: User | null;
   profile: Profile | null;
+  clubId: string | null;
   isLoading: boolean;
   isInitialized: boolean;
 
   // Actions
   setSession: (session: Session | null) => void;
   setProfile: (profile: Profile | null) => void;
+  setClubId: (clubId: string | null) => void;
   initialize: () => Promise<void>;
   signUp: (email: string, password: string, userData: SignUpData) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
@@ -30,6 +32,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   session: null,
   user: null,
   profile: null,
+  clubId: null,
   isLoading: true,
   isInitialized: false,
 
@@ -42,6 +45,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   setProfile: (profile) => {
     set({ profile });
+  },
+
+  setClubId: (clubId) => {
+    set({ clubId });
   },
 
   initialize: async () => {
@@ -147,7 +154,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       set({ isLoading: true });
       await supabase.auth.signOut();
-      set({ session: null, user: null, profile: null });
+      set({ session: null, user: null, profile: null, clubId: null });
     } catch (error) {
       console.error('Sign out error:', error);
     } finally {
