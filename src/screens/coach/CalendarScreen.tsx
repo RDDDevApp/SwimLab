@@ -4,7 +4,7 @@ import { Text, IconButton } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { TrainingSlot, WorkoutAssignment } from '../../types';
-import { trainingSlotService, workoutAssignmentService } from '../../services';
+import { trainingSlotService, workoutAssignmentService, workoutService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 import { getWeekDates, formatWeekRange, toISODate } from '../../utils/dateHelpers';
 import WeekView from '../../components/calendar/WeekView';
@@ -105,7 +105,26 @@ export default function CalendarScreen({ navigation }: Props) {
           dates={weekDates}
           slots={slots}
           assignments={assignments}
-          onSlotPress={() => {}}
+          onSlotPress={async (slot, date, assignment) => {
+            let workoutTitle: string | undefined;
+            try {
+              const workout = await workoutService.getById(assignment.workout_id);
+              workoutTitle = workout.title;
+            } catch {}
+
+            if (assignment.attendance_marked) {
+              navigation.navigate('WorkoutStats', {
+                assignmentId: assignment.id,
+                workoutTitle,
+              });
+            } else {
+              navigation.navigate('Attendance', {
+                assignmentId: assignment.id,
+                groupId: slot.group_id,
+                workoutTitle,
+              });
+            }
+          }}
           onEmptySlotPress={(slot, date) => {
             navigation.navigate('AssignWorkout', {
               slotId: slot.id,

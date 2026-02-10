@@ -13,7 +13,7 @@ interface WeekViewProps {
   dates: Date[];
   slots: TrainingSlot[];
   assignments: WorkoutAssignment[];
-  onSlotPress: (slot: TrainingSlot, date: Date) => void;
+  onSlotPress: (slot: TrainingSlot, date: Date, assignment: WorkoutAssignment) => void;
   onEmptySlotPress?: (slot: TrainingSlot, date: Date) => void;
 }
 
@@ -70,7 +70,7 @@ export default function WeekView({
                     ]}
                     onPress={() =>
                       assignment
-                        ? onSlotPress(slot, date)
+                        ? onSlotPress(slot, date, assignment)
                         : onEmptySlotPress?.(slot, date)
                     }
                   >
