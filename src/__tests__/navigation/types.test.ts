@@ -69,6 +69,48 @@ describe('SwimmerStackParamList', () => {
   });
 });
 
+describe('CoachStackParamList — Sprint 5', () => {
+  it('should include GroupDetail with required groupId', () => {
+    const params: CoachStackParamList['GroupDetail'] = {
+      groupId: 'g1',
+    };
+    expect(params.groupId).toBe('g1');
+  });
+
+  it('should include WorkoutStats with required assignmentId', () => {
+    const params: CoachStackParamList['WorkoutStats'] = {
+      assignmentId: 'a1',
+      workoutTitle: 'Endurance',
+    };
+    expect(params.assignmentId).toBe('a1');
+    expect(params.workoutTitle).toBe('Endurance');
+  });
+
+  it('should allow WorkoutStats without workoutTitle', () => {
+    const params: CoachStackParamList['WorkoutStats'] = {
+      assignmentId: 'a1',
+    };
+    expect(params.workoutTitle).toBeUndefined();
+  });
+});
+
+describe('SwimmerStackParamList — Sprint 5', () => {
+  it('should include WorkoutDetail with required workoutId', () => {
+    const params: SwimmerStackParamList['WorkoutDetail'] = {
+      workoutId: 'w1',
+      workoutTitle: 'Sprint 1500m',
+    };
+    expect(params.workoutId).toBe('w1');
+  });
+
+  it('should allow WorkoutDetail without workoutTitle', () => {
+    const params: SwimmerStackParamList['WorkoutDetail'] = {
+      workoutId: 'w1',
+    };
+    expect(params.workoutTitle).toBeUndefined();
+  });
+});
+
 describe('CoachTabParamList', () => {
   it('should have all 5 tabs', () => {
     const tabNames: (keyof CoachTabParamList)[] = [

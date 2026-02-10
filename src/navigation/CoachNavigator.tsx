@@ -14,6 +14,8 @@ import CreateSlotScreen from '../screens/coach/CreateSlotScreen';
 import CreateWorkoutScreen from '../screens/coach/CreateWorkoutScreen';
 import AssignWorkoutScreen from '../screens/coach/AssignWorkoutScreen';
 import AttendanceScreen from '../screens/coach/AttendanceScreen';
+import GroupDetailScreen from '../screens/coach/GroupDetailScreen';
+import WorkoutStatsScreen from '../screens/coach/WorkoutStatsScreen';
 import { CoachTabParamList, CoachStackParamList } from '../types';
 
 const Tab = createBottomTabNavigator<CoachTabParamList>();
@@ -96,6 +98,8 @@ export default function CoachNavigator() {
       <Stack.Screen name="CreateWorkout" component={CreateWorkoutScreen} />
       <Stack.Screen name="AssignWorkout" component={AssignWorkoutScreen} />
       <Stack.Screen name="Attendance" component={AttendanceScreen} />
+      <Stack.Screen name="GroupDetail" component={GroupDetailScreen} />
+      <Stack.Screen name="WorkoutStats" component={WorkoutStatsScreen} />
     </Stack.Navigator>
   );
 }

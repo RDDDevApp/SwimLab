@@ -7,22 +7,20 @@ import { groupService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 import PickerSelect from '../../components/PickerSelect';
 
-const MOCK_CLUB_ID = 'mock-club-id';
-
 interface Props {
   navigation: any;
   route?: any;
 }
 
 export default function CreateGroupScreen({ navigation, route }: Props) {
-  const { user } = useAuthStore();
+  const { user, clubId: storeClubId } = useAuthStore();
   const [name, setName] = useState('');
   const [level, setLevel] = useState<string>('beginner');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const clubId = route?.params?.clubId || MOCK_CLUB_ID;
+  const clubId = route?.params?.clubId || storeClubId;
 
   const levelOptions = Object.entries(GROUP_LEVELS).map(([key, label]) => ({
     value: key,

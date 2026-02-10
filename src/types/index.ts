@@ -30,16 +30,19 @@ export type CoachTabParamList = {
 export type CoachStackParamList = {
   CoachTabs: undefined;
   CreateGroup: { clubId?: string } | undefined;
+  GroupDetail: { groupId: string };
   Slots: { groupId?: string } | undefined;
   CreateSlot: { groupId?: string; slot?: any } | undefined;
   CreateWorkout: { workout?: any; clubId?: string } | undefined;
   AssignWorkout: { slotId: string; slotName: string; date: string };
   Attendance: { assignmentId: string; groupId: string; workoutTitle?: string };
+  WorkoutStats: { assignmentId: string; workoutTitle?: string };
 };
 
 export type SwimmerStackParamList = {
   SwimmerTabs: undefined;
   Feedback: { sessionId: string; workoutTitle?: string };
+  WorkoutDetail: { workoutId: string; workoutTitle?: string };
 };
 
 export type SwimmerTabParamList = {

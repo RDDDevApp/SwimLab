@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function WorkoutsScreen({ navigation }: Props) {
-  const { user } = useAuthStore();
+  const { user, clubId } = useAuthStore();
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<Workout | null>(null);
@@ -44,6 +44,25 @@ export default function WorkoutsScreen({ navigation }: Props) {
       loadWorkouts();
     } catch (err) {
       console.error('Error deleting workout:', err);
+    }
+  };
+
+  const handleDuplicate = async (workout: Workout) => {
+    if (!user || !clubId) return;
+    try {
+      await workoutService.create({
+        club_id: clubId,
+        coach_id: user.id,
+        title: `${workout.title} (copie)`,
+        type: workout.type,
+        description: workout.description,
+        content: workout.content,
+        total_distance: workout.total_distance,
+        is_published: false,
+      });
+      loadWorkouts();
+    } catch (err) {
+      console.error('Error duplicating workout:', err);
     }
   };
 
@@ -97,6 +116,11 @@ export default function WorkoutsScreen({ navigation }: Props) {
                     {item.title}
                   </Text>
                   <View style={styles.cardActions}>
+                    <IconButton
+                      icon="content-copy"
+                      size={20}
+                      onPress={() => handleDuplicate(item)}
+                    />
                     <IconButton
                       icon={item.is_published ? 'eye' : 'eye-off'}
                       size={20}
