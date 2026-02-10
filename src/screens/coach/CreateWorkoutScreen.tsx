@@ -20,8 +20,6 @@ import { useAuthStore } from '../../stores/authStore';
 import BlockEditor from '../../components/workout/BlockEditor';
 import PickerSelect from '../../components/PickerSelect';
 
-const MOCK_CLUB_ID = 'mock-club-id';
-
 function generateId(): string {
   return Math.random().toString(36).substring(2, 9);
 }
@@ -32,7 +30,7 @@ interface Props {
 }
 
 export default function CreateWorkoutScreen({ navigation, route }: Props) {
-  const { user } = useAuthStore();
+  const { user, clubId: storeClubId } = useAuthStore();
   const editingWorkout = route?.params?.workout;
 
   const [title, setTitle] = useState(editingWorkout?.title || '');
@@ -46,7 +44,7 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const clubId = route?.params?.clubId || MOCK_CLUB_ID;
+  const clubId = route?.params?.clubId || storeClubId;
 
   const typeOptions = Object.entries(WORKOUT_TYPES).map(([key, label]) => ({
     value: key,

@@ -1,11 +1,50 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { Text, Card, Button, Avatar } from 'react-native-paper';
+import { Text, Card, Button, Avatar, Chip } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import { useAuthStore } from '../../stores/authStore';
+import { groupService, workoutService, clubService } from '../../services';
+import { Club } from '../../types';
 
 export default function CoachDashboardScreen() {
-  const { profile, signOut } = useAuthStore();
+  const { profile, user, clubId, signOut } = useAuthStore();
+  const [groupCount, setGroupCount] = useState(0);
+  const [workoutCount, setWorkoutCount] = useState(0);
+  const [swimmerCount, setSwimmerCount] = useState(0);
+  const [club, setClub] = useState<Club | null>(null);
+
+  const loadStats = useCallback(async () => {
+    if (!user || !clubId) return;
+    try {
+      const [groups, workouts, clubData] = await Promise.all([
+        groupService.getByCoach(user.id),
+        workoutService.getByCoach(user.id),
+        clubService.getById(clubId),
+      ]);
+      setGroupCount(groups.length);
+      setWorkoutCount(workouts.length);
+      setClub(clubData);
+
+      // Count unique swimmers across all groups
+      const swimmerIds = new Set<string>();
+      for (const group of groups) {
+        try {
+          const members = await groupService.getMembers(group.id);
+          members.forEach((m) => swimmerIds.add(m.id));
+        } catch {}
+      }
+      setSwimmerCount(swimmerIds.size);
+    } catch (err) {
+      console.error('Error loading dashboard stats:', err);
+    }
+  }, [user, clubId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadStats();
+    }, [loadStats]),
+  );
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -25,33 +64,48 @@ export default function CoachDashboardScreen() {
           />
         </View>
 
-        <Card style={styles.card}>
-          <Card.Content>
-            <Text variant="titleMedium">Bienvenue sur SwimLab</Text>
-            <Text variant="bodyMedium" style={styles.cardText}>
-              Commencez par creer votre club et vos premiers groupes d'entrainement.
-            </Text>
-          </Card.Content>
-          <Card.Actions>
-            <Button mode="contained">Creer mon club</Button>
-          </Card.Actions>
-        </Card>
+        {club && (
+          <Card style={styles.card}>
+            <Card.Content>
+              <Text variant="titleMedium">{club.name}</Text>
+              <View style={styles.codeRow}>
+                <Text variant="bodySmall" style={styles.codeLabel}>
+                  Code d'invitation :
+                </Text>
+                <Chip compact style={styles.codeChip}>
+                  {club.invitation_code}
+                </Chip>
+              </View>
+              {club.description ? (
+                <Text variant="bodySmall" style={styles.clubDesc}>
+                  {club.description}
+                </Text>
+              ) : null}
+            </Card.Content>
+          </Card>
+        )}
 
         <Card style={styles.card}>
           <Card.Content>
             <Text variant="titleMedium">Statistiques</Text>
             <View style={styles.statsRow}>
               <View style={styles.stat}>
-                <Text variant="headlineLarge" style={styles.statValue}>0</Text>
+                <Text variant="headlineLarge" style={styles.statValue}>
+                  {groupCount}
+                </Text>
                 <Text variant="bodySmall">Groupes</Text>
               </View>
               <View style={styles.stat}>
-                <Text variant="headlineLarge" style={styles.statValue}>0</Text>
+                <Text variant="headlineLarge" style={styles.statValue}>
+                  {swimmerCount}
+                </Text>
                 <Text variant="bodySmall">Nageurs</Text>
               </View>
               <View style={styles.stat}>
-                <Text variant="headlineLarge" style={styles.statValue}>0</Text>
-                <Text variant="bodySmall">Entrainements</Text>
+                <Text variant="headlineLarge" style={styles.statValue}>
+                  {workoutCount}
+                </Text>
+                <Text variant="bodySmall">Seances</Text>
               </View>
             </View>
           </Card.Content>
@@ -95,9 +149,21 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#FFFFFF',
   },
-  cardText: {
+  codeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
     marginTop: 8,
+  },
+  codeLabel: {
     color: '#6B7280',
+  },
+  codeChip: {
+    backgroundColor: '#CFFAFE',
+  },
+  clubDesc: {
+    color: '#6B7280',
+    marginTop: 4,
   },
   statsRow: {
     flexDirection: 'row',

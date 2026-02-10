@@ -75,7 +75,7 @@ export default function GroupsScreen({ navigation }: Props) {
             <Card
               style={styles.card}
               onPress={() =>
-                navigation.navigate('Slots', { groupId: item.id })
+                navigation.navigate('GroupDetail', { groupId: item.id })
               }
             >
               <Card.Content>

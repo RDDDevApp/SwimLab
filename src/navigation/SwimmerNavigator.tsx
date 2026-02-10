@@ -7,6 +7,7 @@ import DashboardScreen from '../screens/swimmer/DashboardScreen';
 import CalendarScreen from '../screens/swimmer/CalendarScreen';
 import ProfileScreen from '../screens/swimmer/ProfileScreen';
 import FeedbackScreen from '../screens/swimmer/FeedbackScreen';
+import WorkoutDetailScreen from '../screens/swimmer/WorkoutDetailScreen';
 import { SwimmerTabParamList, SwimmerStackParamList } from '../types';
 
 const Tab = createBottomTabNavigator<SwimmerTabParamList>();
@@ -68,6 +69,7 @@ export default function SwimmerNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="SwimmerTabs" component={SwimmerTabs} />
       <Stack.Screen name="Feedback" component={FeedbackScreen} />
+      <Stack.Screen name="WorkoutDetail" component={WorkoutDetailScreen} />
     </Stack.Navigator>
   );
 }

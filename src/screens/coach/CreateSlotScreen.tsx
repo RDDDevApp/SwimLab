@@ -12,9 +12,6 @@ import { DAYS_OF_WEEK } from '../../types';
 import { trainingSlotService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 
-// Hardcoded group/club IDs for now (until club creation flow exists)
-const MOCK_GROUP_ID = 'mock-group-id';
-
 interface Props {
   navigation: any;
   route?: any;
@@ -36,7 +33,7 @@ export default function CreateSlotScreen({ navigation, route }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const groupId = route?.params?.groupId || MOCK_GROUP_ID;
+  const groupId = route?.params?.groupId;
 
   const dayButtons = DAYS_OF_WEEK.slice(1).concat(DAYS_OF_WEEK[0]).map((day, i) => ({
     value: String(i === 6 ? 0 : i + 1),
