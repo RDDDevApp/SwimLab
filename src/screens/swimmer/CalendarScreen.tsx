@@ -160,7 +160,15 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
               item.session?.attended && !item.session?.completed_at;
 
             return (
-              <Card style={styles.card}>
+              <Card
+                style={styles.card}
+                onPress={() =>
+                  navigation.navigate('WorkoutDetail', {
+                    workoutId: item.assignment.workout_id,
+                    workoutTitle: item.workoutTitle,
+                  })
+                }
+              >
                 <Card.Content>
                   <View style={styles.cardHeader}>
                     <View style={styles.dateCol}>
