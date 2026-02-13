@@ -7,10 +7,11 @@ import { useAuthStore } from '../../stores/authStore';
 
 interface Props {
   navigation: any;
+  onSkip?: () => void;
 }
 
-export default function JoinClubScreen({ navigation }: Props) {
-  const { user } = useAuthStore();
+export default function JoinClubScreen({ navigation, onSkip }: Props) {
+  const { user, setClubId } = useAuthStore();
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -27,7 +28,8 @@ export default function JoinClubScreen({ navigation }: Props) {
     setError('');
 
     try {
-      const club = await clubService.joinByCode(code.trim(), user.id, 'swimmer');
+      const club = await clubService.joinByCode(code.trim().toLowerCase(), user.id, 'swimmer');
+      setClubId(club.id);
       setJoinedClubName(club.name);
     } catch (err: any) {
       setError(err.message || 'Code invalide ou erreur de connexion');
@@ -37,10 +39,7 @@ export default function JoinClubScreen({ navigation }: Props) {
   };
 
   const handleContinue = () => {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'SwimmerApp' }],
-    });
+    // clubId is already set in authStore, AppNavigator will re-render automatically
   };
 
   if (joinedClubName) {
@@ -88,10 +87,10 @@ export default function JoinClubScreen({ navigation }: Props) {
           label="Code d'invitation"
           placeholder="Ex: AB12CD34"
           value={code}
-          onChangeText={(text) => setCode(text.toUpperCase())}
+          onChangeText={setCode}
           mode="outlined"
           style={styles.input}
-          autoCapitalize="characters"
+          autoCapitalize="none"
         />
 
         {error ? (
@@ -112,12 +111,7 @@ export default function JoinClubScreen({ navigation }: Props) {
 
         <Button
           mode="text"
-          onPress={() =>
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'SwimmerApp' }],
-            })
-          }
+          onPress={() => onSkip?.()}
           style={styles.skipBtn}
         >
           Passer pour le moment
