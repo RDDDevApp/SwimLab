@@ -99,8 +99,8 @@ CREATE INDEX idx_clubs_owner_id ON clubs(owner_id);
 - `created_at` : Date création
 - `updated_at` : Date modification
 
-**RLS Policies** :
-- `SELECT` : Membres du club peuvent voir le club
+**RLS Policies** (corrigées migration 002) :
+- `SELECT` : Tous les utilisateurs authentifiés peuvent voir les clubs (nécessaire pour rejoindre par code invitation)
 - `INSERT` : Coachs peuvent créer des clubs
 - `UPDATE` : Owner peut modifier son club
 
@@ -135,9 +135,9 @@ CREATE INDEX idx_club_members_role ON club_members(role);
 **Contraintes** :
 - Un utilisateur ne peut être qu'une seule fois dans un club
 
-**RLS Policies** :
-- `SELECT` : Membres du club peuvent voir les membres
-- `INSERT` : Coachs peuvent ajouter des nageurs
+**RLS Policies** (corrigées migration 002 — évite les sous-requêtes auto-référencées) :
+- `SELECT` : Utilisateurs voient leurs propres adhésions (`user_id = auth.uid()`) + Propriétaires du club voient tous les membres (`club_id IN (SELECT id FROM clubs WHERE owner_id = auth.uid())`)
+- `INSERT` : Coachs peuvent ajouter des nageurs + Nageurs peuvent s'auto-ajouter via code invitation
 
 ---
 
@@ -572,6 +572,6 @@ CREATE TRIGGER on_auth_user_created
 
 ---
 
-**Version** : 1.0  
-**Date** : 29 Janvier 2026  
-**Statut** : Validé
+**Version** : 1.1
+**Date** : 14 Février 2026
+**Statut** : En production (V0)

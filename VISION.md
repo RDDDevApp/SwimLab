@@ -29,7 +29,7 @@
 
 ## 🗺️ Roadmap Versions
 
-### V0 - MVP Club (3-4 mois) - EN COURS
+### V0 - MVP Club - COMPLETE
 
 **Objectif** : Valider le concept avec un club pilote
 
@@ -354,5 +354,5 @@ Nageur Solo
 
 **Ce document est vivant !** À enrichir au fil de l'eau.
 
-**Dernière mise à jour** : 29 Janvier 2026
-**Prochaine révision** : Après V0 (feedback club pilote)
+**Derniere mise a jour** : 14 Fevrier 2026
+**Prochaine revision** : Apres pilote V0
