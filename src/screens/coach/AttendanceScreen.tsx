@@ -8,6 +8,7 @@ import {
   workoutSessionService,
   workoutAssignmentService,
 } from '../../services';
+import { useSnackbarStore } from '../../stores/snackbarStore';
 
 interface Props {
   navigation: any;
@@ -16,6 +17,7 @@ interface Props {
 
 export default function AttendanceScreen({ navigation, route }: Props) {
   const { assignmentId, groupId, workoutTitle } = route.params;
+  const showSnackbar = useSnackbarStore((s) => s.show);
 
   const [swimmers, setSwimmers] = useState<Profile[]>([]);
   const [attendedIds, setAttendedIds] = useState<Set<string>>(new Set());
@@ -74,6 +76,7 @@ export default function AttendanceScreen({ navigation, route }: Props) {
       );
       await workoutAssignmentService.markAttendance(assignmentId);
 
+      showSnackbar('Emargement valide', 'success');
       navigation.goBack();
     } catch (err: any) {
       setError(err.message || 'Erreur lors de l\'emargement');

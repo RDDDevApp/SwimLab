@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { Text, Card, Button, Avatar, Chip, ActivityIndicator } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
@@ -34,6 +34,7 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
   const [club, setClub] = useState<Club | null>(null);
   const [stats, setStats] = useState({ total: 0, attended: 0, averageRpe: null as number | null });
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -114,6 +115,12 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
     }
   }, [user, clubId]);
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadData();
+    setRefreshing(false);
+  }, [loadData]);
+
   useFocusEffect(
     useCallback(() => {
       loadData();
@@ -141,7 +148,10 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         <View style={styles.header}>
           <View>
             <Text variant="headlineMedium" style={styles.greeting}>

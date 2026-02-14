@@ -6,6 +6,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Workout, WORKOUT_TYPES } from '../../types';
 import { workoutService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
+import { useSnackbarStore } from '../../stores/snackbarStore';
+import EmptyState from '../../components/EmptyState';
 
 interface Props {
   navigation: any;
@@ -13,6 +15,7 @@ interface Props {
 
 export default function WorkoutsScreen({ navigation }: Props) {
   const { user, clubId } = useAuthStore();
+  const showSnackbar = useSnackbarStore((s) => s.show);
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<Workout | null>(null);
@@ -41,9 +44,10 @@ export default function WorkoutsScreen({ navigation }: Props) {
     try {
       await workoutService.delete(deleteTarget.id);
       setDeleteTarget(null);
+      showSnackbar('Seance supprimee', 'success');
       loadWorkouts();
     } catch (err) {
-      console.error('Error deleting workout:', err);
+      showSnackbar('Erreur lors de la suppression', 'error');
     }
   };
 
@@ -60,9 +64,10 @@ export default function WorkoutsScreen({ navigation }: Props) {
         total_distance: workout.total_distance,
         is_published: false,
       });
+      showSnackbar('Seance dupliquee', 'success');
       loadWorkouts();
     } catch (err) {
-      console.error('Error duplicating workout:', err);
+      showSnackbar('Erreur lors de la duplication', 'error');
     }
   };
 
@@ -70,12 +75,14 @@ export default function WorkoutsScreen({ navigation }: Props) {
     try {
       if (workout.is_published) {
         await workoutService.unpublish(workout.id);
+        showSnackbar('Seance depubliee', 'success');
       } else {
         await workoutService.publish(workout.id);
+        showSnackbar('Seance publiee', 'success');
       }
       loadWorkouts();
     } catch (err) {
-      console.error('Error toggling publish:', err);
+      showSnackbar('Erreur lors du changement de statut', 'error');
     }
   };
 
@@ -88,14 +95,11 @@ export default function WorkoutsScreen({ navigation }: Props) {
       </View>
 
       {workouts.length === 0 && !loading ? (
-        <View style={styles.emptyState}>
-          <Text variant="bodyLarge" style={styles.emptyText}>
-            Aucun entrainement cree
-          </Text>
-          <Text variant="bodyMedium" style={styles.emptySubtext}>
-            Creez votre premier entrainement structure
-          </Text>
-        </View>
+        <EmptyState
+          icon="dumbbell"
+          title="Aucun entrainement cree"
+          subtitle="Creez votre premier entrainement structure"
+        />
       ) : (
         <FlatList
           data={workouts}

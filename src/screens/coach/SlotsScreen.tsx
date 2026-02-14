@@ -1,12 +1,14 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, FlatList, Alert } from 'react-native';
+import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, FAB, Portal, Dialog, Button, Paragraph } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { TrainingSlot } from '../../types';
 import { trainingSlotService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
+import { useSnackbarStore } from '../../stores/snackbarStore';
 import SlotCard from '../../components/SlotCard';
+import EmptyState from '../../components/EmptyState';
 
 interface Props {
   navigation: any;
@@ -15,6 +17,7 @@ interface Props {
 
 export default function SlotsScreen({ navigation, route }: Props) {
   const { user } = useAuthStore();
+  const showSnackbar = useSnackbarStore((s) => s.show);
   const [slots, setSlots] = useState<TrainingSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<TrainingSlot | null>(null);
@@ -47,9 +50,10 @@ export default function SlotsScreen({ navigation, route }: Props) {
     try {
       await trainingSlotService.delete(deleteTarget.id);
       setDeleteTarget(null);
+      showSnackbar('Creneau supprime', 'success');
       loadSlots();
     } catch (err) {
-      console.error('Error deleting slot:', err);
+      showSnackbar('Erreur lors de la suppression', 'error');
     }
   };
 
@@ -62,14 +66,11 @@ export default function SlotsScreen({ navigation, route }: Props) {
       </View>
 
       {slots.length === 0 && !loading ? (
-        <View style={styles.emptyState}>
-          <Text variant="bodyLarge" style={styles.emptyText}>
-            Aucun creneau pour le moment
-          </Text>
-          <Text variant="bodyMedium" style={styles.emptySubtext}>
-            Creez votre premier creneau d'entrainement
-          </Text>
-        </View>
+        <EmptyState
+          icon="clock-outline"
+          title="Aucun creneau pour le moment"
+          subtitle="Creez votre premier creneau d'entrainement"
+        />
       ) : (
         <FlatList
           data={slots}

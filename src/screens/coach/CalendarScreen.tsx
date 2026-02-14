@@ -4,10 +4,11 @@ import { Text, IconButton } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { TrainingSlot, WorkoutAssignment } from '../../types';
-import { trainingSlotService, workoutAssignmentService, workoutService } from '../../services';
+import { trainingSlotService, workoutAssignmentService, workoutService, workoutSessionService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 import { getWeekDates, formatWeekRange, toISODate } from '../../utils/dateHelpers';
 import WeekView from '../../components/calendar/WeekView';
+import EmptyState from '../../components/EmptyState';
 
 interface Props {
   navigation: any;
@@ -18,6 +19,7 @@ export default function CalendarScreen({ navigation }: Props) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [slots, setSlots] = useState<TrainingSlot[]>([]);
   const [assignments, setAssignments] = useState<WorkoutAssignment[]>([]);
+  const [rpeMap, setRpeMap] = useState<Record<string, number | null>>({});
   const [loading, setLoading] = useState(true);
 
   const weekDates = getWeekDates(currentDate);
@@ -40,8 +42,22 @@ export default function CalendarScreen({ navigation }: Props) {
           endDate,
         );
         setAssignments(weekAssignments);
+
+        // Load RPE averages for marked assignments
+        const markedIds = weekAssignments
+          .filter((a) => a.attendance_marked)
+          .map((a) => a.id);
+        if (markedIds.length > 0) {
+          try {
+            const rpeData = await workoutSessionService.getAverageRpeByAssignments(markedIds);
+            setRpeMap(rpeData);
+          } catch {}
+        } else {
+          setRpeMap({});
+        }
       } else {
         setAssignments([]);
+        setRpeMap({});
       }
     } catch (err) {
       console.error('Error loading calendar:', err);
@@ -92,19 +108,17 @@ export default function CalendarScreen({ navigation }: Props) {
       </View>
 
       {slots.length === 0 && !loading ? (
-        <View style={styles.emptyState}>
-          <Text variant="bodyLarge" style={styles.emptyText}>
-            Aucun creneau configure
-          </Text>
-          <Text variant="bodyMedium" style={styles.emptySubtext}>
-            Creez des creneaux pour voir votre calendrier
-          </Text>
-        </View>
+        <EmptyState
+          icon="calendar-blank"
+          title="Aucun creneau configure"
+          subtitle="Creez des creneaux pour voir votre calendrier"
+        />
       ) : (
         <WeekView
           dates={weekDates}
           slots={slots}
           assignments={assignments}
+          rpeMap={rpeMap}
           onSlotPress={async (slot, date, assignment) => {
             let workoutTitle: string | undefined;
             try {

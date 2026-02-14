@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
 import { AppNavigator } from './src/navigation';
 import { lightTheme } from './src/config/theme';
+import GlobalSnackbar from './src/components/GlobalSnackbar';
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
         <PaperProvider theme={lightTheme}>
           <NavigationContainer>
             <AppNavigator />
+            <GlobalSnackbar />
             <StatusBar style="auto" />
           </NavigationContainer>
         </PaperProvider>

@@ -6,6 +6,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Group, GROUP_LEVELS } from '../../types';
 import { groupService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
+import { useSnackbarStore } from '../../stores/snackbarStore';
+import EmptyState from '../../components/EmptyState';
 
 interface Props {
   navigation: any;
@@ -13,6 +15,7 @@ interface Props {
 
 export default function GroupsScreen({ navigation }: Props) {
   const { user } = useAuthStore();
+  const showSnackbar = useSnackbarStore((s) => s.show);
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<Group | null>(null);
@@ -41,9 +44,10 @@ export default function GroupsScreen({ navigation }: Props) {
     try {
       await groupService.delete(deleteTarget.id);
       setDeleteTarget(null);
+      showSnackbar('Groupe supprime', 'success');
       loadGroups();
     } catch (err) {
-      console.error('Error deleting group:', err);
+      showSnackbar('Erreur lors de la suppression', 'error');
     }
   };
 
@@ -56,14 +60,11 @@ export default function GroupsScreen({ navigation }: Props) {
       </View>
 
       {groups.length === 0 && !loading ? (
-        <View style={styles.emptyState}>
-          <Text variant="bodyLarge" style={styles.emptyText}>
-            Aucun groupe pour le moment
-          </Text>
-          <Text variant="bodyMedium" style={styles.emptySubtext}>
-            Creez votre premier groupe d'entrainement
-          </Text>
-        </View>
+        <EmptyState
+          icon="account-group"
+          title="Aucun groupe pour le moment"
+          subtitle="Creez votre premier groupe d'entrainement"
+        />
       ) : (
         <FlatList
           data={groups}

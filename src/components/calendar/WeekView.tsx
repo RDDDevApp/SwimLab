@@ -13,14 +13,22 @@ interface WeekViewProps {
   dates: Date[];
   slots: TrainingSlot[];
   assignments: WorkoutAssignment[];
+  rpeMap?: Record<string, number | null>;
   onSlotPress: (slot: TrainingSlot, date: Date, assignment: WorkoutAssignment) => void;
   onEmptySlotPress?: (slot: TrainingSlot, date: Date) => void;
 }
+
+const getRpeColor = (rpe: number) => {
+  if (rpe <= 12) return { bg: '#D1FAE5', text: '#065F46' };
+  if (rpe <= 15) return { bg: '#FEF3C7', text: '#92400E' };
+  return { bg: '#FEE2E2', text: '#991B1B' };
+};
 
 export default function WeekView({
   dates,
   slots,
   assignments,
+  rpeMap,
   onSlotPress,
   onEmptySlotPress,
 }: WeekViewProps) {
@@ -81,13 +89,28 @@ export default function WeekView({
                       {formatTime(slot.start_time)} - {slot.duration_minutes}min
                     </Text>
                     {assignment ? (
-                      <Chip
-                        compact
-                        style={styles.assignedChip}
-                        textStyle={styles.assignedChipText}
-                      >
-                        Seance assignee
-                      </Chip>
+                      <View style={styles.chipRow}>
+                        <Chip
+                          compact
+                          style={assignment.attendance_marked ? styles.markedChip : styles.assignedChip}
+                          textStyle={assignment.attendance_marked ? styles.markedChipText : styles.assignedChipText}
+                        >
+                          {assignment.attendance_marked ? 'Emarge' : 'Seance assignee'}
+                        </Chip>
+                        {rpeMap && rpeMap[assignment.id] != null && (() => {
+                          const rpe = rpeMap[assignment.id]!;
+                          const colors = getRpeColor(rpe);
+                          return (
+                            <Chip
+                              compact
+                              style={[styles.rpeChip, { backgroundColor: colors.bg }]}
+                              textStyle={[styles.rpeChipText, { color: colors.text }]}
+                            >
+                              RPE {rpe.toFixed(1)}
+                            </Chip>
+                          );
+                        })()}
+                      </View>
                     ) : (
                       <Text variant="bodySmall" style={styles.noAssignment}>
                         + Assigner seance
@@ -162,15 +185,34 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     marginTop: 2,
   },
-  assignedChip: {
-    alignSelf: 'flex-start',
+  chipRow: {
+    flexDirection: 'row',
+    gap: 6,
     marginTop: 6,
+    flexWrap: 'wrap',
+  },
+  assignedChip: {
     backgroundColor: '#CFFAFE',
     height: 26,
   },
   assignedChipText: {
     fontSize: 11,
     color: '#0E7490',
+  },
+  markedChip: {
+    backgroundColor: '#D1FAE5',
+    height: 26,
+  },
+  markedChipText: {
+    fontSize: 11,
+    color: '#065F46',
+  },
+  rpeChip: {
+    height: 26,
+  },
+  rpeChipText: {
+    fontSize: 11,
+    fontWeight: '600',
   },
   noAssignment: {
     color: '#06B6D4',

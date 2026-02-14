@@ -116,6 +116,39 @@ export const workoutSessionService = {
     return data;
   },
 
+  /** Get average RPE for multiple assignments (batch) */
+  async getAverageRpeByAssignments(
+    assignmentIds: string[],
+  ): Promise<Record<string, number | null>> {
+    if (!assignmentIds.length) return {};
+
+    const { data: sessions, error } = await supabase
+      .from('workout_sessions')
+      .select('workout_assignment_id, rpe_score')
+      .in('workout_assignment_id', assignmentIds)
+      .not('rpe_score', 'is', null);
+
+    if (error) throw error;
+
+    const result: Record<string, number | null> = {};
+    const grouped: Record<string, number[]> = {};
+
+    for (const s of sessions) {
+      const aid = s.workout_assignment_id;
+      if (!grouped[aid]) grouped[aid] = [];
+      grouped[aid].push(s.rpe_score as number);
+    }
+
+    for (const id of assignmentIds) {
+      const scores = grouped[id];
+      result[id] = scores?.length
+        ? scores.reduce((a, b) => a + b, 0) / scores.length
+        : null;
+    }
+
+    return result;
+  },
+
   /** Get feedback stats for an assignment (coach view) */
   async getFeedbackStats(assignmentId: string): Promise<GroupFeedbackStats> {
     const { data: sessions, error } = await supabase

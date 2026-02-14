@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { GROUP_LEVELS, GroupLevel } from '../../types';
 import { groupService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
+import { useSnackbarStore } from '../../stores/snackbarStore';
 import PickerSelect from '../../components/PickerSelect';
 
 interface Props {
@@ -14,6 +15,7 @@ interface Props {
 
 export default function CreateGroupScreen({ navigation, route }: Props) {
   const { user, clubId: storeClubId } = useAuthStore();
+  const showSnackbar = useSnackbarStore((s) => s.show);
   const [name, setName] = useState('');
   const [level, setLevel] = useState<string>('beginner');
   const [description, setDescription] = useState('');
@@ -45,6 +47,7 @@ export default function CreateGroupScreen({ navigation, route }: Props) {
         level: level as GroupLevel,
         description: description.trim() || null,
       });
+      showSnackbar('Groupe cree', 'success');
       navigation.goBack();
     } catch (err: any) {
       setError(err.message || 'Erreur lors de la creation');

@@ -4,6 +4,7 @@ import { Text, Button, TextInput, HelperText } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Slider from '../../components/RPESlider';
 import { workoutSessionService } from '../../services';
+import { useSnackbarStore } from '../../stores/snackbarStore';
 
 interface Props {
   navigation: any;
@@ -13,6 +14,7 @@ interface Props {
 export default function FeedbackScreen({ navigation, route }: Props) {
   const { sessionId, workoutTitle } = route.params;
 
+  const showSnackbar = useSnackbarStore((s) => s.show);
   const [rpe, setRpe] = useState(13);
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,6 +28,7 @@ export default function FeedbackScreen({ navigation, route }: Props) {
         rpe_score: rpe,
         feedback_text: comment.trim() || undefined,
       });
+      showSnackbar('Merci pour ton feedback !', 'success');
       navigation.goBack();
     } catch (err: any) {
       setError(err.message || 'Erreur lors de l\'envoi');
