@@ -35,6 +35,13 @@ export default function RegisterScreen({ navigation }: any) {
       return;
     }
 
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    if (!emailRegex.test(email)) {
+      setError('Veuillez entrer une adresse email valide');
+      return;
+    }
+
     const { error } = await signUp(email, password, {
       firstName,
       lastName,

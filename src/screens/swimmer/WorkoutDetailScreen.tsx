@@ -130,10 +130,16 @@ export default function WorkoutDetailScreen({ navigation, route }: Props) {
                   ) : null}
                 </View>
 
-                {block.sub_blocks.map((sb, sbIndex) => (
+                {block.sub_blocks.map((sb, sbIndex) => {
+                  // Compute distance from exercises if sub-block distance is 0
+                  const sbDistance = sb.distance > 0
+                    ? sb.distance
+                    : sb.exercises.reduce((sum, ex) => sum + (ex.distance || 0), 0);
+
+                  return (
                   <View key={sb.id || sbIndex} style={styles.subBlock}>
                     <Text variant="titleSmall" style={styles.subBlockTitle}>
-                      {sb.title || `${sb.series}x${sb.distance}m`}
+                      {sb.title || `${sb.series}x${sbDistance}m`}
                     </Text>
                     {sb.departure ? (
                       <Text variant="bodySmall" style={styles.departure}>
@@ -172,7 +178,8 @@ export default function WorkoutDetailScreen({ navigation, route }: Props) {
                       </View>
                     ))}
                   </View>
-                ))}
+                  );
+                })}
               </Card.Content>
             </Card>
           );

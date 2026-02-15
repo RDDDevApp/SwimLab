@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
-import { Text, Card, Chip, Button } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { Text, Chip, Button, IconButton } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
-import { WorkoutAssignment, WorkoutSession, WORKOUT_TYPES } from '../../types';
+import { WorkoutAssignment, WorkoutSession, WORKOUT_TYPES, TrainingSlot } from '../../types';
 import {
   groupService,
   trainingSlotService,
@@ -12,7 +12,7 @@ import {
   workoutService,
 } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
-import { toISODate, formatShortDate } from '../../utils/dateHelpers';
+import { getWeekDates, formatWeekRange, toISODate, formatShortDate, isToday, getDayOfWeek, formatTime } from '../../utils/dateHelpers';
 
 interface EnrichedAssignment {
   assignment: WorkoutAssignment;
@@ -20,6 +20,7 @@ interface EnrichedAssignment {
   workoutType: string;
   totalDistance: number | null;
   slotName: string;
+  slot: TrainingSlot;
   session: WorkoutSession | null;
 }
 
@@ -29,49 +30,52 @@ interface Props {
 
 export default function SwimmerCalendarScreen({ navigation }: Props) {
   const { user } = useAuthStore();
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [items, setItems] = useState<EnrichedAssignment[]>([]);
+  const [slots, setSlots] = useState<TrainingSlot[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const weekDates = getWeekDates(currentDate);
 
   const loadData = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     try {
-      // Get groups the swimmer belongs to
       const groups = await groupService.getBySwimmer(user.id);
       if (!groups.length) {
         setItems([]);
+        setSlots([]);
         return;
       }
 
-      // Get slots for all groups
-      const allSlots = [];
+      const allSlots: TrainingSlot[] = [];
       for (const group of groups) {
-        const slots = await trainingSlotService.getByGroup(group.id);
-        allSlots.push(...slots);
+        const groupSlots = await trainingSlotService.getByGroup(group.id);
+        allSlots.push(...groupSlots);
       }
+      setSlots(allSlots);
+
       if (!allSlots.length) {
         setItems([]);
         return;
       }
 
-      // Get assignments for next 14 days
-      const today = new Date();
-      const in14Days = new Date();
-      in14Days.setDate(today.getDate() + 14);
+      const dates = getWeekDates(currentDate);
+      const startDate = toISODate(dates[0]);
+      const endDate = toISODate(dates[6]);
       const slotIds = allSlots.map((s) => s.id);
       const assignments = await workoutAssignmentService.getByDateRange(
         slotIds,
-        toISODate(today),
-        toISODate(in14Days),
+        startDate,
+        endDate,
       );
 
-      // Get swimmer's sessions
       const sessions = await workoutSessionService.getBySwimmer(user.id);
 
-      // Enrich assignments
       const enriched: EnrichedAssignment[] = [];
       for (const assignment of assignments) {
         const slot = allSlots.find((s) => s.id === assignment.training_slot_id);
+        if (!slot) continue;
         let workoutTitle = 'Seance';
         let workoutType = 'other';
         let totalDistance: number | null = null;
@@ -92,7 +96,8 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
           workoutTitle,
           workoutType,
           totalDistance,
-          slotName: slot?.name || '',
+          slotName: slot.name,
+          slot,
           session,
         });
       }
@@ -103,13 +108,29 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, currentDate]);
 
   useFocusEffect(
     useCallback(() => {
       loadData();
     }, [loadData]),
   );
+
+  const goToPrevWeek = () => {
+    const d = new Date(currentDate);
+    d.setDate(d.getDate() - 7);
+    setCurrentDate(d);
+  };
+
+  const goToNextWeek = () => {
+    const d = new Date(currentDate);
+    d.setDate(d.getDate() + 7);
+    setCurrentDate(d);
+  };
+
+  const goToToday = () => {
+    setCurrentDate(new Date());
+  };
 
   const getStatusBadge = (item: EnrichedAssignment) => {
     const { assignment, session } = item;
@@ -130,102 +151,139 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
     return { label: 'A venir', color: '#DBEAFE', textColor: '#1E40AF' };
   };
 
+  const getItemsForDate = (dateStr: string) => {
+    return items.filter((item) => item.assignment.scheduled_date === dateStr);
+  };
+
+  const getSlotsForDay = (dayOfWeek: number) => {
+    return slots.filter((s) => s.day_of_week === dayOfWeek);
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <Text variant="headlineMedium" style={styles.title}>
           Mes Entrainements
         </Text>
+        <View style={styles.weekNav}>
+          <IconButton icon="chevron-left" onPress={goToPrevWeek} />
+          <Text
+            variant="titleSmall"
+            style={styles.weekRange}
+            onPress={goToToday}
+          >
+            {formatWeekRange(currentDate)}
+          </Text>
+          <IconButton icon="chevron-right" onPress={goToNextWeek} />
+        </View>
       </View>
 
-      {items.length === 0 && !loading ? (
-        <View style={styles.emptyState}>
-          <Text variant="bodyLarge" style={styles.emptyText}>
-            Aucun entrainement a venir
-          </Text>
-          <Text variant="bodyMedium" style={styles.emptySubtext}>
-            Rejoignez un club pour voir vos entrainements
-          </Text>
-        </View>
-      ) : (
-        <FlatList
-          data={items}
-          keyExtractor={(item) => item.assignment.id}
-          contentContainerStyle={styles.list}
-          refreshing={loading}
-          onRefresh={loadData}
-          renderItem={({ item }) => {
-            const badge = getStatusBadge(item);
-            const canFeedback =
-              item.session?.attended && !item.session?.completed_at;
+      <ScrollView contentContainerStyle={styles.list}>
+        {weekDates.map((date) => {
+          const dateStr = date.toISOString().split('T')[0];
+          const dayOfWeek = getDayOfWeek(date);
+          const today = isToday(date);
+          const dayItems = getItemsForDate(dateStr);
+          const daySlots = getSlotsForDay(dayOfWeek);
 
-            return (
-              <Card
-                style={styles.card}
-                onPress={() =>
-                  navigation.navigate('WorkoutDetail', {
-                    workoutId: item.assignment.workout_id,
-                    workoutTitle: item.workoutTitle,
-                  })
-                }
-              >
-                <Card.Content>
-                  <View style={styles.cardHeader}>
-                    <View style={styles.dateCol}>
-                      <Text variant="titleSmall" style={styles.date}>
-                        {formatShortDate(
-                          new Date(item.assignment.scheduled_date + 'T00:00:00'),
-                        )}
-                      </Text>
-                      <Text variant="bodySmall" style={styles.slotName}>
-                        {item.slotName}
-                      </Text>
-                    </View>
-                    <Chip
-                      compact
-                      style={[styles.badge, { backgroundColor: badge.color }]}
-                      textStyle={{ color: badge.textColor, fontSize: 11 }}
-                    >
-                      {badge.label}
-                    </Chip>
-                  </View>
+          return (
+            <View
+              key={dateStr}
+              style={[styles.dayColumn, today && styles.todayColumn]}
+            >
+              <View style={[styles.dayHeader, today && styles.todayHeader]}>
+                <Text
+                  variant="labelLarge"
+                  style={[styles.dayLabel, today && styles.todayLabel]}
+                >
+                  {formatShortDate(date)}
+                </Text>
+              </View>
 
-                  <Text variant="titleMedium" style={styles.workoutTitle}>
-                    {item.workoutTitle}
+              {daySlots.length === 0 ? (
+                <View style={styles.emptyDay}>
+                  <Text variant="bodySmall" style={styles.emptyText}>
+                    Pas de creneau
                   </Text>
+                </View>
+              ) : dayItems.length === 0 ? (
+                <View style={styles.emptyDay}>
+                  <Text variant="bodySmall" style={styles.emptyText}>
+                    Pas de seance assignee
+                  </Text>
+                </View>
+              ) : (
+                dayItems.map((item) => {
+                  const badge = getStatusBadge(item);
+                  const canFeedback =
+                    item.session?.attended && !item.session?.completed_at;
+                  const isPast = new Date(item.assignment.scheduled_date + 'T23:59:59') < new Date();
 
-                  <View style={styles.chipRow}>
-                    <Chip compact style={styles.chip}>
-                      {WORKOUT_TYPES[item.workoutType as keyof typeof WORKOUT_TYPES] || item.workoutType}
-                    </Chip>
-                    {item.totalDistance ? (
-                      <Chip compact icon="ruler" style={styles.chip}>
-                        {item.totalDistance}m
-                      </Chip>
-                    ) : null}
-                  </View>
-
-                  {canFeedback && (
-                    <Button
-                      mode="contained"
-                      compact
-                      style={styles.feedbackBtn}
-                      onPress={() =>
-                        navigation.navigate('Feedback', {
-                          sessionId: item.session!.id,
-                          workoutTitle: item.workoutTitle,
-                        })
-                      }
+                  return (
+                    <Pressable
+                      key={item.assignment.id}
+                      style={styles.slotItem}
+                      onPress={() => {
+                        if (isPast || item.assignment.attendance_marked) {
+                          navigation.navigate('WorkoutDetail', {
+                            workoutId: item.assignment.workout_id,
+                            workoutTitle: item.workoutTitle,
+                          });
+                        }
+                      }}
                     >
-                      Donner mon ressenti
-                    </Button>
-                  )}
-                </Card.Content>
-              </Card>
-            );
-          }}
-        />
-      )}
+                      <View style={styles.slotHeader}>
+                        <Text variant="labelMedium" style={styles.slotName}>
+                          {item.slotName}
+                        </Text>
+                        <Chip
+                          compact
+                          style={[styles.badge, { backgroundColor: badge.color }]}
+                          textStyle={{ color: badge.textColor, fontSize: 11 }}
+                        >
+                          {badge.label}
+                        </Chip>
+                      </View>
+                      <Text variant="bodySmall" style={styles.slotTime}>
+                        {formatTime(item.slot.start_time)} - {item.slot.duration_minutes}min
+                      </Text>
+                      <Text variant="titleSmall" style={styles.workoutTitle}>
+                        {item.workoutTitle}
+                      </Text>
+                      <View style={styles.chipRow}>
+                        <Chip compact style={styles.chip}>
+                          {WORKOUT_TYPES[item.workoutType as keyof typeof WORKOUT_TYPES] || item.workoutType}
+                        </Chip>
+                        {item.totalDistance ? (
+                          <Chip compact icon="ruler" style={styles.chip}>
+                            {item.totalDistance}m
+                          </Chip>
+                        ) : null}
+                      </View>
+
+                      {canFeedback && (
+                        <Button
+                          mode="contained"
+                          compact
+                          style={styles.feedbackBtn}
+                          onPress={() =>
+                            navigation.navigate('Feedback', {
+                              sessionId: item.session!.id,
+                              workoutTitle: item.workoutTitle,
+                            })
+                          }
+                        >
+                          Donner mon ressenti
+                        </Button>
+                      )}
+                    </Pressable>
+                  );
+                })
+              )}
+            </View>
+          );
+        })}
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -237,6 +295,7 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 16,
+    paddingBottom: 8,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
@@ -245,41 +304,72 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1F2937',
   },
-  list: {
-    padding: 16,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
+  weekNav: {
+    flexDirection: 'row',
     alignItems: 'center',
-    padding: 32,
+    justifyContent: 'center',
+    marginTop: 4,
+  },
+  weekRange: {
+    color: '#374151',
+    fontWeight: '500',
+  },
+  list: {
+    padding: 12,
+    gap: 8,
+  },
+  dayColumn: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    overflow: 'hidden',
+    marginBottom: 4,
+  },
+  todayColumn: {
+    borderWidth: 2,
+    borderColor: '#EC4899',
+  },
+  dayHeader: {
+    padding: 10,
+    backgroundColor: '#F9FAFB',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  todayHeader: {
+    backgroundColor: '#FCE7F3',
+  },
+  dayLabel: {
+    color: '#374151',
+    fontWeight: '600',
+  },
+  todayLabel: {
+    color: '#BE185D',
+    fontWeight: 'bold',
+  },
+  emptyDay: {
+    padding: 12,
   },
   emptyText: {
-    color: '#6B7280',
-    textAlign: 'center',
-  },
-  emptySubtext: {
     color: '#9CA3AF',
-    textAlign: 'center',
-    marginTop: 8,
+    fontStyle: 'italic',
   },
-  card: {
-    backgroundColor: '#FFFFFF',
-    marginBottom: 10,
+  slotItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+    backgroundColor: '#FEFCE8',
   },
-  cardHeader: {
+  slotHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8,
+    alignItems: 'center',
   },
-  dateCol: {},
-  date: {
+  slotName: {
     color: '#1F2937',
     fontWeight: '600',
   },
-  slotName: {
+  slotTime: {
     color: '#6B7280',
+    marginTop: 2,
   },
   badge: {
     height: 26,
@@ -287,7 +377,8 @@ const styles = StyleSheet.create({
   workoutTitle: {
     fontWeight: 'bold',
     color: '#1F2937',
-    marginBottom: 6,
+    marginTop: 4,
+    marginBottom: 4,
   },
   chipRow: {
     flexDirection: 'row',
@@ -295,6 +386,7 @@ const styles = StyleSheet.create({
   },
   chip: {
     height: 26,
+    backgroundColor: '#E5E7EB',
   },
   feedbackBtn: {
     marginTop: 12,

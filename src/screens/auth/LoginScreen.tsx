@@ -20,9 +20,24 @@ export default function LoginScreen({ navigation }: any) {
       return;
     }
 
-    const { error } = await signIn(email, password);
-    if (error) {
-      setError(error.message);
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    if (!emailRegex.test(email)) {
+      setError('Veuillez entrer une adresse email valide');
+      return;
+    }
+
+    const result = await signIn(email, password);
+    if (result.error) {
+      // Map Supabase error messages to French
+      const msg = result.error.message?.toLowerCase() || '';
+      if (msg.includes('invalid login credentials') || msg.includes('invalid')) {
+        setError('Email ou mot de passe incorrect');
+      } else if (msg.includes('email not confirmed')) {
+        setError('Veuillez confirmer votre email avant de vous connecter');
+      } else {
+        setError(result.error.message || 'Erreur de connexion');
+      }
     }
   };
 

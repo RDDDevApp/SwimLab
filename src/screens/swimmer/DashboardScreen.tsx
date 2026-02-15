@@ -29,7 +29,7 @@ interface Props {
 }
 
 export default function SwimmerDashboardScreen({ navigation }: Props) {
-  const { profile, user, clubId, signOut } = useAuthStore();
+  const { profile, user, clubId } = useAuthStore();
   const [upcoming, setUpcoming] = useState<UpcomingWorkout[]>([]);
   const [club, setClub] = useState<Club | null>(null);
   const [stats, setStats] = useState({ total: 0, attended: 0, averageRpe: null as number | null });
@@ -168,15 +168,15 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
           />
         </View>
 
-        {stats.total > 0 && (
-          <Card style={styles.card} onPress={() => navigation.navigate('SwimmerTabs', { screen: 'Stats' })}>
-            <Card.Content>
-              <View style={styles.statsHeader}>
-                <Text variant="titleMedium">Mes statistiques</Text>
-                <Chip compact icon="chart-line" style={styles.statsChip}>
-                  Voir plus
-                </Chip>
-              </View>
+        <Card style={styles.card} onPress={() => navigation.navigate('SwimmerTabs', { screen: 'Stats' })}>
+          <Card.Content>
+            <View style={styles.statsHeader}>
+              <Text variant="titleMedium">Mes statistiques</Text>
+              <Chip compact icon="chart-line" style={styles.statsChip}>
+                Voir plus
+              </Chip>
+            </View>
+            {stats.total > 0 ? (
               <View style={styles.statsRow}>
                 <View style={styles.stat}>
                   <Text variant="headlineLarge" style={styles.statValue}>
@@ -186,10 +186,7 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
                 </View>
                 <View style={styles.stat}>
                   <Text variant="headlineLarge" style={styles.statValue}>
-                    {stats.total > 0
-                      ? Math.round((stats.attended / stats.total) * 100)
-                      : 0}
-                    %
+                    {Math.round((stats.attended / stats.total) * 100)}%
                   </Text>
                   <Text variant="bodySmall">Assiduite</Text>
                 </View>
@@ -200,9 +197,13 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
                   <Text variant="bodySmall">RPE moy.</Text>
                 </View>
               </View>
-            </Card.Content>
-          </Card>
-        )}
+            ) : (
+              <Text variant="bodyMedium" style={styles.emptyText}>
+                Pas encore de donnees. Vos stats apparaitront apres vos premieres seances.
+              </Text>
+            )}
+          </Card.Content>
+        </Card>
 
         <Card style={styles.card}>
           <Card.Content>
@@ -296,26 +297,6 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
             Voir mon historique
           </Button>
         )}
-
-        {!clubId && (
-          <Card style={styles.card}>
-            <Card.Content>
-              <Text variant="titleMedium">Rejoindre un club</Text>
-              <Text variant="bodyMedium" style={styles.cardText}>
-                Demandez le code d'invitation a votre coach.
-              </Text>
-            </Card.Content>
-          </Card>
-        )}
-
-        <Button
-          mode="outlined"
-          onPress={signOut}
-          style={styles.logoutButton}
-          textColor="#EF4444"
-        >
-          Se deconnecter
-        </Button>
       </ScrollView>
     </SafeAreaView>
   );

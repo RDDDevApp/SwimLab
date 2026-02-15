@@ -34,13 +34,21 @@ export default function WorkoutTemplatesScreen({ navigation }: Props) {
     null,
   );
 
+  const [tableError, setTableError] = useState(false);
+
   const loadTemplates = useCallback(async () => {
     if (!clubId) return;
     setLoading(true);
     try {
       const data = await workoutTemplateService.getByClub(clubId);
       setTemplates(data);
-    } catch (err) {
+      setTableError(false);
+    } catch (err: any) {
+      const msg = err?.message || '';
+      if (msg.includes('workout_templates') || msg.includes('schema cache') || msg.includes('relation')) {
+        setTableError(true);
+        showSnackbar('La table workout_templates n\'existe pas encore. Appliquez la migration 003.', 'error');
+      }
       console.error('Error loading templates:', err);
     } finally {
       setLoading(false);
