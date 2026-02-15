@@ -3,8 +3,8 @@ import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, FAB, Card, Chip, IconButton, Portal, Dialog, Button, Paragraph } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
-import { Workout, WORKOUT_TYPES } from '../../types';
-import { workoutService } from '../../services';
+import { Workout, WORKOUT_TYPES, WorkoutType } from '../../types';
+import { workoutService, workoutTemplateService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
 import EmptyState from '../../components/EmptyState';
@@ -71,6 +71,24 @@ export default function WorkoutsScreen({ navigation }: Props) {
     }
   };
 
+  const handleSaveAsTemplate = async (workout: Workout) => {
+    if (!user || !clubId) return;
+    try {
+      await workoutTemplateService.create({
+        club_id: clubId,
+        coach_id: user.id,
+        title: workout.title,
+        type: workout.type as WorkoutType,
+        description: workout.description,
+        content: workout.content,
+        total_distance: workout.total_distance,
+      });
+      showSnackbar('Template sauvegarde', 'success');
+    } catch (err) {
+      showSnackbar('Erreur lors de la sauvegarde du template', 'error');
+    }
+  };
+
   const togglePublish = async (workout: Workout) => {
     try {
       if (workout.is_published) {
@@ -92,6 +110,26 @@ export default function WorkoutsScreen({ navigation }: Props) {
         <Text variant="headlineMedium" style={styles.title}>
           Entrainements
         </Text>
+        <View style={styles.headerButtons}>
+          <Button
+            mode="outlined"
+            icon="file-document-multiple"
+            onPress={() => navigation.navigate('WorkoutTemplates')}
+            compact
+            style={styles.headerBtn}
+          >
+            Templates
+          </Button>
+          <Button
+            mode="outlined"
+            icon="bookshelf"
+            onPress={() => navigation.navigate('ExerciseLibrary')}
+            compact
+            style={styles.headerBtn}
+          >
+            Bibliotheque
+          </Button>
+        </View>
       </View>
 
       {workouts.length === 0 && !loading ? (
@@ -120,6 +158,11 @@ export default function WorkoutsScreen({ navigation }: Props) {
                     {item.title}
                   </Text>
                   <View style={styles.cardActions}>
+                    <IconButton
+                      icon="file-document-plus-outline"
+                      size={20}
+                      onPress={() => handleSaveAsTemplate(item)}
+                    />
                     <IconButton
                       icon="content-copy"
                       size={20}
@@ -208,6 +251,14 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: 'bold',
     color: '#1F2937',
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 8,
+  },
+  headerBtn: {
+    borderColor: '#D1D5DB',
   },
   list: {
     padding: 16,

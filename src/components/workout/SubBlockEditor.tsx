@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TextInput, Button, IconButton, Text, Divider } from 'react-native-paper';
-import { SubBlock, Exercise } from '../../types';
+import { SubBlock, Exercise, ExerciseLibraryRow } from '../../types';
 import ExerciseEditor from './ExerciseEditor';
+import ExercisePickerModal from './ExercisePickerModal';
 
 interface SubBlockEditorProps {
   subBlock: SubBlock;
@@ -19,6 +20,19 @@ export default function SubBlockEditor({
   onChange,
   onRemove,
 }: SubBlockEditorProps) {
+  const [pickerVisible, setPickerVisible] = useState(false);
+
+  const addFromLibrary = (libExercise: ExerciseLibraryRow) => {
+    const newExercise: Exercise = {
+      id: generateId(),
+      distance: libExercise.distance,
+      stroke: libExercise.stroke,
+      intensity: libExercise.intensity,
+      notes: libExercise.notes || undefined,
+    };
+    onChange({ ...subBlock, exercises: [...subBlock.exercises, newExercise] });
+  };
+
   const addExercise = () => {
     const newExercise: Exercise = {
       id: generateId(),
@@ -112,15 +126,32 @@ export default function SubBlockEditor({
         />
       ))}
 
-      <Button
-        mode="text"
-        icon="plus"
-        onPress={addExercise}
-        compact
-        style={styles.addBtn}
-      >
-        Ajouter exercice
-      </Button>
+      <View style={styles.addRow}>
+        <Button
+          mode="text"
+          icon="plus"
+          onPress={addExercise}
+          compact
+          style={styles.addBtn}
+        >
+          Exercice vide
+        </Button>
+        <Button
+          mode="text"
+          icon="bookshelf"
+          onPress={() => setPickerVisible(true)}
+          compact
+          style={styles.addBtn}
+        >
+          Bibliotheque
+        </Button>
+      </View>
+
+      <ExercisePickerModal
+        visible={pickerVisible}
+        onDismiss={() => setPickerVisible(false)}
+        onSelect={addFromLibrary}
+      />
     </View>
   );
 }
@@ -167,6 +198,10 @@ const styles = StyleSheet.create({
   },
   divider: {
     marginVertical: 8,
+  },
+  addRow: {
+    flexDirection: 'row',
+    gap: 4,
   },
   addBtn: {
     alignSelf: 'flex-start',

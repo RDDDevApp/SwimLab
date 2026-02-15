@@ -5,6 +5,8 @@ export { workoutService } from './workoutService';
 export { workoutAssignmentService } from './workoutAssignmentService';
 export { workoutSessionService } from './workoutSessionService';
 export { profileService } from './profileService';
+export { exerciseLibraryService } from './exerciseLibraryService';
+export { workoutTemplateService } from './workoutTemplateService';
 
 // Re-export types
 export type { ClubWithMembers } from './clubService';

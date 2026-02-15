@@ -37,6 +37,9 @@ export type CoachStackParamList = {
   AssignWorkout: { slotId: string; slotName: string; date: string };
   Attendance: { assignmentId: string; groupId: string; workoutTitle?: string };
   WorkoutStats: { assignmentId: string; workoutTitle?: string };
+  ExerciseLibrary: undefined;
+  CreateExercise: { exercise?: any } | undefined;
+  WorkoutTemplates: undefined;
 };
 
 export type SwimmerStackParamList = {
@@ -110,3 +113,18 @@ export const INTENSITY_LABELS = {
   hard: 'Intense',
   sprint: 'Sprint',
 } as const;
+
+// Exercise Library Categories (French)
+export const EXERCISE_CATEGORIES = {
+  warmup: 'Echauffement',
+  main: 'Corps de seance',
+  cooldown: 'Retour au calme',
+  drill: 'Educatifs',
+  sprint: 'Sprint',
+  endurance: 'Endurance',
+  kick: 'Jambes',
+  pull: 'Bras',
+  other: 'Autre',
+} as const;
+
+export type ExerciseCategory = keyof typeof EXERCISE_CATEGORIES;

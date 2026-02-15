@@ -556,11 +556,53 @@ CREATE TRIGGER on_auth_user_created
 
 ---
 
+## 📦 Tables V0.5 (Sprint 7)
+
+### 10. exercise_library
+
+**Description** : Bibliothèque d'exercices réutilisables par club
+
+```sql
+CREATE TABLE exercise_library (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  club_id UUID NOT NULL REFERENCES clubs(id) ON DELETE CASCADE,
+  coach_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  distance INTEGER NOT NULL DEFAULT 100,
+  stroke TEXT NOT NULL DEFAULT 'freestyle',
+  intensity TEXT NOT NULL DEFAULT 'moderate',
+  notes TEXT,
+  category TEXT DEFAULT 'other',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+### 11. workout_templates
+
+**Description** : Templates de séances réutilisables
+
+```sql
+CREATE TABLE workout_templates (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  club_id UUID NOT NULL REFERENCES clubs(id) ON DELETE CASCADE,
+  coach_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  type TEXT NOT NULL CHECK (type IN ('endurance', 'sprint', 'technique', 'recovery', 'other')),
+  description TEXT,
+  content JSONB NOT NULL DEFAULT '{"blocks": []}'::jsonb,
+  total_distance INTEGER,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+Migration : `docs/migrations/003_exercise_library_and_templates.sql`
+
+---
+
 ## 📈 Évolutions Futures
 
-### V0.5
-- Ajouter `workout_templates` (templates d'entraînements)
-- Ajouter `exercises_library` (bibliothèque d'exercices)
+### V0.5 (restant)
 - Ajouter champ `times` dans `workout_sessions.performances` (times réalisés)
 - Enlever contrainte UNIQUE sur group_members (multi-groupes)
 
@@ -572,6 +614,6 @@ CREATE TRIGGER on_auth_user_created
 
 ---
 
-**Version** : 1.1
-**Date** : 14 Février 2026
-**Statut** : En production (V0)
+**Version** : 1.2
+**Date** : 15 Février 2026
+**Statut** : V0 + Sprint 7 (exercise_library, workout_templates)

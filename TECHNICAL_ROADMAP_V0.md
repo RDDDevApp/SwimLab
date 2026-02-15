@@ -49,9 +49,9 @@
 
 ---
 
-## Ecrans Existants (17 ecrans)
+## Ecrans Existants (20 ecrans)
 
-### Coach (14 ecrans)
+### Coach (17 ecrans)
 | Ecran | Fichier | Description |
 |-------|---------|-------------|
 | Dashboard | `screens/coach/DashboardScreen` | Groupes, stats globales |
@@ -68,6 +68,9 @@
 | Assignation | `screens/coach/AssignWorkoutScreen` | Assigner entrainement a slot |
 | Emargement | `screens/coach/AttendanceScreen` | Checkboxes presence |
 | Stats Entrainement | `screens/coach/WorkoutStatsScreen` | RPE stats + feedbacks |
+| Bibliotheque | `screens/coach/ExerciseLibraryScreen` | CRUD exercices reutilisables |
+| Creer Exercice | `screens/coach/CreateExerciseScreen` | Formulaire exercice bibliotheque |
+| Templates | `screens/coach/WorkoutTemplatesScreen` | Liste templates + utiliser |
 
 ### Nageur (5 ecrans)
 | Ecran | Fichier | Description |
@@ -90,11 +93,11 @@
 
 Avant de deployer le pilote :
 
-- [ ] Loading skeletons sur les ecrans principaux
-- [ ] Toasts de confirmation (succes/erreur)
-- [ ] Pull-to-refresh sur toutes les listes
-- [ ] Badge RPE moyen sur les assignments passes dans le calendrier coach
-- [ ] Empty states clairs (pas de groupes, pas d'entrainements)
+- [x] Loading skeletons sur les ecrans principaux
+- [x] Toasts de confirmation (succes/erreur)
+- [x] Pull-to-refresh sur toutes les listes
+- [x] Badge RPE moyen sur les assignments passes dans le calendrier coach
+- [x] Empty states clairs (pas de groupes, pas d'entrainements)
 - [ ] EAS Build (iOS + Android)
 - [ ] Creer club pilote, inviter nageurs, 4 semaines de test
 
@@ -102,13 +105,13 @@ Avant de deployer le pilote :
 
 ## V0.5 - Enrichissement Club
 
-### Sprint 7 : Bibliotheque & Templates
-- [ ] Table `exercise_library` (exercices reutilisables par club)
-- [ ] Ecran bibliotheque d'exercices (CRUD)
-- [ ] Drag & drop exercices dans l'editeur d'entrainement
-- [ ] Table `workout_templates` (sauvegarder un entrainement comme template)
-- [ ] Ecran templates (liste, creer depuis template)
-- [ ] Dupliquer un template en entrainement
+### Sprint 7 : Bibliotheque & Templates (DONE)
+- [x] Table `exercise_library` (exercices reutilisables par club)
+- [x] Ecran bibliotheque d'exercices (CRUD + recherche)
+- [x] Picker exercices depuis bibliotheque dans l'editeur d'entrainement
+- [x] Table `workout_templates` (sauvegarder un entrainement comme template)
+- [x] Ecran templates (liste, creer depuis template)
+- [x] Sauvegarder une seance comme template depuis WorkoutsScreen
 
 ### Sprint 8 : Historique & Stats Nageur
 - [ ] Historique entrainements coach (liste filtrable par date/type/groupe)
