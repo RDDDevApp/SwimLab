@@ -13,9 +13,9 @@ import { RootStackParamList } from '../types';
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
-  const { session, user, profile, isLoading, isInitialized, initialize, setClubId } = useAuthStore();
-  const [hasClub, setHasClub] = useState<boolean | null>(null);
+  const { session, user, profile, isLoading, isInitialized, initialize, setClubId, clubId } = useAuthStore();
   const [checkingClub, setCheckingClub] = useState(false);
+  const [skippedOnboarding, setSkippedOnboarding] = useState(false);
 
   useEffect(() => {
     initialize();
@@ -25,18 +25,16 @@ export default function AppNavigator() {
   useEffect(() => {
     const checkClub = async () => {
       if (!user || !profile) {
-        setHasClub(null);
         return;
       }
       setCheckingClub(true);
       try {
         const clubs = await clubService.getByUser(user.id);
-        setHasClub(clubs.length > 0);
         if (clubs.length > 0) {
           setClubId(clubs[0].id);
         }
       } catch {
-        setHasClub(false);
+        // Club check failed, will show onboarding
       } finally {
         setCheckingClub(false);
       }
@@ -45,7 +43,7 @@ export default function AppNavigator() {
   }, [user, profile]);
 
   // Show loading screen while initializing
-  if (!isInitialized || isLoading || (session && hasClub === null) || checkingClub) {
+  if (!isInitialized || isLoading || (session && !clubId && !skippedOnboarding && checkingClub)) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#06B6D4" />
@@ -53,22 +51,31 @@ export default function AppNavigator() {
     );
   }
 
+  const hasClub = !!clubId;
+
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {!session ? (
         // Not authenticated
         <Stack.Screen name="Auth" component={AuthNavigator} />
-      ) : !hasClub && profile?.role === 'coach' ? (
+      ) : !hasClub && !skippedOnboarding && profile?.role === 'coach' ? (
         // Coach without a club -> onboarding
         <Stack.Screen name="Onboarding" component={ClubSetupScreen} />
-      ) : !hasClub && profile?.role === 'swimmer' ? (
+      ) : !hasClub && !skippedOnboarding && profile?.role === 'swimmer' ? (
         // Swimmer without a club -> join
-        <Stack.Screen name="Onboarding" component={JoinClubScreen} />
+        <Stack.Screen name="Onboarding">
+          {(props) => (
+            <JoinClubScreen
+              {...props}
+              onSkip={() => setSkippedOnboarding(true)}
+            />
+          )}
+        </Stack.Screen>
       ) : profile?.role === 'coach' ? (
         // Authenticated coach with club
         <Stack.Screen name="CoachApp" component={CoachNavigator} />
       ) : (
-        // Authenticated swimmer with club
+        // Authenticated swimmer with club (or skipped)
         <Stack.Screen name="SwimmerApp" component={SwimmerNavigator} />
       )}
     </Stack.Navigator>

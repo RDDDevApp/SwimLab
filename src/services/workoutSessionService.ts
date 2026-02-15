@@ -23,6 +23,19 @@ export interface GroupFeedbackStats {
   rpe_distribution: Record<number, number>;
 }
 
+export interface SwimmerHistoryEntry {
+  sessionId: string;
+  assignmentId: string;
+  scheduledDate: string;
+  attended: boolean;
+  rpeScore: number | null;
+  feedbackText: string | null;
+  workoutId: string;
+  workoutTitle: string;
+  workoutType: string;
+  totalDistance: number | null;
+}
+
 export const workoutSessionService = {
   /** Create a workout session (when marking attendance) */
   async create(data: SessionInsert): Promise<WorkoutSession> {
@@ -116,6 +129,39 @@ export const workoutSessionService = {
     return data;
   },
 
+  /** Get average RPE for multiple assignments (batch) */
+  async getAverageRpeByAssignments(
+    assignmentIds: string[],
+  ): Promise<Record<string, number | null>> {
+    if (!assignmentIds.length) return {};
+
+    const { data: sessions, error } = await supabase
+      .from('workout_sessions')
+      .select('workout_assignment_id, rpe_score')
+      .in('workout_assignment_id', assignmentIds)
+      .not('rpe_score', 'is', null);
+
+    if (error) throw error;
+
+    const result: Record<string, number | null> = {};
+    const grouped: Record<string, number[]> = {};
+
+    for (const s of sessions) {
+      const aid = s.workout_assignment_id;
+      if (!grouped[aid]) grouped[aid] = [];
+      grouped[aid].push(s.rpe_score as number);
+    }
+
+    for (const id of assignmentIds) {
+      const scores = grouped[id];
+      result[id] = scores?.length
+        ? scores.reduce((a, b) => a + b, 0) / scores.length
+        : null;
+    }
+
+    return result;
+  },
+
   /** Get feedback stats for an assignment (coach view) */
   async getFeedbackStats(assignmentId: string): Promise<GroupFeedbackStats> {
     const { data: sessions, error } = await supabase
@@ -168,5 +214,70 @@ export const workoutSessionService = {
         ? rpeScores.reduce((a, b) => a + b, 0) / rpeScores.length
         : null,
     };
+  },
+
+  /** Get swimmer full history with workout details (for stats & history screens) */
+  async getSwimmerHistory(
+    swimmerId: string,
+  ): Promise<SwimmerHistoryEntry[]> {
+    // Step 1: Get all sessions for swimmer
+    const { data: sessions, error: sessErr } = await supabase
+      .from('workout_sessions')
+      .select('*')
+      .eq('swimmer_id', swimmerId)
+      .order('created_at', { ascending: false });
+
+    if (sessErr) throw sessErr;
+    if (!sessions.length) return [];
+
+    // Step 2: Get assignment details with workout info
+    const assignmentIds = [
+      ...new Set(sessions.map((s) => s.workout_assignment_id)),
+    ];
+
+    const { data: assignments, error: assErr } = await supabase
+      .from('workout_assignments')
+      .select('id, scheduled_date, workout_id')
+      .in('id', assignmentIds);
+
+    if (assErr) throw assErr;
+
+    // Step 3: Get workout details
+    const workoutIds = [
+      ...new Set((assignments || []).map((a) => a.workout_id)),
+    ];
+
+    const { data: workouts, error: wErr } = await supabase
+      .from('workouts')
+      .select('id, title, type, total_distance')
+      .in('id', workoutIds);
+
+    if (wErr) throw wErr;
+
+    // Step 4: Build lookup maps
+    const assignmentMap = new Map(
+      (assignments || []).map((a) => [a.id, a]),
+    );
+    const workoutMap = new Map(
+      (workouts || []).map((w) => [w.id, w]),
+    );
+
+    // Step 5: Enrich sessions
+    return sessions.map((s) => {
+      const a = assignmentMap.get(s.workout_assignment_id);
+      const w = a ? workoutMap.get(a.workout_id) : null;
+      return {
+        sessionId: s.id,
+        assignmentId: s.workout_assignment_id,
+        scheduledDate: a?.scheduled_date || '',
+        attended: s.attended,
+        rpeScore: s.rpe_score,
+        feedbackText: s.feedback_text,
+        workoutId: a?.workout_id || '',
+        workoutTitle: w?.title || 'Seance',
+        workoutType: w?.type || 'other',
+        totalDistance: w?.total_distance || null,
+      };
+    });
   },
 };

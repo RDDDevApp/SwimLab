@@ -17,6 +17,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Profile, Group, GROUP_LEVELS } from '../../types';
 import { groupService, profileService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
+import { useSnackbarStore } from '../../stores/snackbarStore';
+import EmptyState from '../../components/EmptyState';
 
 interface Props {
   navigation: any;
@@ -26,6 +28,7 @@ interface Props {
 export default function GroupDetailScreen({ navigation, route }: Props) {
   const { groupId } = route.params;
   const { clubId } = useAuthStore();
+  const showSnackbar = useSnackbarStore((s) => s.show);
 
   const [group, setGroup] = useState<Group | null>(null);
   const [members, setMembers] = useState<Profile[]>([]);
@@ -96,9 +99,10 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
         await groupService.addMember(groupId, swimmerId);
       }
       setShowAddModal(false);
+      showSnackbar(`${selectedIds.size} nageur(s) ajoute(s)`, 'success');
       loadData();
     } catch (err) {
-      console.error('Error adding swimmers:', err);
+      showSnackbar('Erreur lors de l\'ajout', 'error');
     } finally {
       setAddLoading(false);
     }
@@ -109,9 +113,10 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
     try {
       await groupService.removeMember(groupId, removeTarget.id);
       setRemoveTarget(null);
+      showSnackbar('Nageur retire du groupe', 'success');
       loadData();
     } catch (err) {
-      console.error('Error removing member:', err);
+      showSnackbar('Erreur lors du retrait', 'error');
     }
   };
 
@@ -146,14 +151,11 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
       </View>
 
       {members.length === 0 && !loading ? (
-        <View style={styles.emptyState}>
-          <Text variant="bodyLarge" style={styles.emptyText}>
-            Aucun nageur dans ce groupe
-          </Text>
-          <Text variant="bodyMedium" style={styles.emptySubtext}>
-            Ajoutez des nageurs de votre club a ce groupe
-          </Text>
-        </View>
+        <EmptyState
+          icon="account-plus"
+          title="Aucun nageur dans ce groupe"
+          subtitle="Ajoutez des nageurs de votre club a ce groupe"
+        />
       ) : (
         <FlatList
           data={members}

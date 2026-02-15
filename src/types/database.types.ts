@@ -307,6 +307,78 @@ export type Database = {
   };
 };
 
+// ---- V0.5 Tables (Sprint 7) ----
+
+export interface ExerciseLibraryRow {
+  id: string;
+  club_id: string;
+  coach_id: string;
+  name: string;
+  distance: number;
+  stroke: StrokeType;
+  intensity: IntensityType;
+  notes: string | null;
+  category: string | null;
+  created_at: string;
+}
+
+export interface ExerciseLibraryInsert {
+  id?: string;
+  club_id: string;
+  coach_id: string;
+  name: string;
+  distance: number;
+  stroke: StrokeType;
+  intensity: IntensityType;
+  notes?: string | null;
+  category?: string | null;
+  created_at?: string;
+}
+
+export interface ExerciseLibraryUpdate {
+  name?: string;
+  distance?: number;
+  stroke?: StrokeType;
+  intensity?: IntensityType;
+  notes?: string | null;
+  category?: string | null;
+}
+
+export interface WorkoutTemplateRow {
+  id: string;
+  club_id: string;
+  coach_id: string;
+  title: string;
+  type: 'endurance' | 'sprint' | 'technique' | 'recovery' | 'other';
+  description: string | null;
+  content: WorkoutContent;
+  total_distance: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WorkoutTemplateInsert {
+  id?: string;
+  club_id: string;
+  coach_id: string;
+  title: string;
+  type: 'endurance' | 'sprint' | 'technique' | 'recovery' | 'other';
+  description?: string | null;
+  content: WorkoutContent;
+  total_distance?: number | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface WorkoutTemplateUpdate {
+  title?: string;
+  type?: 'endurance' | 'sprint' | 'technique' | 'recovery' | 'other';
+  description?: string | null;
+  content?: WorkoutContent;
+  total_distance?: number | null;
+  updated_at?: string;
+}
+
 // Workout Content Types
 export interface WorkoutContent {
   blocks: WorkoutBlock[];
@@ -383,3 +455,7 @@ export type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
 export type ClubUpdate = Database['public']['Tables']['clubs']['Update'];
 export type GroupUpdate = Database['public']['Tables']['groups']['Update'];
 export type WorkoutUpdate = Database['public']['Tables']['workouts']['Update'];
+
+// V0.5 convenience aliases
+export type ExerciseLibrary = ExerciseLibraryRow;
+export type WorkoutTemplate = WorkoutTemplateRow;

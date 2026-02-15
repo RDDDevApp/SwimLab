@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function ClubSetupScreen({ navigation }: Props) {
-  const { user } = useAuthStore();
+  const { user, setClubId } = useAuthStore();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
@@ -33,6 +33,7 @@ export default function ClubSetupScreen({ navigation }: Props) {
         description: description.trim() || null,
         owner_id: user.id,
       });
+      setClubId(club.id);
       setCreatedClub({ id: club.id, invitation_code: club.invitation_code });
     } catch (err: any) {
       setError(err.message || 'Erreur lors de la creation du club');
@@ -42,10 +43,7 @@ export default function ClubSetupScreen({ navigation }: Props) {
   };
 
   const handleContinue = () => {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'CoachApp' }],
-    });
+    // clubId is already set in authStore, AppNavigator will re-render automatically
   };
 
   if (createdClub) {

@@ -5,9 +5,11 @@ export { workoutService } from './workoutService';
 export { workoutAssignmentService } from './workoutAssignmentService';
 export { workoutSessionService } from './workoutSessionService';
 export { profileService } from './profileService';
+export { exerciseLibraryService } from './exerciseLibraryService';
+export { workoutTemplateService } from './workoutTemplateService';
 
 // Re-export types
 export type { ClubWithMembers } from './clubService';
 export type { GroupWithDetails } from './groupService';
 export type { AssignmentWithDetails } from './workoutAssignmentService';
-export type { SessionWithProfile, GroupFeedbackStats } from './workoutSessionService';
+export type { SessionWithProfile, GroupFeedbackStats, SwimmerHistoryEntry } from './workoutSessionService';

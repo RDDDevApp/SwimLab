@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Workout, WORKOUT_TYPES } from '../../types';
 import { workoutService, workoutAssignmentService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
+import { useSnackbarStore } from '../../stores/snackbarStore';
 
 interface Props {
   navigation: any;
@@ -13,6 +14,7 @@ interface Props {
 
 export default function AssignWorkoutScreen({ navigation, route }: Props) {
   const { user } = useAuthStore();
+  const showSnackbar = useSnackbarStore((s) => s.show);
   const { slotId, slotName, date } = route.params;
 
   const [workouts, setWorkouts] = useState<Workout[]>([]);
@@ -53,6 +55,7 @@ export default function AssignWorkoutScreen({ navigation, route }: Props) {
         training_slot_id: slotId,
         scheduled_date: date,
       });
+      showSnackbar('Seance assignee', 'success');
       navigation.goBack();
     } catch (err: any) {
       setError(err.message || 'Erreur lors de l\'attribution');

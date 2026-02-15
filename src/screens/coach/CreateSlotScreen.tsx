@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { DAYS_OF_WEEK } from '../../types';
 import { trainingSlotService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
+import { useSnackbarStore } from '../../stores/snackbarStore';
 
 interface Props {
   navigation: any;
@@ -19,6 +20,7 @@ interface Props {
 
 export default function CreateSlotScreen({ navigation, route }: Props) {
   const { user } = useAuthStore();
+  const showSnackbar = useSnackbarStore((s) => s.show);
   const editingSlot = route?.params?.slot;
 
   const [name, setName] = useState(editingSlot?.name || '');
@@ -70,6 +72,7 @@ export default function CreateSlotScreen({ navigation, route }: Props) {
           location: location.trim() || null,
         });
       }
+      showSnackbar(editingSlot ? 'Creneau modifie' : 'Creneau cree', 'success');
       navigation.goBack();
     } catch (err: any) {
       setError(err.message || 'Erreur lors de la sauvegarde');

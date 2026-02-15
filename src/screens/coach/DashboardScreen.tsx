@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { Text, Card, Button, Avatar, Chip } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import { Text, Card, Button, Avatar, Chip, ActivityIndicator } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuthStore } from '../../stores/authStore';
@@ -13,9 +13,12 @@ export default function CoachDashboardScreen() {
   const [workoutCount, setWorkoutCount] = useState(0);
   const [swimmerCount, setSwimmerCount] = useState(0);
   const [club, setClub] = useState<Club | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const loadStats = useCallback(async () => {
     if (!user || !clubId) return;
+    setLoading(true);
     try {
       const [groups, workouts, clubData] = await Promise.all([
         groupService.getByCoach(user.id),
@@ -37,8 +40,16 @@ export default function CoachDashboardScreen() {
       setSwimmerCount(swimmerIds.size);
     } catch (err) {
       console.error('Error loading dashboard stats:', err);
+    } finally {
+      setLoading(false);
     }
   }, [user, clubId]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadStats();
+    setRefreshing(false);
+  }, [loadStats]);
 
   useFocusEffect(
     useCallback(() => {
@@ -48,7 +59,10 @@ export default function CoachDashboardScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         <View style={styles.header}>
           <View>
             <Text variant="headlineMedium" style={styles.greeting}>
@@ -88,6 +102,9 @@ export default function CoachDashboardScreen() {
         <Card style={styles.card}>
           <Card.Content>
             <Text variant="titleMedium">Statistiques</Text>
+            {loading ? (
+              <ActivityIndicator style={styles.loader} />
+            ) : (
             <View style={styles.statsRow}>
               <View style={styles.stat}>
                 <Text variant="headlineLarge" style={styles.statValue}>
@@ -108,6 +125,7 @@ export default function CoachDashboardScreen() {
                 <Text variant="bodySmall">Seances</Text>
               </View>
             </View>
+            )}
           </Card.Content>
         </Card>
 
@@ -176,6 +194,9 @@ const styles = StyleSheet.create({
   statValue: {
     color: '#06B6D4',
     fontWeight: 'bold',
+  },
+  loader: {
+    paddingVertical: 24,
   },
   logoutButton: {
     marginTop: 16,

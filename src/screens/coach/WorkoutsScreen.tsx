@@ -3,9 +3,11 @@ import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, FAB, Card, Chip, IconButton, Portal, Dialog, Button, Paragraph } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
-import { Workout, WORKOUT_TYPES } from '../../types';
-import { workoutService } from '../../services';
+import { Workout, WORKOUT_TYPES, WorkoutType } from '../../types';
+import { workoutService, workoutTemplateService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
+import { useSnackbarStore } from '../../stores/snackbarStore';
+import EmptyState from '../../components/EmptyState';
 
 interface Props {
   navigation: any;
@@ -13,6 +15,7 @@ interface Props {
 
 export default function WorkoutsScreen({ navigation }: Props) {
   const { user, clubId } = useAuthStore();
+  const showSnackbar = useSnackbarStore((s) => s.show);
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<Workout | null>(null);
@@ -41,9 +44,10 @@ export default function WorkoutsScreen({ navigation }: Props) {
     try {
       await workoutService.delete(deleteTarget.id);
       setDeleteTarget(null);
+      showSnackbar('Seance supprimee', 'success');
       loadWorkouts();
     } catch (err) {
-      console.error('Error deleting workout:', err);
+      showSnackbar('Erreur lors de la suppression', 'error');
     }
   };
 
@@ -60,9 +64,28 @@ export default function WorkoutsScreen({ navigation }: Props) {
         total_distance: workout.total_distance,
         is_published: false,
       });
+      showSnackbar('Seance dupliquee', 'success');
       loadWorkouts();
     } catch (err) {
-      console.error('Error duplicating workout:', err);
+      showSnackbar('Erreur lors de la duplication', 'error');
+    }
+  };
+
+  const handleSaveAsTemplate = async (workout: Workout) => {
+    if (!user || !clubId) return;
+    try {
+      await workoutTemplateService.create({
+        club_id: clubId,
+        coach_id: user.id,
+        title: workout.title,
+        type: workout.type as WorkoutType,
+        description: workout.description,
+        content: workout.content,
+        total_distance: workout.total_distance,
+      });
+      showSnackbar('Template sauvegarde', 'success');
+    } catch (err) {
+      showSnackbar('Erreur lors de la sauvegarde du template', 'error');
     }
   };
 
@@ -70,12 +93,14 @@ export default function WorkoutsScreen({ navigation }: Props) {
     try {
       if (workout.is_published) {
         await workoutService.unpublish(workout.id);
+        showSnackbar('Seance depubliee', 'success');
       } else {
         await workoutService.publish(workout.id);
+        showSnackbar('Seance publiee', 'success');
       }
       loadWorkouts();
     } catch (err) {
-      console.error('Error toggling publish:', err);
+      showSnackbar('Erreur lors du changement de statut', 'error');
     }
   };
 
@@ -85,17 +110,43 @@ export default function WorkoutsScreen({ navigation }: Props) {
         <Text variant="headlineMedium" style={styles.title}>
           Entrainements
         </Text>
+        <View style={styles.headerButtons}>
+          <Button
+            mode="outlined"
+            icon="file-document-multiple"
+            onPress={() => navigation.navigate('WorkoutTemplates')}
+            compact
+            style={styles.headerBtn}
+          >
+            Templates
+          </Button>
+          <Button
+            mode="outlined"
+            icon="bookshelf"
+            onPress={() => navigation.navigate('ExerciseLibrary')}
+            compact
+            style={styles.headerBtn}
+          >
+            Bibliotheque
+          </Button>
+          <Button
+            mode="outlined"
+            icon="history"
+            onPress={() => navigation.navigate('WorkoutHistory')}
+            compact
+            style={styles.headerBtn}
+          >
+            Historique
+          </Button>
+        </View>
       </View>
 
       {workouts.length === 0 && !loading ? (
-        <View style={styles.emptyState}>
-          <Text variant="bodyLarge" style={styles.emptyText}>
-            Aucun entrainement cree
-          </Text>
-          <Text variant="bodyMedium" style={styles.emptySubtext}>
-            Creez votre premier entrainement structure
-          </Text>
-        </View>
+        <EmptyState
+          icon="dumbbell"
+          title="Aucun entrainement cree"
+          subtitle="Creez votre premier entrainement structure"
+        />
       ) : (
         <FlatList
           data={workouts}
@@ -116,6 +167,11 @@ export default function WorkoutsScreen({ navigation }: Props) {
                     {item.title}
                   </Text>
                   <View style={styles.cardActions}>
+                    <IconButton
+                      icon="file-document-plus-outline"
+                      size={20}
+                      onPress={() => handleSaveAsTemplate(item)}
+                    />
                     <IconButton
                       icon="content-copy"
                       size={20}
@@ -204,6 +260,14 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: 'bold',
     color: '#1F2937',
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 8,
+  },
+  headerBtn: {
+    borderColor: '#D1D5DB',
   },
   list: {
     padding: 16,

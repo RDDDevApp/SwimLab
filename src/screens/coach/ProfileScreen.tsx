@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { Text, Card, Button, Avatar, List, Chip } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
@@ -11,6 +11,7 @@ export default function ProfileScreen() {
   const { profile, user, clubId, signOut } = useAuthStore();
   const [club, setClub] = useState<Club | null>(null);
   const [memberCount, setMemberCount] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
 
   const loadClubInfo = useCallback(async () => {
     if (!clubId) return;
@@ -26,6 +27,12 @@ export default function ProfileScreen() {
     }
   }, [clubId]);
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadClubInfo();
+    setRefreshing(false);
+  }, [loadClubInfo]);
+
   useFocusEffect(
     useCallback(() => {
       loadClubInfo();
@@ -34,7 +41,10 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         <View style={styles.header}>
           <Avatar.Text
             size={80}

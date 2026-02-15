@@ -99,8 +99,8 @@ CREATE INDEX idx_clubs_owner_id ON clubs(owner_id);
 - `created_at` : Date création
 - `updated_at` : Date modification
 
-**RLS Policies** :
-- `SELECT` : Membres du club peuvent voir le club
+**RLS Policies** (corrigées migration 002) :
+- `SELECT` : Tous les utilisateurs authentifiés peuvent voir les clubs (nécessaire pour rejoindre par code invitation)
 - `INSERT` : Coachs peuvent créer des clubs
 - `UPDATE` : Owner peut modifier son club
 
@@ -135,9 +135,9 @@ CREATE INDEX idx_club_members_role ON club_members(role);
 **Contraintes** :
 - Un utilisateur ne peut être qu'une seule fois dans un club
 
-**RLS Policies** :
-- `SELECT` : Membres du club peuvent voir les membres
-- `INSERT` : Coachs peuvent ajouter des nageurs
+**RLS Policies** (corrigées migration 002 — évite les sous-requêtes auto-référencées) :
+- `SELECT` : Utilisateurs voient leurs propres adhésions (`user_id = auth.uid()`) + Propriétaires du club voient tous les membres (`club_id IN (SELECT id FROM clubs WHERE owner_id = auth.uid())`)
+- `INSERT` : Coachs peuvent ajouter des nageurs + Nageurs peuvent s'auto-ajouter via code invitation
 
 ---
 
@@ -556,11 +556,53 @@ CREATE TRIGGER on_auth_user_created
 
 ---
 
+## 📦 Tables V0.5 (Sprint 7)
+
+### 10. exercise_library
+
+**Description** : Bibliothèque d'exercices réutilisables par club
+
+```sql
+CREATE TABLE exercise_library (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  club_id UUID NOT NULL REFERENCES clubs(id) ON DELETE CASCADE,
+  coach_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  distance INTEGER NOT NULL DEFAULT 100,
+  stroke TEXT NOT NULL DEFAULT 'freestyle',
+  intensity TEXT NOT NULL DEFAULT 'moderate',
+  notes TEXT,
+  category TEXT DEFAULT 'other',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+### 11. workout_templates
+
+**Description** : Templates de séances réutilisables
+
+```sql
+CREATE TABLE workout_templates (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  club_id UUID NOT NULL REFERENCES clubs(id) ON DELETE CASCADE,
+  coach_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  type TEXT NOT NULL CHECK (type IN ('endurance', 'sprint', 'technique', 'recovery', 'other')),
+  description TEXT,
+  content JSONB NOT NULL DEFAULT '{"blocks": []}'::jsonb,
+  total_distance INTEGER,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+Migration : `docs/migrations/003_exercise_library_and_templates.sql`
+
+---
+
 ## 📈 Évolutions Futures
 
-### V0.5
-- Ajouter `workout_templates` (templates d'entraînements)
-- Ajouter `exercises_library` (bibliothèque d'exercices)
+### V0.5 (restant)
 - Ajouter champ `times` dans `workout_sessions.performances` (times réalisés)
 - Enlever contrainte UNIQUE sur group_members (multi-groupes)
 
@@ -572,6 +614,6 @@ CREATE TRIGGER on_auth_user_created
 
 ---
 
-**Version** : 1.0  
-**Date** : 29 Janvier 2026  
-**Statut** : Validé
+**Version** : 1.2
+**Date** : 15 Février 2026
+**Statut** : V0 + Sprint 7 (exercise_library, workout_templates)
