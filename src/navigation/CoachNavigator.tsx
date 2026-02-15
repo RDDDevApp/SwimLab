@@ -19,6 +19,7 @@ import WorkoutStatsScreen from '../screens/coach/WorkoutStatsScreen';
 import ExerciseLibraryScreen from '../screens/coach/ExerciseLibraryScreen';
 import CreateExerciseScreen from '../screens/coach/CreateExerciseScreen';
 import WorkoutTemplatesScreen from '../screens/coach/WorkoutTemplatesScreen';
+import WorkoutHistoryScreen from '../screens/coach/WorkoutHistoryScreen';
 import { CoachTabParamList, CoachStackParamList } from '../types';
 
 const Tab = createBottomTabNavigator<CoachTabParamList>();
@@ -106,6 +107,7 @@ export default function CoachNavigator() {
       <Stack.Screen name="ExerciseLibrary" component={ExerciseLibraryScreen} />
       <Stack.Screen name="CreateExercise" component={CreateExerciseScreen} />
       <Stack.Screen name="WorkoutTemplates" component={WorkoutTemplatesScreen} />
+      <Stack.Screen name="WorkoutHistory" component={WorkoutHistoryScreen} />
     </Stack.Navigator>
   );
 }

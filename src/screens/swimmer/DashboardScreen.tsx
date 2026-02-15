@@ -169,9 +169,14 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
         </View>
 
         {stats.total > 0 && (
-          <Card style={styles.card}>
+          <Card style={styles.card} onPress={() => navigation.navigate('SwimmerTabs', { screen: 'Stats' })}>
             <Card.Content>
-              <Text variant="titleMedium">Mes statistiques</Text>
+              <View style={styles.statsHeader}>
+                <Text variant="titleMedium">Mes statistiques</Text>
+                <Chip compact icon="chart-line" style={styles.statsChip}>
+                  Voir plus
+                </Chip>
+              </View>
               <View style={styles.statsRow}>
                 <View style={styles.stat}>
                   <Text variant="headlineLarge" style={styles.statValue}>
@@ -281,6 +286,17 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
           </Card.Content>
         </Card>
 
+        {stats.total > 0 && (
+          <Button
+            mode="outlined"
+            icon="history"
+            onPress={() => navigation.navigate('SwimmerHistory')}
+            style={styles.historyBtn}
+          >
+            Voir mon historique
+          </Button>
+        )}
+
         {!clubId && (
           <Card style={styles.card}>
             <Card.Content>
@@ -340,6 +356,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     marginBottom: 12,
   },
+  statsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  statsChip: {
+    backgroundColor: '#EDE9FE',
+  },
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -397,6 +421,9 @@ const styles = StyleSheet.create({
   },
   feedbackBtn: {
     marginTop: 12,
+  },
+  historyBtn: {
+    borderColor: '#D1D5DB',
   },
   logoutButton: {
     marginTop: 16,

@@ -12,4 +12,4 @@ export { workoutTemplateService } from './workoutTemplateService';
 export type { ClubWithMembers } from './clubService';
 export type { GroupWithDetails } from './groupService';
 export type { AssignmentWithDetails } from './workoutAssignmentService';
-export type { SessionWithProfile, GroupFeedbackStats } from './workoutSessionService';
+export type { SessionWithProfile, GroupFeedbackStats, SwimmerHistoryEntry } from './workoutSessionService';

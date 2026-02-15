@@ -40,17 +40,20 @@ export type CoachStackParamList = {
   ExerciseLibrary: undefined;
   CreateExercise: { exercise?: any } | undefined;
   WorkoutTemplates: undefined;
+  WorkoutHistory: undefined;
 };
 
 export type SwimmerStackParamList = {
   SwimmerTabs: undefined;
   Feedback: { sessionId: string; workoutTitle?: string };
   WorkoutDetail: { workoutId: string; workoutTitle?: string };
+  SwimmerHistory: undefined;
 };
 
 export type SwimmerTabParamList = {
   Dashboard: undefined;
   Calendar: undefined;
+  Stats: undefined;
   Profile: undefined;
 };
 

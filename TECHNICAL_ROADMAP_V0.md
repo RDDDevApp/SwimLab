@@ -49,9 +49,9 @@
 
 ---
 
-## Ecrans Existants (20 ecrans)
+## Ecrans Existants (24 ecrans)
 
-### Coach (17 ecrans)
+### Coach (18 ecrans)
 | Ecran | Fichier | Description |
 |-------|---------|-------------|
 | Dashboard | `screens/coach/DashboardScreen` | Groupes, stats globales |
@@ -71,15 +71,18 @@
 | Bibliotheque | `screens/coach/ExerciseLibraryScreen` | CRUD exercices reutilisables |
 | Creer Exercice | `screens/coach/CreateExerciseScreen` | Formulaire exercice bibliotheque |
 | Templates | `screens/coach/WorkoutTemplatesScreen` | Liste templates + utiliser |
+| Historique | `screens/coach/WorkoutHistoryScreen` | Seances passees filtrable |
 
-### Nageur (5 ecrans)
+### Nageur (8 ecrans)
 | Ecran | Fichier | Description |
 |-------|---------|-------------|
 | Dashboard | `screens/swimmer/DashboardScreen` | Prochains entrainements, stats |
 | Calendrier | `screens/swimmer/CalendarScreen` | Vue semaine avec badges |
+| Stats | `screens/swimmer/SwimmerStatsScreen` | Graphiques volume/RPE/assiduite |
 | Profil | `screens/swimmer/ProfileScreen` | Infos nageur + club |
 | Feedback | `screens/swimmer/FeedbackScreen` | RPE slider + commentaire |
 | Detail Entrainement | `screens/swimmer/WorkoutDetailScreen` | Structure read-only |
+| Historique | `screens/swimmer/SwimmerHistoryScreen` | Liste seances passees |
 
 ### Onboarding (2 ecrans)
 | Ecran | Fichier | Description |
@@ -113,13 +116,13 @@ Avant de deployer le pilote :
 - [x] Ecran templates (liste, creer depuis template)
 - [x] Sauvegarder une seance comme template depuis WorkoutsScreen
 
-### Sprint 8 : Historique & Stats Nageur
-- [ ] Historique entrainements coach (liste filtrable par date/type/groupe)
-- [ ] Historique entrainements nageur (ses entrainements passes)
-- [ ] Stats nageur : volume total (m) par semaine/mois (graphique)
-- [ ] Stats nageur : evolution RPE dans le temps (graphique)
-- [ ] Stats nageur : assiduite (% presence par mois)
-- [ ] Dashboard nageur enrichi avec mini-graphiques
+### Sprint 8 : Historique & Stats Nageur (DONE)
+- [x] Historique entrainements coach (liste filtrable par date/type/groupe)
+- [x] Historique entrainements nageur (ses entrainements passes)
+- [x] Stats nageur : volume total (m) par semaine/mois (graphique)
+- [x] Stats nageur : evolution RPE dans le temps (graphique)
+- [x] Stats nageur : assiduite (% presence par mois)
+- [x] Dashboard nageur enrichi (lien stats + historique)
 
 ### Sprint 9 : Calendrier Mois & Multi-groupes
 - [ ] Vue calendrier mois coach (pastilles par jour, clic → vue jour)

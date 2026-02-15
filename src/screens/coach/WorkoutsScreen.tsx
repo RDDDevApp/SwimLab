@@ -129,6 +129,15 @@ export default function WorkoutsScreen({ navigation }: Props) {
           >
             Bibliotheque
           </Button>
+          <Button
+            mode="outlined"
+            icon="history"
+            onPress={() => navigation.navigate('WorkoutHistory')}
+            compact
+            style={styles.headerBtn}
+          >
+            Historique
+          </Button>
         </View>
       </View>
 
