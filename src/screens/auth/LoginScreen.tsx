@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
-import { TextInput, Button, Text, HelperText } from 'react-native-paper';
+import { TextInput, Button, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../stores/authStore';
 
@@ -31,12 +31,20 @@ export default function LoginScreen({ navigation }: any) {
     if (result.error) {
       // Map Supabase error messages to French
       const msg = result.error.message?.toLowerCase() || '';
-      if (msg.includes('invalid login credentials') || msg.includes('invalid')) {
+      if (
+        msg.includes('invalid login credentials') ||
+        msg.includes('invalid') ||
+        msg.includes('unauthorized') ||
+        msg.includes('wrong password') ||
+        msg.includes('user not found')
+      ) {
         setError('Email ou mot de passe incorrect');
       } else if (msg.includes('email not confirmed')) {
         setError('Veuillez confirmer votre email avant de vous connecter');
+      } else if (msg.includes('too many requests') || msg.includes('rate limit')) {
+        setError('Trop de tentatives. Veuillez réessayer dans quelques minutes.');
       } else {
-        setError(result.error.message || 'Erreur de connexion');
+        setError('Email ou mot de passe incorrect');
       }
     }
   };
@@ -84,9 +92,9 @@ export default function LoginScreen({ navigation }: any) {
           />
 
           {error ? (
-            <HelperText type="error" visible={!!error}>
-              {error}
-            </HelperText>
+            <View style={styles.errorBanner}>
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
           ) : null}
 
           <Button
@@ -139,6 +147,18 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: '#FFFFFF',
+  },
+  errorBanner: {
+    backgroundColor: '#FEE2E2',
+    borderRadius: 8,
+    padding: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: '#EF4444',
+  },
+  errorText: {
+    color: '#991B1B',
+    fontSize: 14,
+    fontWeight: '500',
   },
   button: {
     marginTop: 8,

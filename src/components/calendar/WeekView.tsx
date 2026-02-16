@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Pressable, ScrollView } from 'react-native';
-import { Text, Chip } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { TrainingSlot, WorkoutAssignment } from '../../types';
 import { formatShortDate, isToday, getDayOfWeek, formatTime } from '../../utils/dateHelpers';
 
@@ -97,24 +97,46 @@ export default function WeekView({
                           </Text>
                         ) : null}
                         <View style={styles.chipRow}>
-                          <Chip
-                            compact
-                            style={assignment.attendance_marked ? styles.markedChip : styles.assignedChip}
-                            textStyle={assignment.attendance_marked ? styles.markedChipText : styles.assignedChipText}
+                          <View
+                            style={[
+                              styles.statusBadge,
+                              assignment.attendance_marked
+                                ? styles.markedBadge
+                                : styles.assignedBadge,
+                            ]}
                           >
-                            {assignment.attendance_marked ? 'Emarge' : 'A emerger'}
-                          </Chip>
+                            <Text
+                              style={[
+                                styles.statusBadgeText,
+                                assignment.attendance_marked
+                                  ? styles.markedBadgeText
+                                  : styles.assignedBadgeText,
+                              ]}
+                            >
+                              {assignment.attendance_marked
+                                ? '\u2714 \u00c9marg\u00e9'
+                                : '\u25CB \u00c0 \u00e9marger'}
+                            </Text>
+                          </View>
                           {rpeMap && rpeMap[assignment.id] != null && (() => {
                             const rpe = rpeMap[assignment.id]!;
                             const colors = getRpeColor(rpe);
                             return (
-                              <Chip
-                                compact
-                                style={[styles.rpeChip, { backgroundColor: colors.bg }]}
-                                textStyle={[styles.rpeChipText, { color: colors.text }]}
+                              <View
+                                style={[
+                                  styles.statusBadge,
+                                  { backgroundColor: colors.bg },
+                                ]}
                               >
-                                RPE {rpe.toFixed(1)}
-                              </Chip>
+                                <Text
+                                  style={[
+                                    styles.statusBadgeText,
+                                    { color: colors.text, fontWeight: '700' },
+                                  ]}
+                                >
+                                  RPE {rpe.toFixed(1)}
+                                </Text>
+                              </View>
                             );
                           })()}
                         </View>
@@ -205,28 +227,26 @@ const styles = StyleSheet.create({
     marginTop: 6,
     flexWrap: 'wrap',
   },
-  assignedChip: {
-    backgroundColor: '#CFFAFE',
-    height: 26,
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
-  assignedChipText: {
-    fontSize: 11,
+  statusBadgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  assignedBadge: {
+    backgroundColor: '#CFFAFE',
+  },
+  assignedBadgeText: {
     color: '#0E7490',
   },
-  markedChip: {
+  markedBadge: {
     backgroundColor: '#D1FAE5',
-    height: 26,
   },
-  markedChipText: {
-    fontSize: 11,
+  markedBadgeText: {
     color: '#065F46',
-  },
-  rpeChip: {
-    height: 26,
-  },
-  rpeChipText: {
-    fontSize: 11,
-    fontWeight: '600',
   },
   noAssignment: {
     color: '#06B6D4',
