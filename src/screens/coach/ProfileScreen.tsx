@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, RefreshControl, Platform } from 'react-native';
-import { Text, Card, Button, Avatar, List, Chip, IconButton } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import { Text, Card, Button, Avatar, List, Chip } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuthStore } from '../../stores/authStore';
@@ -17,16 +17,11 @@ export default function ProfileScreen() {
 
   const copyInvitationCode = async (code: string) => {
     try {
-      if (Platform.OS === 'web') {
-        await navigator.clipboard.writeText(code);
-      } else {
-        // For native, use the Clipboard module
-        const { default: Clipboard } = await import('@react-native-clipboard/clipboard');
-        Clipboard.setString(code);
-      }
+      await navigator.clipboard.writeText(code);
       showSnackbar('Code copie dans le presse-papier', 'success');
     } catch {
-      showSnackbar(code, 'success');
+      // Fallback: show code in snackbar so user can copy manually
+      showSnackbar(`Code : ${code}`, 'success');
     }
   };
 
