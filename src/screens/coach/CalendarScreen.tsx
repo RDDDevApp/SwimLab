@@ -20,6 +20,7 @@ export default function CalendarScreen({ navigation }: Props) {
   const [slots, setSlots] = useState<TrainingSlot[]>([]);
   const [assignments, setAssignments] = useState<WorkoutAssignment[]>([]);
   const [rpeMap, setRpeMap] = useState<Record<string, number | null>>({});
+  const [workoutTitles, setWorkoutTitles] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   const weekDates = getWeekDates(currentDate);
@@ -43,6 +44,17 @@ export default function CalendarScreen({ navigation }: Props) {
         );
         setAssignments(weekAssignments);
 
+        // Load workout titles for all assignments
+        const uniqueWorkoutIds = [...new Set(weekAssignments.map((a) => a.workout_id))];
+        const titles: Record<string, string> = {};
+        for (const wId of uniqueWorkoutIds) {
+          try {
+            const workout = await workoutService.getById(wId);
+            titles[wId] = workout.title;
+          } catch {}
+        }
+        setWorkoutTitles(titles);
+
         // Load RPE averages for marked assignments
         const markedIds = weekAssignments
           .filter((a) => a.attendance_marked)
@@ -58,6 +70,7 @@ export default function CalendarScreen({ navigation }: Props) {
       } else {
         setAssignments([]);
         setRpeMap({});
+        setWorkoutTitles({});
       }
     } catch (err) {
       console.error('Error loading calendar:', err);
@@ -119,12 +132,9 @@ export default function CalendarScreen({ navigation }: Props) {
           slots={slots}
           assignments={assignments}
           rpeMap={rpeMap}
+          workoutTitles={workoutTitles}
           onSlotPress={async (slot, date, assignment) => {
-            let workoutTitle: string | undefined;
-            try {
-              const workout = await workoutService.getById(assignment.workout_id);
-              workoutTitle = workout.title;
-            } catch {}
+            const workoutTitle = workoutTitles[assignment.workout_id];
 
             if (assignment.attendance_marked) {
               navigation.navigate('WorkoutStats', {
@@ -177,20 +187,5 @@ const styles = StyleSheet.create({
   weekRange: {
     color: '#374151',
     fontWeight: '500',
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
-  },
-  emptyText: {
-    color: '#6B7280',
-    textAlign: 'center',
-  },
-  emptySubtext: {
-    color: '#9CA3AF',
-    textAlign: 'center',
-    marginTop: 8,
   },
 });

@@ -60,6 +60,9 @@ export default function SlotsScreen({ navigation, route }: Props) {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
+        <Button icon="arrow-left" onPress={() => navigation.goBack()}>
+          Retour
+        </Button>
         <Text variant="headlineMedium" style={styles.title}>
           Creneaux
         </Text>

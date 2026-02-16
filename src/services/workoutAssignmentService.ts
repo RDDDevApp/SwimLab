@@ -103,6 +103,24 @@ export const workoutAssignmentService = {
     return data;
   },
 
+  /** Get assignments via RPC (bypasses RLS chain issues for swimmers) */
+  async getByDateRangeRpc(
+    slotIds: string[],
+    startDate: string,
+    endDate: string,
+  ): Promise<WorkoutAssignment[]> {
+    if (!slotIds.length) return [];
+
+    const { data, error } = await (supabase.rpc as any)('get_assignments_for_slots', {
+      p_slot_ids: slotIds,
+      p_start_date: startDate,
+      p_end_date: endDate,
+    });
+
+    if (error) throw error;
+    return data || [];
+  },
+
   /** Delete an assignment */
   async delete(assignmentId: string): Promise<void> {
     const { error } = await supabase

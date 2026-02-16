@@ -39,13 +39,21 @@ export default function ExerciseLibraryScreen({ navigation }: Props) {
     null,
   );
 
+  const [tableError, setTableError] = useState(false);
+
   const loadExercises = useCallback(async () => {
     if (!clubId) return;
     setLoading(true);
     try {
       const data = await exerciseLibraryService.getByClub(clubId);
       setExercises(data);
-    } catch (err) {
+      setTableError(false);
+    } catch (err: any) {
+      const msg = err?.message || '';
+      if (msg.includes('exercise_library') || msg.includes('schema cache') || msg.includes('relation')) {
+        setTableError(true);
+        showSnackbar('La table exercise_library n\'existe pas encore. Appliquez la migration 003.', 'error');
+      }
       console.error('Error loading exercises:', err);
     } finally {
       setLoading(false);

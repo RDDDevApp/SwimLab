@@ -4,14 +4,26 @@ import { Text, Card, Button, Avatar, List, Chip } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuthStore } from '../../stores/authStore';
+import { useSnackbarStore } from '../../stores/snackbarStore';
 import { clubService } from '../../services';
 import { Club } from '../../types';
 
 export default function ProfileScreen() {
   const { profile, user, clubId, signOut } = useAuthStore();
+  const showSnackbar = useSnackbarStore((s) => s.show);
   const [club, setClub] = useState<Club | null>(null);
   const [memberCount, setMemberCount] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
+
+  const copyInvitationCode = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      showSnackbar('Code copie dans le presse-papier', 'success');
+    } catch {
+      // Fallback: show code in snackbar so user can copy manually
+      showSnackbar(`Code : ${code}`, 'success');
+    }
+  };
 
   const loadClubInfo = useCallback(async () => {
     if (!clubId) return;
@@ -87,7 +99,12 @@ export default function ProfileScreen() {
                 <Text variant="bodySmall" style={styles.codeLabel}>
                   Code d'invitation :
                 </Text>
-                <Chip compact style={styles.codeChip}>
+                <Chip
+                  compact
+                  style={styles.codeChip}
+                  onPress={() => copyInvitationCode(club.invitation_code)}
+                  icon="content-copy"
+                >
                   {club.invitation_code}
                 </Chip>
               </View>
