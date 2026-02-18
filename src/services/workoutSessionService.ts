@@ -191,6 +191,51 @@ export const workoutSessionService = {
     };
   },
 
+  /** Get pending feedback sessions (attended but no feedback yet) with workout info */
+  async getPendingFeedback(
+    swimmerId: string,
+  ): Promise<{ sessionId: string; workoutTitle: string; scheduledDate: string }[]> {
+    const { data: sessions, error: sessErr } = await supabase
+      .from('workout_sessions')
+      .select('id, workout_assignment_id')
+      .eq('swimmer_id', swimmerId)
+      .eq('attended', true)
+      .is('completed_at', null)
+      .order('created_at', { ascending: true });
+
+    if (sessErr) throw sessErr;
+    if (!sessions || !sessions.length) return [];
+
+    const assignmentIds = sessions.map((s) => s.workout_assignment_id);
+    const { data: assignments, error: assErr } = await supabase
+      .from('workout_assignments')
+      .select('id, scheduled_date, workout_id')
+      .in('id', assignmentIds);
+
+    if (assErr) throw assErr;
+
+    const workoutIds = [...new Set((assignments || []).map((a) => a.workout_id))];
+    const { data: workouts, error: wErr } = await supabase
+      .from('workouts')
+      .select('id, title')
+      .in('id', workoutIds);
+
+    if (wErr) throw wErr;
+
+    const assignmentMap = new Map((assignments || []).map((a) => [a.id, a]));
+    const workoutMap = new Map((workouts || []).map((w) => [w.id, w]));
+
+    return sessions.map((s) => {
+      const a = assignmentMap.get(s.workout_assignment_id);
+      const w = a ? workoutMap.get(a.workout_id) : null;
+      return {
+        sessionId: s.id,
+        workoutTitle: w?.title || 'Seance',
+        scheduledDate: a?.scheduled_date || '',
+      };
+    });
+  },
+
   /** Get swimmer attendance stats */
   async getSwimmerStats(
     swimmerId: string,

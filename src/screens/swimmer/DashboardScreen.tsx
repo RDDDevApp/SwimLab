@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
-import { Text, Card, Button, Avatar, Chip, ActivityIndicator } from 'react-native-paper';
+import { Text, Card, Button, Avatar, Chip, ActivityIndicator, IconButton } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuthStore } from '../../stores/authStore';
@@ -12,6 +12,7 @@ import {
   workoutService,
   clubService,
 } from '../../services';
+import type { SwimmerHistoryEntry } from '../../services';
 import { WorkoutAssignment, WorkoutSession, WORKOUT_TYPES, Club } from '../../types';
 import { toISODate, formatShortDate } from '../../utils/dateHelpers';
 
@@ -24,8 +25,53 @@ interface UpcomingWorkout {
   session: WorkoutSession | null;
 }
 
+interface Achievements {
+  totalKm: number;
+  totalSessions: number;
+  currentStreak: number;
+}
+
 interface Props {
   navigation: any;
+}
+
+function computeAchievements(history: SwimmerHistoryEntry[]): Achievements {
+  const attended = history
+    .filter((h) => h.attended)
+    .sort((a, b) => b.scheduledDate.localeCompare(a.scheduledDate));
+
+  const totalKm = attended.reduce((sum, h) => sum + (h.totalDistance || 0), 0) / 1000;
+  const totalSessions = attended.length;
+
+  // Compute current streak: consecutive attended sessions (by date, most recent first)
+  let currentStreak = 0;
+  const seenDates = new Set<string>();
+  for (const session of attended) {
+    if (!seenDates.has(session.scheduledDate)) {
+      seenDates.add(session.scheduledDate);
+      currentStreak++;
+    }
+  }
+
+  // Actually compute streak by checking gaps - a gap > 10 days breaks the streak
+  currentStreak = 0;
+  const sortedDates = [...seenDates].sort().reverse();
+  for (let i = 0; i < sortedDates.length; i++) {
+    if (i === 0) {
+      currentStreak = 1;
+      continue;
+    }
+    const current = new Date(sortedDates[i - 1] + 'T00:00:00');
+    const prev = new Date(sortedDates[i] + 'T00:00:00');
+    const diffDays = (current.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24);
+    if (diffDays <= 10) {
+      currentStreak++;
+    } else {
+      break;
+    }
+  }
+
+  return { totalKm, totalSessions, currentStreak };
 }
 
 export default function SwimmerDashboardScreen({ navigation }: Props) {
@@ -33,8 +79,13 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
   const [upcoming, setUpcoming] = useState<UpcomingWorkout[]>([]);
   const [club, setClub] = useState<Club | null>(null);
   const [stats, setStats] = useState({ total: 0, attended: 0, averageRpe: null as number | null });
+  const [achievements, setAchievements] = useState<Achievements>({ totalKm: 0, totalSessions: 0, currentStreak: 0 });
+  const [pendingCount, setPendingCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Track if we've auto-prompted this focus cycle
+  const hasAutoPrompted = useRef(false);
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -49,6 +100,26 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
       // Load swimmer stats
       const swimmerStats = await workoutSessionService.getSwimmerStats(user.id);
       setStats(swimmerStats);
+
+      // Load history for achievements
+      const history = await workoutSessionService.getSwimmerHistory(user.id);
+      setAchievements(computeAchievements(history));
+
+      // Load pending feedback sessions
+      const pending = await workoutSessionService.getPendingFeedback(user.id);
+      setPendingCount(pending.length);
+
+      // Auto-prompt feedback for the oldest pending session
+      if (pending.length > 0 && !hasAutoPrompted.current) {
+        hasAutoPrompted.current = true;
+        // Small delay so the dashboard renders first
+        setTimeout(() => {
+          navigation.navigate('Feedback', {
+            sessionId: pending[0].sessionId,
+            workoutTitle: pending[0].workoutTitle,
+          });
+        }, 600);
+      }
 
       // Load upcoming workouts
       const groups = await groupService.getBySwimmer(user.id);
@@ -117,6 +188,7 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
+    hasAutoPrompted.current = false;
     await loadData();
     setRefreshing(false);
   }, [loadData]);
@@ -168,6 +240,72 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
           />
         </View>
 
+        {/* Pending feedback banner */}
+        {pendingCount > 0 && (
+          <Card style={styles.pendingCard}>
+            <Card.Content style={styles.pendingContent}>
+              <View style={styles.pendingLeft}>
+                <IconButton
+                  icon="message-alert"
+                  iconColor="#92400E"
+                  size={24}
+                  style={styles.pendingIcon}
+                />
+                <View style={{ flex: 1 }}>
+                  <Text variant="titleSmall" style={styles.pendingTitle}>
+                    {pendingCount} feedback{pendingCount > 1 ? 's' : ''} en attente
+                  </Text>
+                  <Text variant="bodySmall" style={styles.pendingSubtitle}>
+                    Donne ton ressenti sur tes dernieres seances
+                  </Text>
+                </View>
+              </View>
+            </Card.Content>
+          </Card>
+        )}
+
+        {/* Achievements card */}
+        {achievements.totalSessions > 0 && (
+          <Card style={styles.achievementsCard}>
+            <Card.Content>
+              <Text variant="titleMedium" style={styles.achievementsTitle}>
+                Mes accomplissements
+              </Text>
+              <View style={styles.achievementsRow}>
+                <View style={styles.achievementItem}>
+                  <Text variant="headlineMedium" style={styles.achievementValue}>
+                    {achievements.totalKm >= 10
+                      ? Math.round(achievements.totalKm)
+                      : achievements.totalKm.toFixed(1)}
+                  </Text>
+                  <Text variant="bodySmall" style={styles.achievementLabel}>
+                    km nages
+                  </Text>
+                </View>
+                <View style={styles.achievementDivider} />
+                <View style={styles.achievementItem}>
+                  <Text variant="headlineMedium" style={styles.achievementValue}>
+                    {achievements.currentStreak}
+                  </Text>
+                  <Text variant="bodySmall" style={styles.achievementLabel}>
+                    seances d'affilee
+                  </Text>
+                </View>
+                <View style={styles.achievementDivider} />
+                <View style={styles.achievementItem}>
+                  <Text variant="headlineMedium" style={styles.achievementValue}>
+                    {achievements.totalSessions}
+                  </Text>
+                  <Text variant="bodySmall" style={styles.achievementLabel}>
+                    seances total
+                  </Text>
+                </View>
+              </View>
+            </Card.Content>
+          </Card>
+        )}
+
+        {/* Stats card */}
         <Card style={styles.card} onPress={() => navigation.navigate('SwimmerTabs', { screen: 'Stats' })}>
           <Card.Content>
             <View style={styles.statsHeader}>
@@ -205,6 +343,7 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
           </Card.Content>
         </Card>
 
+        {/* Upcoming workouts */}
         <Card style={styles.card}>
           <Card.Content>
             <Text variant="titleMedium" style={styles.sectionTitle}>
@@ -327,12 +466,68 @@ const styles = StyleSheet.create({
   avatar: {
     backgroundColor: '#EC4899',
   },
+  // Pending feedback banner
+  pendingCard: {
+    backgroundColor: '#FEF3C7',
+    borderLeftWidth: 4,
+    borderLeftColor: '#F59E0B',
+  },
+  pendingContent: {
+    paddingVertical: 8,
+  },
+  pendingLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  pendingIcon: {
+    margin: 0,
+    marginRight: 4,
+  },
+  pendingTitle: {
+    fontWeight: 'bold',
+    color: '#92400E',
+  },
+  pendingSubtitle: {
+    color: '#92400E',
+    opacity: 0.8,
+  },
+  // Achievements
+  achievementsCard: {
+    backgroundColor: '#F0FDFA',
+    borderWidth: 1,
+    borderColor: '#99F6E4',
+  },
+  achievementsTitle: {
+    fontWeight: 'bold',
+    color: '#115E59',
+    marginBottom: 12,
+  },
+  achievementsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
+  achievementItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  achievementValue: {
+    fontWeight: 'bold',
+    color: '#06B6D4',
+  },
+  achievementLabel: {
+    color: '#115E59',
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  achievementDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: '#99F6E4',
+  },
+  // Stats card
   card: {
     backgroundColor: '#FFFFFF',
-  },
-  cardText: {
-    marginTop: 8,
-    color: '#6B7280',
   },
   sectionTitle: {
     marginBottom: 12,
@@ -405,9 +600,5 @@ const styles = StyleSheet.create({
   },
   historyBtn: {
     borderColor: '#D1D5DB',
-  },
-  logoutButton: {
-    marginTop: 16,
-    borderColor: '#EF4444',
   },
 });

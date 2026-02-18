@@ -78,7 +78,14 @@ export default function SwimmerNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="SwimmerTabs" component={SwimmerTabs} />
-      <Stack.Screen name="Feedback" component={FeedbackScreen} />
+      <Stack.Screen
+        name="Feedback"
+        component={FeedbackScreen}
+        options={{
+          presentation: 'transparentModal',
+          animation: 'slide_from_bottom',
+        }}
+      />
       <Stack.Screen name="WorkoutDetail" component={WorkoutDetailScreen} />
       <Stack.Screen name="SwimmerHistory" component={SwimmerHistoryScreen} />
     </Stack.Navigator>
