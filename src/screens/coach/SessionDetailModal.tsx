@@ -43,6 +43,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
   const [feedbackStats, setFeedbackStats] = useState<GroupFeedbackStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [assigning, setAssigning] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -122,6 +123,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
       setAssignment(null);
       setWorkout(null);
       setFeedbackStats(null);
+      setShowPicker(true);
       // Load published workouts for picker
       if (user) {
         const allWorkouts = await workoutService.getByCoach(user.id);
@@ -205,12 +207,41 @@ export default function SessionDetailModal({ navigation, route }: Props) {
           >
             {loading ? (
               <ActivityIndicator size="large" style={{ marginTop: 32 }} />
-            ) : !assignment ? (
-              /* No assignment - workout picker */
-              <View>
-                <Text variant="titleMedium" style={styles.sectionTitle}>
-                  Assigner une seance
+            ) : !assignment && !showPicker ? (
+              /* No assignment - show empty state with assign button */
+              <View style={styles.emptySlotView}>
+                <View style={styles.emptySlotIcon}>
+                  <Text style={styles.emptySlotIconText}>📋</Text>
+                </View>
+                <Text variant="titleMedium" style={styles.emptySlotTitle}>
+                  Aucune seance assignee
                 </Text>
+                <Text variant="bodyMedium" style={styles.emptySlotSubtitle}>
+                  Ce creneau n'a pas encore de seance d'entrainement.
+                </Text>
+                <Button
+                  mode="contained"
+                  icon="plus"
+                  onPress={() => setShowPicker(true)}
+                  style={styles.assignBtn}
+                >
+                  Assigner une seance
+                </Button>
+              </View>
+            ) : !assignment && showPicker ? (
+              /* Workout picker */
+              <View>
+                <View style={styles.pickerHeader}>
+                  <Text variant="titleMedium" style={styles.sectionTitle}>
+                    Choisir une seance
+                  </Text>
+                  <Button
+                    compact
+                    onPress={() => setShowPicker(false)}
+                  >
+                    Annuler
+                  </Button>
+                </View>
 
                 {publishedWorkouts.length === 0 ? (
                   <View style={styles.emptyState}>
@@ -287,11 +318,11 @@ export default function SessionDetailModal({ navigation, route }: Props) {
                       <Button
                         mode="outlined"
                         compact
-                        icon="pencil"
+                        icon="swap-horizontal"
                         onPress={handleModify}
                         style={styles.actionBtn}
                       >
-                        Modifier
+                        Assigner
                       </Button>
                       <Button
                         mode="contained"
@@ -449,6 +480,39 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1F2937',
     marginBottom: 12,
+  },
+  // Empty slot view
+  emptySlotView: {
+    alignItems: 'center',
+    paddingVertical: 24,
+  },
+  emptySlotIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#F3F4F6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  emptySlotIconText: {
+    fontSize: 28,
+  },
+  emptySlotTitle: {
+    fontWeight: 'bold',
+    color: '#1F2937',
+    marginBottom: 4,
+  },
+  emptySlotSubtitle: {
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  pickerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
   },
   // Workout picker
   emptyState: {

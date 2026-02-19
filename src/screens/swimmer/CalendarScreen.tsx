@@ -67,32 +67,25 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
       const endDate = toISODate(dates[6]);
       const slotIds = allSlots.map((s) => s.id);
 
-      // Try standard query first, then RPC fallback if empty (RLS chain issue)
+      // Try RPC first (bypasses RLS chain), then direct query as fallback
       let assignments: WorkoutAssignment[] = [];
       try {
-        assignments = await workoutAssignmentService.getByDateRange(
+        assignments = await workoutAssignmentService.getByDateRangeRpc(
           slotIds,
           startDate,
           endDate,
         );
-      } catch (assignErr) {
-        console.error('Assignment fetch error:', assignErr);
-      }
-
-      // If direct query returned nothing, try the RPC fallback
-      if (assignments.length === 0 && slotIds.length > 0) {
+      } catch (rpcErr) {
+        // RPC not available - migration 004 not applied, try direct query
+        console.log('RPC not available (apply migration 004):', rpcErr);
         try {
-          const rpcResult = await workoutAssignmentService.getByDateRangeRpc(
+          assignments = await workoutAssignmentService.getByDateRange(
             slotIds,
             startDate,
             endDate,
           );
-          if (rpcResult.length > 0) {
-            assignments = rpcResult;
-          }
-        } catch (rpcErr) {
-          // RPC not available yet - this is expected if migration 004 not applied
-          console.log('RPC fallback not available (apply migration 004):', rpcErr);
+        } catch (assignErr) {
+          console.error('Assignment fetch error:', assignErr);
         }
       }
 
@@ -244,64 +237,81 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
                     Pas de creneau
                   </Text>
                 </View>
-              ) : dayItems.length === 0 ? (
-                <View style={styles.emptyDay}>
-                  <Text variant="bodySmall" style={styles.emptyText}>
-                    Pas de seance assignee
-                  </Text>
-                </View>
               ) : (
-                dayItems.map((item) => {
-                  const dot = getStatusDot(item);
+                daySlots.map((slot) => {
+                  const item = dayItems.find((i) => i.slot.id === slot.id);
 
-                  return (
-                    <Pressable
-                      key={item.assignment.id}
-                      style={styles.slotItem}
-                      onPress={() => {
-                        navigation.navigate('SessionDetail', {
-                          assignment: item.assignment,
-                          workoutTitle: item.workoutTitle,
-                          workoutType: item.workoutType,
-                          totalDistance: item.totalDistance,
-                          slotName: item.slotName,
-                          slot: item.slot,
-                          session: item.session,
-                        });
-                      }}
-                    >
-                      <View style={styles.slotHeader}>
-                        <View style={styles.slotNameRow}>
-                          <View style={[styles.statusDot, { backgroundColor: dot.color }]} />
-                          <Text variant="labelMedium" style={styles.slotName}>
-                            {item.slotName}
+                  if (item) {
+                    const dot = getStatusDot(item);
+                    return (
+                      <Pressable
+                        key={slot.id}
+                        style={styles.slotItem}
+                        onPress={() => {
+                          navigation.navigate('SessionDetail', {
+                            assignment: item.assignment,
+                            workoutTitle: item.workoutTitle,
+                            workoutType: item.workoutType,
+                            totalDistance: item.totalDistance,
+                            slotName: item.slotName,
+                            slot: item.slot,
+                            session: item.session,
+                          });
+                        }}
+                      >
+                        <View style={styles.slotHeader}>
+                          <View style={styles.slotNameRow}>
+                            <View style={[styles.statusDot, { backgroundColor: dot.color }]} />
+                            <Text variant="labelMedium" style={styles.slotName}>
+                              {item.slotName}
+                            </Text>
+                          </View>
+                          <Text style={[styles.statusLabel, { color: dot.color }]}>
+                            {dot.label}
                           </Text>
                         </View>
-                        <Text style={[styles.statusLabel, { color: dot.color }]}>
-                          {dot.label}
+                        <Text variant="bodySmall" style={styles.slotTime}>
+                          {formatTime(item.slot.start_time)} - {item.slot.duration_minutes}min
+                        </Text>
+                        <Text variant="titleSmall" style={styles.workoutTitle}>
+                          {item.workoutTitle}
+                        </Text>
+                        <View style={styles.chipRow}>
+                          <View style={styles.typeChip}>
+                            <Text style={styles.typeChipText}>
+                              {WORKOUT_TYPES[item.workoutType as keyof typeof WORKOUT_TYPES] || item.workoutType}
+                            </Text>
+                          </View>
+                          {item.totalDistance ? (
+                            <View style={styles.typeChip}>
+                              <Text style={styles.typeChipText}>
+                                {item.totalDistance}m
+                              </Text>
+                            </View>
+                          ) : null}
+                        </View>
+                      </Pressable>
+                    );
+                  }
+
+                  // Slot without assignment - show as gray
+                  return (
+                    <View key={slot.id} style={styles.slotItemEmpty}>
+                      <View style={styles.slotHeader}>
+                        <View style={styles.slotNameRow}>
+                          <View style={[styles.statusDot, { backgroundColor: '#9CA3AF' }]} />
+                          <Text variant="labelMedium" style={styles.slotName}>
+                            {slot.name}
+                          </Text>
+                        </View>
+                        <Text style={[styles.statusLabel, { color: '#9CA3AF' }]}>
+                          Pas de seance
                         </Text>
                       </View>
                       <Text variant="bodySmall" style={styles.slotTime}>
-                        {formatTime(item.slot.start_time)} - {item.slot.duration_minutes}min
+                        {formatTime(slot.start_time)} - {slot.duration_minutes}min
                       </Text>
-                      <Text variant="titleSmall" style={styles.workoutTitle}>
-                        {item.workoutTitle}
-                      </Text>
-                      <View style={styles.chipRow}>
-                        <View style={styles.typeChip}>
-                          <Text style={styles.typeChipText}>
-                            {WORKOUT_TYPES[item.workoutType as keyof typeof WORKOUT_TYPES] || item.workoutType}
-                          </Text>
-                        </View>
-                        {item.totalDistance ? (
-                          <View style={styles.typeChip}>
-                            <Text style={styles.typeChipText}>
-                              {item.totalDistance}m
-                            </Text>
-                          </View>
-                        ) : null}
-                      </View>
-                    </Pressable>
+                    </View>
                   );
                 })
               )}
@@ -395,6 +405,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#F3F4F6',
     backgroundColor: '#FEFCE8',
+  },
+  slotItemEmpty: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+    backgroundColor: '#FFFFFF',
   },
   slotHeader: {
     flexDirection: 'row',
