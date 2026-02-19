@@ -1,5 +1,6 @@
 // Re-export all database types
 export * from './database.types';
+import type { TrainingSlot, WorkoutAssignment, WorkoutSession } from './database.types';
 
 // Navigation Types
 export type RootStackParamList = {
@@ -37,6 +38,12 @@ export type CoachStackParamList = {
   AssignWorkout: { slotId: string; slotName: string; date: string };
   Attendance: { assignmentId: string; groupId: string; workoutTitle?: string };
   WorkoutStats: { assignmentId: string; workoutTitle?: string };
+  SessionDetail: {
+    slot: TrainingSlot;
+    date: string;
+    assignment: WorkoutAssignment | null;
+    workoutTitle?: string;
+  };
   ExerciseLibrary: undefined;
   CreateExercise: { exercise?: any } | undefined;
   WorkoutTemplates: undefined;
@@ -47,6 +54,15 @@ export type SwimmerStackParamList = {
   SwimmerTabs: undefined;
   Feedback: { sessionId: string; workoutTitle?: string };
   WorkoutDetail: { workoutId: string; workoutTitle?: string };
+  SessionDetail: {
+    assignment: WorkoutAssignment;
+    workoutTitle: string;
+    workoutType: string;
+    totalDistance: number | null;
+    slotName: string;
+    slot: TrainingSlot;
+    session: WorkoutSession | null;
+  };
   SwimmerHistory: undefined;
 };
 
