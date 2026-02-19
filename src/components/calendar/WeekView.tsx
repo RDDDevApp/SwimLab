@@ -14,10 +14,14 @@ interface WeekViewProps {
   onEmptySlotPress?: (slot: TrainingSlot, date: Date) => void;
 }
 
-const getRpeColor = (rpe: number) => {
-  if (rpe <= 12) return { bg: '#D1FAE5', text: '#065F46' };
-  if (rpe <= 15) return { bg: '#FEF3C7', text: '#92400E' };
-  return { bg: '#FEE2E2', text: '#991B1B' };
+const getSlotStatus = (
+  assignment: WorkoutAssignment | undefined,
+  rpeMap?: Record<string, number | null>,
+) => {
+  if (!assignment) return { color: '#9CA3AF', label: 'Non assigne' };
+  if (!assignment.attendance_marked) return { color: '#3B82F6', label: 'A emarger' };
+  if (rpeMap?.[assignment.id] != null) return { color: '#10B981', label: 'Emarger' };
+  return { color: '#F59E0B', label: 'Feedback manquant' };
 };
 
 export default function WeekView({
@@ -70,6 +74,8 @@ export default function WeekView({
                   ? workoutTitles[assignment.workout_id]
                   : undefined;
 
+                const status = getSlotStatus(assignment, rpeMap);
+
                 return (
                   <Pressable
                     key={slot.id}
@@ -83,69 +89,25 @@ export default function WeekView({
                         : onEmptySlotPress?.(slot, date)
                     }
                   >
-                    <Text variant="labelMedium" style={styles.slotName}>
-                      {slot.name}
-                    </Text>
+                    <View style={styles.slotHeader}>
+                      <View style={styles.slotNameRow}>
+                        <View style={[styles.statusDot, { backgroundColor: status.color }]} />
+                        <Text variant="labelMedium" style={styles.slotName}>
+                          {slot.name}
+                        </Text>
+                      </View>
+                      <Text style={[styles.statusLabel, { color: status.color }]}>
+                        {status.label}
+                      </Text>
+                    </View>
                     <Text variant="bodySmall" style={styles.slotTime}>
                       {formatTime(slot.start_time)} - {slot.duration_minutes}min
                     </Text>
-                    {assignment ? (
-                      <View>
-                        {workoutTitle ? (
-                          <Text variant="bodySmall" style={styles.workoutTitle}>
-                            {workoutTitle}
-                          </Text>
-                        ) : null}
-                        <View style={styles.chipRow}>
-                          <View
-                            style={[
-                              styles.statusBadge,
-                              assignment.attendance_marked
-                                ? styles.markedBadge
-                                : styles.assignedBadge,
-                            ]}
-                          >
-                            <Text
-                              style={[
-                                styles.statusBadgeText,
-                                assignment.attendance_marked
-                                  ? styles.markedBadgeText
-                                  : styles.assignedBadgeText,
-                              ]}
-                            >
-                              {assignment.attendance_marked
-                                ? '\u2714 \u00c9marg\u00e9'
-                                : '\u25CB \u00c0 \u00e9marger'}
-                            </Text>
-                          </View>
-                          {rpeMap && rpeMap[assignment.id] != null && (() => {
-                            const rpe = rpeMap[assignment.id]!;
-                            const colors = getRpeColor(rpe);
-                            return (
-                              <View
-                                style={[
-                                  styles.statusBadge,
-                                  { backgroundColor: colors.bg },
-                                ]}
-                              >
-                                <Text
-                                  style={[
-                                    styles.statusBadgeText,
-                                    { color: colors.text, fontWeight: '700' },
-                                  ]}
-                                >
-                                  RPE {rpe.toFixed(1)}
-                                </Text>
-                              </View>
-                            );
-                          })()}
-                        </View>
-                      </View>
-                    ) : (
-                      <Text variant="bodySmall" style={styles.noAssignment}>
-                        + Assigner seance
+                    {assignment && workoutTitle ? (
+                      <Text variant="bodySmall" style={styles.workoutTitle}>
+                        {workoutTitle}
                       </Text>
-                    )}
+                    ) : null}
                   </Pressable>
                 );
               })
@@ -207,50 +169,39 @@ const styles = StyleSheet.create({
   slotEmpty: {
     backgroundColor: '#FFFFFF',
   },
+  slotHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  slotNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  statusDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
   slotName: {
     color: '#1F2937',
+    fontWeight: '600',
+  },
+  statusLabel: {
+    fontSize: 11,
     fontWeight: '600',
   },
   slotTime: {
     color: '#6B7280',
     marginTop: 2,
+    marginLeft: 18,
   },
   workoutTitle: {
     color: '#0E7490',
     fontWeight: '500',
     marginTop: 4,
+    marginLeft: 18,
     fontStyle: 'italic',
-  },
-  chipRow: {
-    flexDirection: 'row',
-    gap: 6,
-    marginTop: 6,
-    flexWrap: 'wrap',
-  },
-  statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  statusBadgeText: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  assignedBadge: {
-    backgroundColor: '#CFFAFE',
-  },
-  assignedBadgeText: {
-    color: '#0E7490',
-  },
-  markedBadge: {
-    backgroundColor: '#D1FAE5',
-  },
-  markedBadgeText: {
-    color: '#065F46',
-  },
-  noAssignment: {
-    color: '#06B6D4',
-    marginTop: 6,
-    fontWeight: '500',
   },
 });
