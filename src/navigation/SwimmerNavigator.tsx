@@ -10,6 +10,7 @@ import ProfileScreen from '../screens/swimmer/ProfileScreen';
 import FeedbackScreen from '../screens/swimmer/FeedbackScreen';
 import WorkoutDetailScreen from '../screens/swimmer/WorkoutDetailScreen';
 import SwimmerHistoryScreen from '../screens/swimmer/SwimmerHistoryScreen';
+import SessionDetailModal from '../screens/swimmer/SessionDetailModal';
 import { SwimmerTabParamList, SwimmerStackParamList } from '../types';
 
 const Tab = createBottomTabNavigator<SwimmerTabParamList>();
@@ -87,6 +88,14 @@ export default function SwimmerNavigator() {
         }}
       />
       <Stack.Screen name="WorkoutDetail" component={WorkoutDetailScreen} />
+      <Stack.Screen
+        name="SessionDetail"
+        component={SessionDetailModal}
+        options={{
+          presentation: 'transparentModal',
+          animation: 'slide_from_bottom',
+        }}
+      />
       <Stack.Screen name="SwimmerHistory" component={SwimmerHistoryScreen} />
     </Stack.Navigator>
   );

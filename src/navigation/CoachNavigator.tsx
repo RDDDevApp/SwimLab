@@ -20,6 +20,7 @@ import ExerciseLibraryScreen from '../screens/coach/ExerciseLibraryScreen';
 import CreateExerciseScreen from '../screens/coach/CreateExerciseScreen';
 import WorkoutTemplatesScreen from '../screens/coach/WorkoutTemplatesScreen';
 import WorkoutHistoryScreen from '../screens/coach/WorkoutHistoryScreen';
+import SessionDetailModal from '../screens/coach/SessionDetailModal';
 import { CoachTabParamList, CoachStackParamList } from '../types';
 
 const Tab = createBottomTabNavigator<CoachTabParamList>();
@@ -104,6 +105,14 @@ export default function CoachNavigator() {
       <Stack.Screen name="Attendance" component={AttendanceScreen} />
       <Stack.Screen name="GroupDetail" component={GroupDetailScreen} />
       <Stack.Screen name="WorkoutStats" component={WorkoutStatsScreen} />
+      <Stack.Screen
+        name="SessionDetail"
+        component={SessionDetailModal}
+        options={{
+          presentation: 'transparentModal',
+          animation: 'slide_from_bottom',
+        }}
+      />
       <Stack.Screen name="ExerciseLibrary" component={ExerciseLibraryScreen} />
       <Stack.Screen name="CreateExercise" component={CreateExerciseScreen} />
       <Stack.Screen name="WorkoutTemplates" component={WorkoutTemplatesScreen} />

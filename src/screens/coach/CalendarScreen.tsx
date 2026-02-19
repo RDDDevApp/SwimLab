@@ -133,27 +133,20 @@ export default function CalendarScreen({ navigation }: Props) {
           assignments={assignments}
           rpeMap={rpeMap}
           workoutTitles={workoutTitles}
-          onSlotPress={async (slot, date, assignment) => {
+          onSlotPress={(slot, date, assignment) => {
             const workoutTitle = workoutTitles[assignment.workout_id];
-
-            if (assignment.attendance_marked) {
-              navigation.navigate('WorkoutStats', {
-                assignmentId: assignment.id,
-                workoutTitle,
-              });
-            } else {
-              navigation.navigate('Attendance', {
-                assignmentId: assignment.id,
-                groupId: slot.group_id,
-                workoutTitle,
-              });
-            }
+            navigation.navigate('SessionDetail', {
+              slot,
+              date: toISODate(date),
+              assignment,
+              workoutTitle,
+            });
           }}
           onEmptySlotPress={(slot, date) => {
-            navigation.navigate('AssignWorkout', {
-              slotId: slot.id,
-              slotName: slot.name,
+            navigation.navigate('SessionDetail', {
+              slot,
               date: toISODate(date),
+              assignment: null,
             });
           }}
         />

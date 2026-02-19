@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { Text, Button, IconButton } from 'react-native-paper';
+import { Text, IconButton } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { WorkoutAssignment, WorkoutSession, WORKOUT_TYPES, TrainingSlot } from '../../types';
@@ -164,23 +164,23 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
     setCurrentDate(new Date());
   };
 
-  const getStatusBadge = (item: EnrichedAssignment) => {
+  const getStatusDot = (item: EnrichedAssignment) => {
     const { assignment, session } = item;
     const isPast = new Date(assignment.scheduled_date + 'T23:59:59') < new Date();
 
     if (session?.completed_at) {
-      return { label: '\u2714 Feedback donn\u00e9', color: '#D1FAE5', textColor: '#065F46' };
+      return { color: '#10B981', label: 'Feedback donne' };       // Green
     }
     if (session?.attended && !session?.completed_at) {
-      return { label: '\u26A0 Donner feedback', color: '#FEF3C7', textColor: '#92400E' };
+      return { color: '#F59E0B', label: 'Feedback a donner' };    // Orange
     }
     if (session && !session.attended) {
-      return { label: '\u2716 Absent', color: '#FEE2E2', textColor: '#991B1B' };
+      return { color: '#9CA3AF', label: 'Absent' };               // Gray
     }
     if (isPast && !assignment.attendance_marked) {
-      return { label: 'Non marqu\u00e9', color: '#F3F4F6', textColor: '#6B7280' };
+      return { color: '#9CA3AF', label: 'Non marque' };           // Gray
     }
-    return { label: '\u25CB A venir', color: '#DBEAFE', textColor: '#1E40AF' };
+    return { color: '#3B82F6', label: 'A venir' };               // Blue
   };
 
   const getItemsForDate = (dateStr: string) => {
@@ -252,43 +252,34 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
                 </View>
               ) : (
                 dayItems.map((item) => {
-                  const badge = getStatusBadge(item);
-                  const canFeedback =
-                    item.session?.attended && !item.session?.completed_at;
-                  const isPast = new Date(item.assignment.scheduled_date + 'T23:59:59') < new Date();
+                  const dot = getStatusDot(item);
 
                   return (
                     <Pressable
                       key={item.assignment.id}
                       style={styles.slotItem}
                       onPress={() => {
-                        if (isPast || item.assignment.attendance_marked) {
-                          navigation.navigate('WorkoutDetail', {
-                            workoutId: item.assignment.workout_id,
-                            workoutTitle: item.workoutTitle,
-                          });
-                        }
+                        navigation.navigate('SessionDetail', {
+                          assignment: item.assignment,
+                          workoutTitle: item.workoutTitle,
+                          workoutType: item.workoutType,
+                          totalDistance: item.totalDistance,
+                          slotName: item.slotName,
+                          slot: item.slot,
+                          session: item.session,
+                        });
                       }}
                     >
                       <View style={styles.slotHeader}>
-                        <Text variant="labelMedium" style={styles.slotName}>
-                          {item.slotName}
-                        </Text>
-                        <View
-                          style={[
-                            styles.statusBadge,
-                            { backgroundColor: badge.color },
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.statusBadgeText,
-                              { color: badge.textColor },
-                            ]}
-                          >
-                            {badge.label}
+                        <View style={styles.slotNameRow}>
+                          <View style={[styles.statusDot, { backgroundColor: dot.color }]} />
+                          <Text variant="labelMedium" style={styles.slotName}>
+                            {item.slotName}
                           </Text>
                         </View>
+                        <Text style={[styles.statusLabel, { color: dot.color }]}>
+                          {dot.label}
+                        </Text>
                       </View>
                       <Text variant="bodySmall" style={styles.slotTime}>
                         {formatTime(item.slot.start_time)} - {item.slot.duration_minutes}min
@@ -310,22 +301,6 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
                           </View>
                         ) : null}
                       </View>
-
-                      {canFeedback && (
-                        <Button
-                          mode="contained"
-                          compact
-                          style={styles.feedbackBtn}
-                          onPress={() =>
-                            navigation.navigate('Feedback', {
-                              sessionId: item.session!.id,
-                              workoutTitle: item.workoutTitle,
-                            })
-                          }
-                        >
-                          Donner mon ressenti
-                        </Button>
-                      )}
                     </Pressable>
                   );
                 })
@@ -426,17 +401,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  slotNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  statusDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
   slotName: {
     color: '#1F2937',
     fontWeight: '600',
   },
-  statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  statusBadgeText: {
-    fontSize: 12,
+  statusLabel: {
+    fontSize: 11,
     fontWeight: '600',
   },
   slotTime: {
@@ -463,8 +443,5 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#374151',
     fontWeight: '500',
-  },
-  feedbackBtn: {
-    marginTop: 12,
   },
 });
