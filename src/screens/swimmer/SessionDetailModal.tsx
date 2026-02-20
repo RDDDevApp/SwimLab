@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Pressable, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { Text, Button, TextInput, Chip, IconButton } from 'react-native-paper';
-import { Workout, WORKOUT_TYPES } from '../../types';
+import { Workout } from '../../types';
 import { workoutService, workoutSessionService } from '../../services';
 import { useSnackbarStore } from '../../stores/snackbarStore';
 import { formatTime } from '../../utils/dateHelpers';
@@ -35,7 +35,6 @@ export default function SessionDetailModal({ navigation, route }: Props) {
   const {
     assignment,
     workoutTitle,
-    workoutType,
     totalDistance,
     slotName,
     slot,
@@ -159,9 +158,6 @@ export default function SessionDetailModal({ navigation, route }: Props) {
                     {workoutTitle}
                   </Text>
                   <View style={styles.chipRow}>
-                    <Chip compact style={styles.typeChip}>
-                      {WORKOUT_TYPES[workoutType as keyof typeof WORKOUT_TYPES] || workoutType}
-                    </Chip>
                     {totalDistance ? (
                       <Chip compact style={styles.distanceChip}>
                         {totalDistance}m

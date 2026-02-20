@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Chip, Button } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Workout, WORKOUT_TYPES } from '../../types';
+import { Workout } from '../../types';
 import { workoutService } from '../../services';
 import WorkoutContentView from '../../components/workout/WorkoutContentView';
 
@@ -59,9 +59,6 @@ export default function WorkoutDetailScreen({ navigation, route }: Props) {
           {workout.title}
         </Text>
         <View style={styles.chipRow}>
-          <Chip compact style={styles.typeChip}>
-            {WORKOUT_TYPES[workout.type as keyof typeof WORKOUT_TYPES]}
-          </Chip>
           {workout.total_distance ? (
             <Chip compact icon="ruler" style={styles.distanceChip}>
               {workout.total_distance}m

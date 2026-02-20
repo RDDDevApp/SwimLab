@@ -12,13 +12,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   WorkoutBlock,
   WorkoutContent,
-  WORKOUT_TYPES,
-  WorkoutType,
+  BLOCK_TYPE_LABELS,
 } from '../../types';
 import { workoutService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 import BlockEditor from '../../components/workout/BlockEditor';
-import PickerSelect from '../../components/PickerSelect';
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 9);
@@ -33,31 +31,29 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
   const { user, clubId: storeClubId } = useAuthStore();
   const editingWorkout = route?.params?.workout;
 
+  const defaultBlocks: WorkoutBlock[] = [
+    { id: generateId(), type: 'warmup', name: 'Echauffement', sub_blocks: [] },
+    { id: generateId(), type: 'main', name: 'Corps de seance', sub_blocks: [] },
+    { id: generateId(), type: 'cooldown', name: 'Recuperation', sub_blocks: [] },
+  ];
+
   const [title, setTitle] = useState(editingWorkout?.title || '');
-  const [type, setType] = useState<string>(editingWorkout?.type || 'endurance');
   const [description, setDescription] = useState(
     editingWorkout?.description || '',
   );
   const [blocks, setBlocks] = useState<WorkoutBlock[]>(
-    editingWorkout?.content?.blocks || [],
+    editingWorkout?.content?.blocks || defaultBlocks,
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const clubId = route?.params?.clubId || storeClubId;
 
-  const typeOptions = Object.entries(WORKOUT_TYPES).map(([key, label]) => ({
-    value: key,
-    label,
-  }));
-
   const totalDistance = blocks.reduce((sum, block) => {
     return (
       sum +
       block.sub_blocks.reduce((bSum, sb) => {
-        return (
-          bSum + sb.exercises.reduce((s, ex) => s + ex.distance, 0) * sb.series
-        );
+        return bSum + sb.distance * sb.repetitions;
       }, 0)
     );
   }, 0);
@@ -106,7 +102,6 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
       if (editingWorkout) {
         await workoutService.update(editingWorkout.id, {
           title: title.trim(),
-          type: type as WorkoutType,
           description: description.trim() || null,
           content,
           total_distance: totalDistance,
@@ -117,7 +112,6 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
           club_id: clubId,
           coach_id: user.id,
           title: title.trim(),
-          type: type as WorkoutType,
           description: description.trim() || null,
           content,
           total_distance: totalDistance,
@@ -157,16 +151,6 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
           mode="outlined"
           style={styles.input}
         />
-
-        <View style={styles.row}>
-          <PickerSelect
-            label="Type"
-            value={type}
-            options={typeOptions}
-            onChange={setType}
-            style={styles.flex1}
-          />
-        </View>
 
         <TextInput
           label="Description (optionnel)"

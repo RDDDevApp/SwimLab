@@ -195,7 +195,7 @@ export type Database = {
           club_id: string;
           coach_id: string;
           title: string;
-          type: 'endurance' | 'sprint' | 'technique' | 'recovery' | 'other';
+          type: string | null;
           description: string | null;
           content: WorkoutContent;
           total_distance: number | null;
@@ -209,7 +209,7 @@ export type Database = {
           club_id: string;
           coach_id: string;
           title: string;
-          type: 'endurance' | 'sprint' | 'technique' | 'recovery' | 'other';
+          type?: string | null;
           description?: string | null;
           content?: WorkoutContent;
           total_distance?: number | null;
@@ -223,7 +223,7 @@ export type Database = {
           club_id?: string;
           coach_id?: string;
           title?: string;
-          type?: 'endurance' | 'sprint' | 'technique' | 'recovery' | 'other';
+          type?: string | null;
           description?: string | null;
           content?: WorkoutContent;
           total_distance?: number | null;
@@ -309,74 +309,34 @@ export type Database = {
 
 // ---- V0.5 Tables (Sprint 7) ----
 
-export interface ExerciseLibraryRow {
+// Block Library (replaces exercise_library and workout_templates)
+export interface BlockLibraryRow {
   id: string;
   club_id: string;
   coach_id: string;
   name: string;
-  distance: number;
-  stroke: StrokeType;
-  intensity: IntensityType;
-  notes: string | null;
-  category: string | null;
+  type: BlockType;
+  content: SubBlock[];
+  total_distance: number;
   created_at: string;
 }
 
-export interface ExerciseLibraryInsert {
+export interface BlockLibraryInsert {
   id?: string;
   club_id: string;
   coach_id: string;
   name: string;
-  distance: number;
-  stroke: StrokeType;
-  intensity: IntensityType;
-  notes?: string | null;
-  category?: string | null;
+  type: BlockType;
+  content: SubBlock[];
+  total_distance: number;
   created_at?: string;
 }
 
-export interface ExerciseLibraryUpdate {
+export interface BlockLibraryUpdate {
   name?: string;
-  distance?: number;
-  stroke?: StrokeType;
-  intensity?: IntensityType;
-  notes?: string | null;
-  category?: string | null;
-}
-
-export interface WorkoutTemplateRow {
-  id: string;
-  club_id: string;
-  coach_id: string;
-  title: string;
-  type: 'endurance' | 'sprint' | 'technique' | 'recovery' | 'other';
-  description: string | null;
-  content: WorkoutContent;
-  total_distance: number | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface WorkoutTemplateInsert {
-  id?: string;
-  club_id: string;
-  coach_id: string;
-  title: string;
-  type: 'endurance' | 'sprint' | 'technique' | 'recovery' | 'other';
-  description?: string | null;
-  content: WorkoutContent;
-  total_distance?: number | null;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface WorkoutTemplateUpdate {
-  title?: string;
-  type?: 'endurance' | 'sprint' | 'technique' | 'recovery' | 'other';
-  description?: string | null;
-  content?: WorkoutContent;
-  total_distance?: number | null;
-  updated_at?: string;
+  type?: BlockType;
+  content?: SubBlock[];
+  total_distance?: number;
 }
 
 // Workout Content Types
@@ -384,31 +344,21 @@ export interface WorkoutContent {
   blocks: WorkoutBlock[];
 }
 
+export type BlockType = 'warmup' | 'main' | 'cooldown' | 'other';
+
 export interface WorkoutBlock {
   id: string;
-  type: 'warmup' | 'main' | 'cooldown' | 'drill' | 'sprint' | 'endurance' | 'other';
+  type: BlockType;
   name: string;
-  total_distance?: number;
   sub_blocks: SubBlock[];
 }
 
 export interface SubBlock {
   id: string;
-  title: string;
-  series: number;
   distance: number;
+  repetitions: number;
+  description?: string;
   departure?: string;
-  notes?: string;
-  exercises: Exercise[];
-}
-
-export interface Exercise {
-  id: string;
-  distance: number;
-  stroke: StrokeType;
-  intensity: IntensityType;
-  target_time?: string;
-  notes?: string;
 }
 
 export type StrokeType =
@@ -457,5 +407,4 @@ export type GroupUpdate = Database['public']['Tables']['groups']['Update'];
 export type WorkoutUpdate = Database['public']['Tables']['workouts']['Update'];
 
 // V0.5 convenience aliases
-export type ExerciseLibrary = ExerciseLibraryRow;
-export type WorkoutTemplate = WorkoutTemplateRow;
+export type BlockLibrary = BlockLibraryRow;

@@ -5,7 +5,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import {
   Workout,
   WorkoutAssignment,
-  WORKOUT_TYPES,
 } from '../../types';
 import {
   groupService,
@@ -282,9 +281,6 @@ export default function SessionDetailModal({ navigation, route }: Props) {
                               {w.title}
                             </Text>
                             <View style={styles.cardMeta}>
-                              <Chip compact style={styles.typeChip}>
-                                {WORKOUT_TYPES[w.type as keyof typeof WORKOUT_TYPES]}
-                              </Chip>
                               {w.total_distance ? (
                                 <Text variant="bodySmall" style={styles.distance}>
                                   {w.total_distance}m
@@ -388,9 +384,6 @@ export default function SessionDetailModal({ navigation, route }: Props) {
                         {workout.title}
                       </Text>
                       <View style={styles.recapChips}>
-                        <Chip compact style={styles.typeChip}>
-                          {WORKOUT_TYPES[workout.type as keyof typeof WORKOUT_TYPES]}
-                        </Chip>
                         {workout.total_distance ? (
                           <Chip compact style={styles.distanceChip}>
                             {workout.total_distance}m

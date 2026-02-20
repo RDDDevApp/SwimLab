@@ -32,7 +32,7 @@ describe('workoutAssignmentService', () => {
       });
 
       expect(result).toEqual(assignment);
-      expect(builder.insert).toHaveBeenCalled();
+      expect(builder.upsert).toHaveBeenCalled();
     });
   });
 

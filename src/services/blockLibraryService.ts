@@ -1,14 +1,14 @@
 import { supabase } from '../config/supabase';
 import {
-  ExerciseLibraryRow,
-  ExerciseLibraryInsert,
-  ExerciseLibraryUpdate,
+  BlockLibraryRow,
+  BlockLibraryInsert,
+  BlockLibraryUpdate,
 } from '../types';
 
-export const exerciseLibraryService = {
-  async getByClub(clubId: string): Promise<ExerciseLibraryRow[]> {
+export const blockLibraryService = {
+  async getByClub(clubId: string): Promise<BlockLibraryRow[]> {
     const { data, error } = await supabase
-      .from('exercise_library')
+      .from('block_library')
       .select('*')
       .eq('club_id', clubId)
       .order('name', { ascending: true });
@@ -17,35 +17,35 @@ export const exerciseLibraryService = {
     return data;
   },
 
-  async create(data: ExerciseLibraryInsert): Promise<ExerciseLibraryRow> {
-    const { data: exercise, error } = await supabase
-      .from('exercise_library')
+  async create(data: BlockLibraryInsert): Promise<BlockLibraryRow> {
+    const { data: block, error } = await supabase
+      .from('block_library')
       .insert(data)
       .select()
       .single();
 
     if (error) throw error;
-    return exercise;
+    return block;
   },
 
   async update(
     id: string,
-    data: ExerciseLibraryUpdate,
-  ): Promise<ExerciseLibraryRow> {
-    const { data: exercise, error } = await supabase
-      .from('exercise_library')
+    data: BlockLibraryUpdate,
+  ): Promise<BlockLibraryRow> {
+    const { data: block, error } = await supabase
+      .from('block_library')
       .update(data)
       .eq('id', id)
       .select()
       .single();
 
     if (error) throw error;
-    return exercise;
+    return block;
   },
 
   async delete(id: string): Promise<void> {
     const { error } = await supabase
-      .from('exercise_library')
+      .from('block_library')
       .delete()
       .eq('id', id);
 
