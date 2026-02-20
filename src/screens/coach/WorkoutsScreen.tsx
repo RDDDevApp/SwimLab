@@ -1,13 +1,20 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
-import { Text, FAB, Card, Chip, IconButton, Portal, Dialog, Button, Paragraph } from 'react-native-paper';
+import { Text, FAB, Card, Chip, IconButton, Portal, Dialog, Button, Paragraph, Divider } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
-import { Workout } from '../../types';
+import { Workout, WorkoutBlock, BLOCK_TYPE_LABELS } from '../../types';
 import { workoutService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
 import EmptyState from '../../components/EmptyState';
+
+const BLOCK_COLORS: Record<string, string> = {
+  warmup: '#10B981',
+  main: '#06B6D4',
+  cooldown: '#8B5CF6',
+  other: '#6B7280',
+};
 
 interface Props {
   navigation: any;
@@ -19,6 +26,7 @@ export default function WorkoutsScreen({ navigation }: Props) {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<Workout | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const loadWorkouts = useCallback(async () => {
     if (!user) return;
@@ -86,6 +94,82 @@ export default function WorkoutsScreen({ navigation }: Props) {
     }
   };
 
+  const toggleExpand = (id: string) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  };
+
+  const renderExpandedContent = (item: Workout) => {
+    const blocks: WorkoutBlock[] = item.content?.blocks || [];
+
+    return (
+      <View style={styles.expandedContent}>
+        <Divider style={styles.expandDivider} />
+
+        {item.description ? (
+          <Text variant="bodySmall" style={styles.expandDesc}>
+            {item.description}
+          </Text>
+        ) : null}
+
+        {blocks.map((block, bIndex) => {
+          const color = BLOCK_COLORS[block.type] || BLOCK_COLORS.other;
+          const blockDist = block.sub_blocks.reduce(
+            (sum, sb) => sum + sb.distance * sb.repetitions,
+            0,
+          );
+
+          return (
+            <View
+              key={block.id || bIndex}
+              style={[styles.blockItem, { borderLeftColor: color }]}
+            >
+              <View style={styles.blockHeader}>
+                <Text style={[styles.blockType, { color }]}>
+                  {BLOCK_TYPE_LABELS[block.type as keyof typeof BLOCK_TYPE_LABELS] || block.type}
+                </Text>
+                {block.name ? (
+                  <Text variant="labelMedium" style={styles.blockName}>
+                    {block.name}
+                  </Text>
+                ) : null}
+                {blockDist > 0 ? (
+                  <Text variant="labelSmall" style={styles.blockDist}>
+                    {blockDist}m
+                  </Text>
+                ) : null}
+              </View>
+
+              {block.sub_blocks.map((sb, sbIndex) => (
+                <Text
+                  key={sb.id || sbIndex}
+                  variant="bodySmall"
+                  style={styles.subBlockLine}
+                >
+                  {sb.repetitions > 1
+                    ? `${sb.repetitions} x ${sb.distance}m`
+                    : `${sb.distance}m`}
+                  {sb.departure ? `  dep. ${sb.departure}` : ''}
+                  {sb.description ? ` — ${sb.description}` : ''}
+                </Text>
+              ))}
+            </View>
+          );
+        })}
+
+        <Button
+          mode="contained"
+          icon="pencil"
+          compact
+          onPress={() => navigation.navigate('CreateWorkout', { workout: item })}
+          style={styles.editBtn}
+          labelStyle={styles.editBtnLabel}
+        >
+          Modifier
+        </Button>
+      </View>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
@@ -127,66 +211,76 @@ export default function WorkoutsScreen({ navigation }: Props) {
           contentContainerStyle={styles.list}
           refreshing={loading}
           onRefresh={loadWorkouts}
-          renderItem={({ item }) => (
-            <Card
-              style={styles.card}
-              onPress={() =>
-                navigation.navigate('WorkoutDetail', { workoutId: item.id })
-              }
-            >
-              <Card.Content>
-                <View style={styles.cardHeader}>
-                  <Text variant="titleMedium" style={styles.cardTitle}>
-                    {item.title}
-                  </Text>
-                  <View style={styles.cardActions}>
-                    <IconButton
-                      icon="pencil"
-                      size={20}
-                      onPress={() => navigation.navigate('CreateWorkout', { workout: item })}
-                    />
-                    <IconButton
-                      icon="content-copy"
-                      size={20}
-                      onPress={() => handleDuplicate(item)}
-                    />
-                    <IconButton
-                      icon={item.is_published ? 'eye' : 'eye-off'}
-                      size={20}
-                      onPress={() => togglePublish(item)}
-                    />
-                    <IconButton
-                      icon="delete"
-                      size={20}
-                      iconColor="#EF4444"
-                      onPress={() => setDeleteTarget(item)}
-                    />
+          renderItem={({ item }) => {
+            const isExpanded = expandedId === item.id;
+            return (
+              <Card
+                style={styles.card}
+                onPress={() => toggleExpand(item.id)}
+              >
+                <Card.Content>
+                  <View style={styles.cardHeader}>
+                    <View style={styles.cardTitleRow}>
+                      <IconButton
+                        icon={isExpanded ? 'chevron-up' : 'chevron-down'}
+                        size={20}
+                        style={styles.chevron}
+                      />
+                      <Text variant="titleMedium" style={styles.cardTitle}>
+                        {item.title}
+                      </Text>
+                    </View>
+                    <View style={styles.cardActions}>
+                      <IconButton
+                        icon="pencil"
+                        size={20}
+                        onPress={() => navigation.navigate('CreateWorkout', { workout: item })}
+                      />
+                      <IconButton
+                        icon="content-copy"
+                        size={20}
+                        onPress={() => handleDuplicate(item)}
+                      />
+                      <IconButton
+                        icon={item.is_published ? 'eye' : 'eye-off'}
+                        size={20}
+                        onPress={() => togglePublish(item)}
+                      />
+                      <IconButton
+                        icon="delete"
+                        size={20}
+                        iconColor="#EF4444"
+                        onPress={() => setDeleteTarget(item)}
+                      />
+                    </View>
                   </View>
-                </View>
-                <View style={styles.chipRow}>
-                  {item.total_distance ? (
-                    <Chip compact icon="ruler" style={styles.chip}>
-                      {item.total_distance}m
+                  <View style={styles.chipRow}>
+                    {item.total_distance ? (
+                      <Chip compact icon="ruler" style={styles.chip}>
+                        {item.total_distance}m
+                      </Chip>
+                    ) : null}
+                    <Chip
+                      compact
+                      style={[
+                        styles.chip,
+                        item.is_published ? styles.publishedChip : styles.draftChip,
+                      ]}
+                    >
+                      {item.is_published ? 'Publie' : 'Brouillon'}
                     </Chip>
-                  ) : null}
-                  <Chip
-                    compact
-                    style={[
-                      styles.chip,
-                      item.is_published ? styles.publishedChip : styles.draftChip,
-                    ]}
-                  >
-                    {item.is_published ? 'Publie' : 'Brouillon'}
-                  </Chip>
-                </View>
-                {item.description ? (
-                  <Text variant="bodySmall" style={styles.desc} numberOfLines={2}>
-                    {item.description}
-                  </Text>
-                ) : null}
-              </Card.Content>
-            </Card>
-          )}
+                    {!isExpanded && item.content?.blocks ? (
+                      <Chip compact style={styles.chip}>
+                        {item.content.blocks.length} blocs
+                      </Chip>
+                    ) : null}
+                  </View>
+
+                  {isExpanded && renderExpandedContent(item)}
+                </Card.Content>
+              </Card>
+            );
+          }}
         />
       )}
 
@@ -242,21 +336,6 @@ const styles = StyleSheet.create({
   list: {
     padding: 16,
   },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
-  },
-  emptyText: {
-    color: '#6B7280',
-    textAlign: 'center',
-  },
-  emptySubtext: {
-    color: '#9CA3AF',
-    textAlign: 'center',
-    marginTop: 8,
-  },
   card: {
     backgroundColor: '#FFFFFF',
     marginBottom: 10,
@@ -265,6 +344,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
+  },
+  cardTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  chevron: {
+    margin: 0,
+    marginLeft: -8,
   },
   cardTitle: {
     fontWeight: 'bold',
@@ -279,6 +367,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 6,
     marginTop: 6,
+    marginLeft: 24,
   },
   chip: {
     height: 26,
@@ -289,9 +378,57 @@ const styles = StyleSheet.create({
   draftChip: {
     backgroundColor: '#FEF3C7',
   },
-  desc: {
-    color: '#6B7280',
+  // Expanded content
+  expandedContent: {
     marginTop: 8,
+    marginLeft: 24,
+  },
+  expandDivider: {
+    marginBottom: 10,
+  },
+  expandDesc: {
+    color: '#374151',
+    fontStyle: 'italic',
+    marginBottom: 10,
+  },
+  blockItem: {
+    borderLeftWidth: 3,
+    paddingLeft: 10,
+    marginBottom: 10,
+  },
+  blockHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
+  },
+  blockType: {
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+  },
+  blockName: {
+    color: '#1F2937',
+    fontWeight: '600',
+    flex: 1,
+  },
+  blockDist: {
+    color: '#06B6D4',
+    fontWeight: 'bold',
+  },
+  subBlockLine: {
+    color: '#4B5563',
+    marginBottom: 2,
+    paddingLeft: 4,
+  },
+  editBtn: {
+    backgroundColor: '#06B6D4',
+    alignSelf: 'flex-start',
+    marginTop: 4,
+    marginBottom: 4,
+  },
+  editBtnLabel: {
+    fontSize: 12,
   },
   fab: {
     position: 'absolute',
