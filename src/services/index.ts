@@ -6,6 +6,7 @@ export { workoutAssignmentService } from './workoutAssignmentService';
 export { workoutSessionService } from './workoutSessionService';
 export { profileService } from './profileService';
 export { blockLibraryService } from './blockLibraryService';
+export { notificationService } from './notificationService';
 
 // Re-export types
 export type { ClubWithMembers } from './clubService';

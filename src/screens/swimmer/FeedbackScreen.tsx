@@ -11,11 +11,12 @@ interface Props {
 }
 
 export default function FeedbackScreen({ navigation, route }: Props) {
-  const { sessionId, workoutTitle } = route.params;
+  const { sessionId, workoutTitle, editMode, existingRpe, existingComment } = route.params;
+  const isEdit = editMode === true;
 
   const showSnackbar = useSnackbarStore((s) => s.show);
-  const [rpe, setRpe] = useState(13);
-  const [comment, setComment] = useState('');
+  const [rpe, setRpe] = useState(existingRpe ?? 13);
+  const [comment, setComment] = useState(existingComment ?? '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -23,11 +24,19 @@ export default function FeedbackScreen({ navigation, route }: Props) {
     setLoading(true);
     setError('');
     try {
-      await workoutSessionService.submitFeedback(sessionId, {
-        rpe_score: rpe,
-        feedback_text: comment.trim() || undefined,
-      });
-      showSnackbar('Merci pour ton feedback !', 'success');
+      if (isEdit) {
+        await workoutSessionService.updateFeedback(sessionId, {
+          rpe_score: rpe,
+          feedback_text: comment.trim() || undefined,
+        });
+        showSnackbar('Feedback modifie !', 'success');
+      } else {
+        await workoutSessionService.submitFeedback(sessionId, {
+          rpe_score: rpe,
+          feedback_text: comment.trim() || undefined,
+        });
+        showSnackbar('Merci pour ton feedback !', 'success');
+      }
       navigation.goBack();
     } catch (err: any) {
       setError(err.message || 'Erreur lors de l\'envoi');
@@ -42,7 +51,6 @@ export default function FeedbackScreen({ navigation, route }: Props) {
 
   return (
     <View style={styles.overlay}>
-      {/* Backdrop: tap to dismiss */}
       <Pressable style={styles.backdrop} onPress={handleDismiss} />
 
       <KeyboardAvoidingView
@@ -50,14 +58,12 @@ export default function FeedbackScreen({ navigation, route }: Props) {
         style={styles.sheetWrapper}
       >
         <View style={styles.sheet}>
-          {/* Handle bar */}
           <View style={styles.handleBar} />
 
-          {/* Header */}
           <View style={styles.header}>
             <View style={styles.headerLeft}>
               <Text variant="titleLarge" style={styles.title}>
-                Mon ressenti
+                {isEdit ? 'Modifier mon ressenti' : 'Mon ressenti'}
               </Text>
               {workoutTitle && (
                 <Text variant="bodyMedium" style={styles.subtitle}>
@@ -112,8 +118,14 @@ export default function FeedbackScreen({ navigation, route }: Props) {
               style={styles.submitBtn}
               contentStyle={styles.submitContent}
             >
-              Envoyer mon feedback
+              {isEdit ? 'Modifier mon feedback' : 'Envoyer mon feedback'}
             </Button>
+
+            {isEdit && (
+              <Text variant="bodySmall" style={styles.editHint}>
+                Modification possible dans les 24h suivant l'envoi
+              </Text>
+            )}
           </ScrollView>
         </View>
       </KeyboardAvoidingView>
@@ -191,5 +203,10 @@ const styles = StyleSheet.create({
   },
   submitContent: {
     paddingVertical: 6,
+  },
+  editHint: {
+    color: '#9CA3AF',
+    textAlign: 'center',
+    marginTop: 8,
   },
 });

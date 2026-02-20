@@ -129,6 +129,48 @@ export const workoutSessionService = {
     return data;
   },
 
+  /** Update feedback (swimmer can edit within 24h of submission) */
+  async updateFeedback(
+    sessionId: string,
+    feedback: FeedbackData,
+  ): Promise<WorkoutSession> {
+    if (feedback.rpe_score < 6 || feedback.rpe_score > 20) {
+      throw new Error('Le score RPE doit etre entre 6 et 20');
+    }
+
+    // Check if feedback was submitted less than 24h ago
+    const { data: session, error: getErr } = await supabase
+      .from('workout_sessions')
+      .select('completed_at')
+      .eq('id', sessionId)
+      .single();
+
+    if (getErr) throw getErr;
+
+    if (session.completed_at) {
+      const completedAt = new Date(session.completed_at);
+      const now = new Date();
+      const hoursDiff = (now.getTime() - completedAt.getTime()) / (1000 * 60 * 60);
+      if (hoursDiff > 24) {
+        throw new Error('La modification du feedback est limitee a 24h apres envoi');
+      }
+    }
+
+    const { data, error } = await supabase
+      .from('workout_sessions')
+      .update({
+        rpe_score: feedback.rpe_score,
+        feedback_text: feedback.feedback_text ?? null,
+        completed_at: new Date().toISOString(),
+      })
+      .eq('id', sessionId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
   /** Get average RPE for multiple assignments (batch) */
   async getAverageRpeByAssignments(
     assignmentIds: string[],

@@ -51,7 +51,7 @@ export type CoachStackParamList = {
 
 export type SwimmerStackParamList = {
   SwimmerTabs: undefined;
-  Feedback: { sessionId: string; workoutTitle?: string };
+  Feedback: { sessionId: string; workoutTitle?: string; editMode?: boolean; existingRpe?: number; existingComment?: string };
   WorkoutDetail: { workoutId: string; workoutTitle?: string };
   SessionDetail: {
     assignment: WorkoutAssignment;

@@ -16,6 +16,8 @@ export type Database = {
           last_name: string;
           avatar_url: string | null;
           role: 'coach' | 'swimmer';
+          notification_feedback: boolean;
+          notification_reminder: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -25,6 +27,8 @@ export type Database = {
           last_name: string;
           avatar_url?: string | null;
           role: 'coach' | 'swimmer';
+          notification_feedback?: boolean;
+          notification_reminder?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -34,6 +38,8 @@ export type Database = {
           last_name?: string;
           avatar_url?: string | null;
           role?: 'coach' | 'swimmer';
+          notification_feedback?: boolean;
+          notification_reminder?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -339,6 +345,33 @@ export type Database = {
           content?: Json;
           total_distance?: number;
           created_at?: string;
+        };
+        Relationships: [];
+      };
+      push_tokens: {
+        Row: {
+          id: string;
+          user_id: string;
+          token: string;
+          platform: 'ios' | 'android' | 'web';
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          token: string;
+          platform: 'ios' | 'android' | 'web';
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          token?: string;
+          platform?: 'ios' | 'android' | 'web';
+          created_at?: string;
+          updated_at?: string;
         };
         Relationships: [];
       };

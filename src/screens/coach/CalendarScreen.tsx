@@ -1,22 +1,26 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Text, IconButton } from 'react-native-paper';
+import { View, StyleSheet, ScrollView } from 'react-native';
+import { Text, IconButton, SegmentedButtons } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { TrainingSlot, WorkoutAssignment } from '../../types';
 import { trainingSlotService, workoutAssignmentService, workoutService, workoutSessionService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
-import { getWeekDates, formatWeekRange, toISODate } from '../../utils/dateHelpers';
+import { getWeekDates, formatWeekRange, toISODate, getMonthCalendarDates, formatMonthYear, getMonthDateRange } from '../../utils/dateHelpers';
 import WeekView from '../../components/calendar/WeekView';
+import MonthView from '../../components/calendar/MonthView';
 import EmptyState from '../../components/EmptyState';
 
 interface Props {
   navigation: any;
 }
 
+type ViewMode = 'week' | 'month';
+
 export default function CalendarScreen({ navigation }: Props) {
   const { user } = useAuthStore();
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [viewMode, setViewMode] = useState<ViewMode>('week');
   const [slots, setSlots] = useState<TrainingSlot[]>([]);
   const [assignments, setAssignments] = useState<WorkoutAssignment[]>([]);
   const [rpeMap, setRpeMap] = useState<Record<string, number | null>>({});
@@ -24,6 +28,7 @@ export default function CalendarScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(true);
 
   const weekDates = getWeekDates(currentDate);
+  const monthDates = getMonthCalendarDates(currentDate);
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -34,18 +39,27 @@ export default function CalendarScreen({ navigation }: Props) {
 
       if (coachSlots.length > 0) {
         const slotIds = coachSlots.map((s) => s.id);
-        const dates = getWeekDates(currentDate);
-        const startDate = toISODate(dates[0]);
-        const endDate = toISODate(dates[6]);
-        const weekAssignments = await workoutAssignmentService.getByDateRange(
+
+        let startDate: string;
+        let endDate: string;
+        if (viewMode === 'month') {
+          const range = getMonthDateRange(currentDate);
+          startDate = range.startDate;
+          endDate = range.endDate;
+        } else {
+          const dates = getWeekDates(currentDate);
+          startDate = toISODate(dates[0]);
+          endDate = toISODate(dates[6]);
+        }
+
+        const rangeAssignments = await workoutAssignmentService.getByDateRange(
           slotIds,
           startDate,
           endDate,
         );
-        setAssignments(weekAssignments);
+        setAssignments(rangeAssignments);
 
-        // Load workout titles for all assignments
-        const uniqueWorkoutIds = [...new Set(weekAssignments.map((a) => a.workout_id))];
+        const uniqueWorkoutIds = [...new Set(rangeAssignments.map((a) => a.workout_id))];
         const titles: Record<string, string> = {};
         for (const wId of uniqueWorkoutIds) {
           try {
@@ -55,8 +69,7 @@ export default function CalendarScreen({ navigation }: Props) {
         }
         setWorkoutTitles(titles);
 
-        // Load RPE averages for marked assignments
-        const markedIds = weekAssignments
+        const markedIds = rangeAssignments
           .filter((a) => a.attendance_marked)
           .map((a) => a.id);
         if (markedIds.length > 0) {
@@ -77,7 +90,7 @@ export default function CalendarScreen({ navigation }: Props) {
     } finally {
       setLoading(false);
     }
-  }, [user, currentDate]);
+  }, [user, currentDate, viewMode]);
 
   useFocusEffect(
     useCallback(() => {
@@ -85,15 +98,23 @@ export default function CalendarScreen({ navigation }: Props) {
     }, [loadData]),
   );
 
-  const goToPrevWeek = () => {
+  const goToPrev = () => {
     const d = new Date(currentDate);
-    d.setDate(d.getDate() - 7);
+    if (viewMode === 'month') {
+      d.setMonth(d.getMonth() - 1);
+    } else {
+      d.setDate(d.getDate() - 7);
+    }
     setCurrentDate(d);
   };
 
-  const goToNextWeek = () => {
+  const goToNext = () => {
     const d = new Date(currentDate);
-    d.setDate(d.getDate() + 7);
+    if (viewMode === 'month') {
+      d.setMonth(d.getMonth() + 1);
+    } else {
+      d.setDate(d.getDate() + 7);
+    }
     setCurrentDate(d);
   };
 
@@ -101,22 +122,43 @@ export default function CalendarScreen({ navigation }: Props) {
     setCurrentDate(new Date());
   };
 
+  const handleMonthDayPress = (date: Date) => {
+    setCurrentDate(date);
+    setViewMode('week');
+  };
+
+  const headerLabel = viewMode === 'month'
+    ? formatMonthYear(currentDate)
+    : formatWeekRange(currentDate);
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <Text variant="headlineMedium" style={styles.title}>
-          Calendrier
-        </Text>
+        <View style={styles.titleRow}>
+          <Text variant="headlineMedium" style={styles.title}>
+            Calendrier
+          </Text>
+          <SegmentedButtons
+            value={viewMode}
+            onValueChange={(v) => setViewMode(v as ViewMode)}
+            density="small"
+            style={styles.segmented}
+            buttons={[
+              { value: 'week', label: 'Sem', style: styles.segBtn },
+              { value: 'month', label: 'Mois', style: styles.segBtn },
+            ]}
+          />
+        </View>
         <View style={styles.weekNav}>
-          <IconButton icon="chevron-left" onPress={goToPrevWeek} />
+          <IconButton icon="chevron-left" onPress={goToPrev} />
           <Text
             variant="titleSmall"
             style={styles.weekRange}
             onPress={goToToday}
           >
-            {formatWeekRange(currentDate)}
+            {headerLabel}
           </Text>
-          <IconButton icon="chevron-right" onPress={goToNextWeek} />
+          <IconButton icon="chevron-right" onPress={goToNext} />
         </View>
       </View>
 
@@ -126,6 +168,17 @@ export default function CalendarScreen({ navigation }: Props) {
           title="Aucun creneau configure"
           subtitle="Creez des creneaux pour voir votre calendrier"
         />
+      ) : viewMode === 'month' ? (
+        <ScrollView>
+          <MonthView
+            dates={monthDates}
+            currentMonth={currentDate.getMonth()}
+            slots={slots}
+            assignments={assignments}
+            rpeMap={rpeMap}
+            onDayPress={handleMonthDayPress}
+          />
+        </ScrollView>
       ) : (
         <WeekView
           dates={weekDates}
@@ -167,9 +220,20 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
   },
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   title: {
     fontWeight: 'bold',
     color: '#1F2937',
+  },
+  segmented: {
+    maxWidth: 160,
+  },
+  segBtn: {
+    minWidth: 60,
   },
   weekNav: {
     flexDirection: 'row',

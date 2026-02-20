@@ -7,6 +7,7 @@ import {
   groupService,
   workoutSessionService,
   workoutAssignmentService,
+  notificationService,
 } from '../../services';
 import { useSnackbarStore } from '../../stores/snackbarStore';
 
@@ -75,6 +76,14 @@ export default function AttendanceScreen({ navigation, route }: Props) {
         attendedArray,
       );
       await workoutAssignmentService.markAttendance(assignmentId);
+
+      // Send push notifications to attended swimmers for feedback
+      try {
+        await notificationService.notifyFeedbackRequired(
+          attendedArray,
+          workoutTitle || 'la seance',
+        );
+      } catch {}
 
       showSnackbar('Emargement valide', 'success');
       navigation.goBack();

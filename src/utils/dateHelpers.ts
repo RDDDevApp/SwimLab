@@ -81,3 +81,46 @@ export function formatTime(time: string): string {
   const [h, m] = time.split(':');
   return `${h}h${m}`;
 }
+
+/** Get all dates in a month as a 6-row calendar grid (Mon-Sun) */
+export function getMonthCalendarDates(date: Date): Date[] {
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+
+  // Find the Monday before or on the first day of the month
+  const startDate = getWeekStart(firstDay);
+
+  // Generate 42 days (6 weeks) to fill the calendar grid
+  const dates: Date[] = [];
+  const current = new Date(startDate);
+  for (let i = 0; i < 42; i++) {
+    dates.push(new Date(current));
+    current.setDate(current.getDate() + 1);
+  }
+
+  // Trim trailing week if it's entirely in the next month
+  if (dates[35].getMonth() !== month) {
+    return dates.slice(0, 35);
+  }
+  return dates;
+}
+
+/** Format month and year: "Fevrier 2026" */
+export function formatMonthYear(date: Date): string {
+  const months = [
+    'Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin',
+    'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'Decembre',
+  ];
+  return `${months[date.getMonth()]} ${date.getFullYear()}`;
+}
+
+/** Get start and end ISO dates for a month calendar grid */
+export function getMonthDateRange(date: Date): { startDate: string; endDate: string } {
+  const dates = getMonthCalendarDates(date);
+  return {
+    startDate: toISODate(dates[0]),
+    endDate: toISODate(dates[dates.length - 1]),
+  };
+}

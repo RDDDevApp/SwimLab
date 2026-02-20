@@ -1,11 +1,11 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
-import { Text, Card, Button, Avatar, List, Chip } from 'react-native-paper';
+import { Text, Card, Button, Avatar, List, Chip, Switch } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
-import { clubService } from '../../services';
+import { clubService, profileService } from '../../services';
 import { Club } from '../../types';
 
 export default function ProfileScreen() {
@@ -116,6 +116,46 @@ export default function ProfileScreen() {
             </Card.Content>
           </Card>
         )}
+
+        <Card style={styles.card}>
+          <Card.Content>
+            <Text variant="titleMedium">Notifications</Text>
+            <List.Item
+              title="Rappels d'entrainement"
+              description="1h avant chaque seance"
+              left={(props) => <List.Icon {...props} icon="bell-outline" />}
+              right={() => (
+                <Switch
+                  value={profile?.notification_reminder ?? true}
+                  onValueChange={async (val) => {
+                    if (!user) return;
+                    try {
+                      await profileService.update(user.id, { notification_reminder: val });
+                      useAuthStore.getState().fetchProfile();
+                    } catch {}
+                  }}
+                />
+              )}
+            />
+            <List.Item
+              title="Demandes de feedback"
+              description="Apres chaque emargement"
+              left={(props) => <List.Icon {...props} icon="comment-outline" />}
+              right={() => (
+                <Switch
+                  value={profile?.notification_feedback ?? true}
+                  onValueChange={async (val) => {
+                    if (!user) return;
+                    try {
+                      await profileService.update(user.id, { notification_feedback: val });
+                      useAuthStore.getState().fetchProfile();
+                    } catch {}
+                  }}
+                />
+              )}
+            />
+          </Card.Content>
+        </Card>
 
         <Button
           mode="outlined"
