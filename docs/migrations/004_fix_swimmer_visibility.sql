@@ -32,8 +32,10 @@ $$;
 -- ============================================
 -- 2. Fix workout_assignments RLS policy
 -- ============================================
--- Drop the existing combined policy
+-- Drop old policies (idempotent)
 DROP POLICY IF EXISTS "Coach and swimmers can view assignments" ON workout_assignments;
+DROP POLICY IF EXISTS "Coach can view own slot assignments" ON workout_assignments;
+DROP POLICY IF EXISTS "Swimmers can view group assignments" ON workout_assignments;
 
 -- Separate policy for coaches (direct, no chain)
 CREATE POLICY "Coach can view own slot assignments" ON workout_assignments
@@ -67,8 +69,9 @@ CREATE POLICY "Swimmers can view group assignments" ON workout_assignments
 -- ============================================
 -- 3. Fix workouts visibility for swimmers
 -- ============================================
--- Drop the old swimmer policy that requires is_published AND complex join
+-- Drop old policies (idempotent)
 DROP POLICY IF EXISTS "Swimmers can view assigned published workouts" ON workouts;
+DROP POLICY IF EXISTS "Swimmers can view assigned workouts" ON workouts;
 
 -- New policy: swimmers can view workouts assigned to their group's slots
 -- Uses SECURITY DEFINER helper to avoid RLS chain
