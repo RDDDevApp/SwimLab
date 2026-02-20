@@ -58,6 +58,7 @@ export default function WorkoutsScreen({ navigation }: Props) {
         club_id: clubId,
         coach_id: user.id,
         title: `${workout.title} (copie)`,
+        type: workout.type || 'other',
         description: workout.description,
         content: workout.content,
         total_distance: workout.total_distance,

@@ -112,6 +112,7 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
           club_id: clubId,
           coach_id: user.id,
           title: title.trim(),
+          type: 'other',
           description: description.trim() || null,
           content,
           total_distance: totalDistance,
