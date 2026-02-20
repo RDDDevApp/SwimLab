@@ -37,6 +37,7 @@ export type Database = {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       clubs: {
         Row: {
@@ -69,6 +70,7 @@ export type Database = {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       club_members: {
         Row: {
@@ -92,6 +94,7 @@ export type Database = {
           role?: 'coach' | 'swimmer';
           joined_at?: string;
         };
+        Relationships: [];
       };
       groups: {
         Row: {
@@ -127,6 +130,7 @@ export type Database = {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       group_members: {
         Row: {
@@ -147,6 +151,7 @@ export type Database = {
           user_id?: string;
           joined_at?: string;
         };
+        Relationships: [];
       };
       training_slots: {
         Row: {
@@ -188,6 +193,7 @@ export type Database = {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       workouts: {
         Row: {
@@ -232,6 +238,7 @@ export type Database = {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       workout_assignments: {
         Row: {
@@ -261,6 +268,7 @@ export type Database = {
           attendance_marked?: boolean;
           assigned_at?: string;
         };
+        Relationships: [];
       };
       workout_sessions: {
         Row: {
@@ -299,11 +307,44 @@ export type Database = {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
+      };
+      block_library: {
+        Row: {
+          id: string;
+          club_id: string;
+          coach_id: string;
+          name: string;
+          type: string;
+          content: Json;
+          total_distance: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          club_id: string;
+          coach_id: string;
+          name: string;
+          type: string;
+          content: Json;
+          total_distance: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          club_id?: string;
+          coach_id?: string;
+          name?: string;
+          type?: string;
+          content?: Json;
+          total_distance?: number;
+          created_at?: string;
+        };
+        Relationships: [];
       };
     };
     Views: {};
     Functions: {};
-    Enums: {};
   };
 };
 

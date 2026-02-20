@@ -309,7 +309,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
               <View>
                 {/* Action buttons */}
                 <View style={styles.actionRow}>
-                  {!assignment.attendance_marked ? (
+                  {!assignment!.attendance_marked ? (
                     <>
                       <Button
                         mode="outlined"
@@ -349,7 +349,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
                 </View>
 
                 {/* Feedback stats mini summary */}
-                {assignment.attendance_marked && feedbackStats && (
+                {assignment!.attendance_marked && feedbackStats && (
                   <View style={styles.statsRow}>
                     <View style={styles.statItem}>
                       <Text variant="bodySmall" style={styles.statLabel}>Presents</Text>
