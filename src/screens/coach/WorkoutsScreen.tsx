@@ -8,6 +8,7 @@ import { workoutService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
 import EmptyState from '../../components/EmptyState';
+import { exportWorkoutPdf } from '../../utils/workoutPdfExport';
 
 const BLOCK_COLORS: Record<string, string> = {
   warmup: '#10B981',
@@ -156,16 +157,34 @@ export default function WorkoutsScreen({ navigation }: Props) {
           );
         })}
 
-        <Button
-          mode="contained"
-          icon="pencil"
-          compact
-          onPress={() => navigation.navigate('CreateWorkout', { workout: item })}
-          style={styles.editBtn}
-          labelStyle={styles.editBtnLabel}
-        >
-          Modifier
-        </Button>
+        <View style={styles.expandBtnRow}>
+          <Button
+            mode="contained"
+            icon="pencil"
+            compact
+            onPress={() => navigation.navigate('CreateWorkout', { workout: item })}
+            style={styles.editBtn}
+            labelStyle={styles.editBtnLabel}
+          >
+            Modifier
+          </Button>
+          <Button
+            mode="outlined"
+            icon="file-pdf-box"
+            compact
+            onPress={async () => {
+              try {
+                await exportWorkoutPdf(item);
+              } catch (err: any) {
+                showSnackbar(err.message || 'Erreur export PDF', 'error');
+              }
+            }}
+            style={styles.pdfBtn}
+            labelStyle={styles.editBtnLabel}
+          >
+            PDF
+          </Button>
+        </View>
       </View>
     );
   };
@@ -421,11 +440,17 @@ const styles = StyleSheet.create({
     marginBottom: 2,
     paddingLeft: 4,
   },
-  editBtn: {
-    backgroundColor: '#06B6D4',
-    alignSelf: 'flex-start',
+  expandBtnRow: {
+    flexDirection: 'row',
+    gap: 8,
     marginTop: 4,
     marginBottom: 4,
+  },
+  editBtn: {
+    backgroundColor: '#06B6D4',
+  },
+  pdfBtn: {
+    borderColor: '#06B6D4',
   },
   editBtnLabel: {
     fontSize: 12,
