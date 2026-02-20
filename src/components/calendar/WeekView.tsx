@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { Text } from 'react-native-paper';
 import { TrainingSlot, WorkoutAssignment } from '../../types';
-import { formatShortDate, isToday, getDayOfWeek, formatTime } from '../../utils/dateHelpers';
+import { formatShortDate, isToday, getDayOfWeek, formatTime, toISODate } from '../../utils/dateHelpers';
 
 interface WeekViewProps {
   dates: Date[];
@@ -45,7 +45,7 @@ export default function WeekView({
         const dayOfWeek = getDayOfWeek(date);
         const daySlots = slots.filter((s) => s.day_of_week === dayOfWeek);
         const today = isToday(date);
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = toISODate(date);
 
         return (
           <View

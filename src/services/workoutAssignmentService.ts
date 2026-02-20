@@ -15,11 +15,11 @@ export interface AssignmentWithDetails extends WorkoutAssignment {
 }
 
 export const workoutAssignmentService = {
-  /** Assign a workout to a training slot on a specific date */
+  /** Assign a workout to a training slot on a specific date (upsert to avoid duplicate key errors) */
   async create(data: AssignmentInsert): Promise<WorkoutAssignment> {
     const { data: assignment, error } = await supabase
       .from('workout_assignments')
-      .insert(data)
+      .upsert(data, { onConflict: 'training_slot_id,scheduled_date' })
       .select()
       .single();
 

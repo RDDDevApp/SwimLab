@@ -211,7 +211,7 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
 
       <ScrollView contentContainerStyle={styles.list}>
         {weekDates.map((date) => {
-          const dateStr = date.toISOString().split('T')[0];
+          const dateStr = toISODate(date);
           const dayOfWeek = getDayOfWeek(date);
           const today = isToday(date);
           const dayItems = getItemsForDate(dateStr);
