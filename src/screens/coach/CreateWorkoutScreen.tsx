@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, FlatList, TouchableOpacity } from 'react-native';
 import {
   Text,
   TextInput,
@@ -7,20 +7,34 @@ import {
   HelperText,
   Divider,
   Chip,
+  Portal,
+  Dialog,
+  Card,
 } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   WorkoutBlock,
   WorkoutContent,
+  BlockLibraryRow,
+  SubBlock,
+  BlockType,
   BLOCK_TYPE_LABELS,
 } from '../../types';
-import { workoutService } from '../../services';
+import { workoutService, blockLibraryService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
+import { useSnackbarStore } from '../../stores/snackbarStore';
 import BlockEditor from '../../components/workout/BlockEditor';
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 9);
 }
+
+const BLOCK_COLORS: Record<string, string> = {
+  warmup: '#10B981',
+  main: '#06B6D4',
+  cooldown: '#8B5CF6',
+  other: '#6B7280',
+};
 
 interface Props {
   navigation: any;
@@ -29,6 +43,7 @@ interface Props {
 
 export default function CreateWorkoutScreen({ navigation, route }: Props) {
   const { user, clubId: storeClubId } = useAuthStore();
+  const showSnackbar = useSnackbarStore((s) => s.show);
   const editingWorkout = route?.params?.workout;
 
   const defaultBlocks: WorkoutBlock[] = [
@@ -47,6 +62,11 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Library modal state
+  const [libraryBlocks, setLibraryBlocks] = useState<BlockLibraryRow[]>([]);
+  const [libraryLoading, setLibraryLoading] = useState(false);
+  const [importTargetIndex, setImportTargetIndex] = useState<number | null>(null);
+
   const clubId = route?.params?.clubId || storeClubId;
 
   const totalDistance = blocks.reduce((sum, block) => {
@@ -57,6 +77,19 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
       }, 0)
     );
   }, 0);
+
+  const loadLibrary = async () => {
+    if (!clubId) return;
+    setLibraryLoading(true);
+    try {
+      const data = await blockLibraryService.getByClub(clubId);
+      setLibraryBlocks(data);
+    } catch (err) {
+      console.error('Error loading library:', err);
+    } finally {
+      setLibraryLoading(false);
+    }
+  };
 
   const addBlock = () => {
     const newBlock: WorkoutBlock = {
@@ -84,6 +117,55 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
     const updated = [...blocks];
     [updated[index], updated[newIndex]] = [updated[newIndex], updated[index]];
     setBlocks(updated);
+  };
+
+  const handleSaveToLibrary = async (blockIndex: number) => {
+    if (!user || !clubId) return;
+    const block = blocks[blockIndex];
+    if (!block.name.trim()) {
+      showSnackbar('Donnez un nom au bloc avant de le sauvegarder', 'error');
+      return;
+    }
+    try {
+      const totalDist = block.sub_blocks.reduce(
+        (sum, sb) => sum + sb.distance * sb.repetitions,
+        0,
+      );
+      await blockLibraryService.create({
+        club_id: clubId,
+        coach_id: user.id,
+        name: block.name.trim(),
+        type: block.type,
+        content: block.sub_blocks,
+        total_distance: totalDist,
+      });
+      showSnackbar('Bloc sauvegarde dans la bibliotheque', 'success');
+    } catch (err) {
+      showSnackbar('Erreur lors de la sauvegarde du bloc', 'error');
+    }
+  };
+
+  const handleOpenImport = (blockIndex: number) => {
+    setImportTargetIndex(blockIndex);
+    loadLibrary();
+  };
+
+  const handleImportBlock = (libBlock: BlockLibraryRow) => {
+    if (importTargetIndex === null) return;
+    const newSubBlocks: SubBlock[] = (libBlock.content || []).map((sb) => ({
+      ...sb,
+      id: generateId(),
+    }));
+    const updated = [...blocks];
+    updated[importTargetIndex] = {
+      ...updated[importTargetIndex],
+      name: libBlock.name,
+      type: libBlock.type,
+      sub_blocks: newSubBlocks,
+    };
+    setBlocks(updated);
+    setImportTargetIndex(null);
+    showSnackbar('Bloc importe depuis la bibliotheque', 'success');
   };
 
   const handleSave = async (publish: boolean) => {
@@ -179,6 +261,8 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
             onMoveDown={
               index < blocks.length - 1 ? () => moveBlock(index, 1) : undefined
             }
+            onSaveToLibrary={() => handleSaveToLibrary(index)}
+            onReplaceFromLibrary={() => handleOpenImport(index)}
           />
         ))}
 
@@ -218,6 +302,100 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
           </Button>
         </View>
       </ScrollView>
+
+      <Portal>
+        <Dialog
+          visible={importTargetIndex !== null}
+          onDismiss={() => setImportTargetIndex(null)}
+          style={styles.dialog}
+        >
+          <Dialog.Title>Importer depuis la bibliotheque</Dialog.Title>
+          <Dialog.ScrollArea style={styles.dialogScroll}>
+            {libraryLoading ? (
+              <View style={styles.dialogEmpty}>
+                <Text variant="bodyMedium" style={styles.dialogEmptyText}>
+                  Chargement...
+                </Text>
+              </View>
+            ) : libraryBlocks.length === 0 ? (
+              <View style={styles.dialogEmpty}>
+                <Text variant="bodyMedium" style={styles.dialogEmptyText}>
+                  Aucun bloc dans la bibliotheque
+                </Text>
+                <Text variant="bodySmall" style={styles.dialogEmptySubtext}>
+                  Sauvegardez des blocs avec le bouton "Sauvegarder dans biblio"
+                </Text>
+              </View>
+            ) : (
+              <FlatList
+                data={libraryBlocks}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => {
+                  const color = BLOCK_COLORS[item.type] || BLOCK_COLORS.other;
+                  return (
+                    <TouchableOpacity onPress={() => handleImportBlock(item)}>
+                      <Card style={[styles.libCard, { borderLeftColor: color }]}>
+                        <Card.Content>
+                          <View style={styles.libCardHeader}>
+                            <View style={styles.libCardLeft}>
+                              <Chip
+                                compact
+                                style={[
+                                  styles.libTypeChip,
+                                  { backgroundColor: color + '20' },
+                                ]}
+                              >
+                                <Text
+                                  style={{
+                                    color,
+                                    fontWeight: '600',
+                                    fontSize: 11,
+                                  }}
+                                >
+                                  {BLOCK_TYPE_LABELS[
+                                    item.type as keyof typeof BLOCK_TYPE_LABELS
+                                  ] || item.type}
+                                </Text>
+                              </Chip>
+                              <Text
+                                variant="titleSmall"
+                                style={styles.libCardTitle}
+                              >
+                                {item.name}
+                              </Text>
+                            </View>
+                            <Chip compact style={styles.libDistChip}>
+                              {item.total_distance}m
+                            </Chip>
+                          </View>
+                          {(item.content || []).length > 0 ? (
+                            <Text
+                              variant="bodySmall"
+                              style={styles.libCardSub}
+                              numberOfLines={2}
+                            >
+                              {(item.content as SubBlock[])
+                                .map((sb) =>
+                                  sb.repetitions > 1
+                                    ? `${sb.repetitions}x${sb.distance}m`
+                                    : `${sb.distance}m`,
+                                )
+                                .join(' + ')}
+                            </Text>
+                          ) : null}
+                        </Card.Content>
+                      </Card>
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+            )}
+          </Dialog.ScrollArea>
+          <Dialog.Actions>
+            <Button onPress={() => setImportTargetIndex(null)}>Fermer</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </SafeAreaView>
   );
 }
@@ -256,11 +434,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     marginBottom: 12,
   },
-  row: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 12,
-  },
   flex1: {
     flex: 1,
   },
@@ -281,5 +454,57 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
     marginTop: 8,
+  },
+  // Import dialog
+  dialog: {
+    maxHeight: '80%',
+  },
+  dialogScroll: {
+    paddingHorizontal: 0,
+    maxHeight: 400,
+  },
+  dialogEmpty: {
+    padding: 24,
+    alignItems: 'center',
+  },
+  dialogEmptyText: {
+    color: '#6B7280',
+    textAlign: 'center',
+  },
+  dialogEmptySubtext: {
+    color: '#9CA3AF',
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  libCard: {
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 16,
+    marginVertical: 4,
+    borderLeftWidth: 4,
+  },
+  libCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  libCardLeft: {
+    flex: 1,
+    gap: 4,
+  },
+  libCardTitle: {
+    fontWeight: 'bold',
+    color: '#1F2937',
+  },
+  libTypeChip: {
+    alignSelf: 'flex-start',
+    height: 24,
+  },
+  libDistChip: {
+    backgroundColor: '#CFFAFE',
+    height: 24,
+  },
+  libCardSub: {
+    color: '#6B7280',
+    marginTop: 4,
   },
 });

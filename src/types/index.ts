@@ -44,6 +44,7 @@ export type CoachStackParamList = {
     assignment: WorkoutAssignment | null;
     workoutTitle?: string;
   };
+  WorkoutDetail: { workoutId: string };
   BlockLibrary: undefined;
   WorkoutHistory: undefined;
 };
