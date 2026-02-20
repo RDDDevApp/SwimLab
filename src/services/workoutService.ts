@@ -100,11 +100,7 @@ export const workoutService = {
   calculateTotalDistance(content: WorkoutContent): number {
     return content.blocks.reduce((total, block) => {
       const blockDistance = block.sub_blocks.reduce((subTotal, sub) => {
-        const exerciseDistance = sub.exercises.reduce(
-          (exTotal, ex) => exTotal + ex.distance,
-          0,
-        );
-        return subTotal + exerciseDistance * sub.series;
+        return subTotal + sub.distance * sub.repetitions;
       }, 0);
       return total + blockDistance;
     }, 0);

@@ -44,9 +44,7 @@ export type CoachStackParamList = {
     assignment: WorkoutAssignment | null;
     workoutTitle?: string;
   };
-  ExerciseLibrary: undefined;
-  CreateExercise: { exercise?: any } | undefined;
-  WorkoutTemplates: undefined;
+  BlockLibrary: undefined;
   WorkoutHistory: undefined;
 };
 
@@ -57,7 +55,6 @@ export type SwimmerStackParamList = {
   SessionDetail: {
     assignment: WorkoutAssignment;
     workoutTitle: string;
-    workoutType: string;
     totalDistance: number | null;
     slotName: string;
     slot: TrainingSlot;
@@ -96,16 +93,13 @@ export const GROUP_LEVELS = {
 
 export type GroupLevel = keyof typeof GROUP_LEVELS;
 
-// Workout Types
-export const WORKOUT_TYPES = {
-  endurance: 'Endurance',
-  sprint: 'Sprint',
-  technique: 'Technique',
-  recovery: 'Recuperation',
+// Block Types (French labels)
+export const BLOCK_TYPE_LABELS = {
+  warmup: 'Echauffement',
+  main: 'Corps de seance',
+  cooldown: 'Recuperation',
   other: 'Autre',
 } as const;
-
-export type WorkoutType = keyof typeof WORKOUT_TYPES;
 
 // Stroke Types (French labels)
 export const STROKE_LABELS = {
@@ -133,17 +127,3 @@ export const INTENSITY_LABELS = {
   sprint: 'Sprint',
 } as const;
 
-// Exercise Library Categories (French)
-export const EXERCISE_CATEGORIES = {
-  warmup: 'Echauffement',
-  main: 'Corps de seance',
-  cooldown: 'Retour au calme',
-  drill: 'Educatifs',
-  sprint: 'Sprint',
-  endurance: 'Endurance',
-  kick: 'Jambes',
-  pull: 'Bras',
-  other: 'Autre',
-} as const;
-
-export type ExerciseCategory = keyof typeof EXERCISE_CATEGORIES;

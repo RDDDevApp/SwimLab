@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Text, Button, IconButton, Divider } from 'react-native-paper';
-import { WorkoutBlock, SubBlock } from '../../types';
+import { Text, TextInput, Button, IconButton, Divider } from 'react-native-paper';
+import { WorkoutBlock, SubBlock, BlockType, BLOCK_TYPE_LABELS } from '../../types';
 import SubBlockEditor from './SubBlockEditor';
 import PickerSelect from '../PickerSelect';
 
@@ -11,15 +11,14 @@ interface BlockEditorProps {
   onRemove: () => void;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
+  onSaveToLibrary?: () => void;
+  onReplaceFromLibrary?: () => void;
 }
 
 const BLOCK_TYPES = [
   { value: 'warmup', label: 'Echauffement' },
   { value: 'main', label: 'Corps de seance' },
-  { value: 'cooldown', label: 'Retour au calme' },
-  { value: 'drill', label: 'Educatifs' },
-  { value: 'sprint', label: 'Sprint' },
-  { value: 'endurance', label: 'Endurance' },
+  { value: 'cooldown', label: 'Recuperation' },
   { value: 'other', label: 'Autre' },
 ];
 
@@ -27,9 +26,6 @@ const BLOCK_COLORS: Record<string, string> = {
   warmup: '#10B981',
   main: '#06B6D4',
   cooldown: '#8B5CF6',
-  drill: '#F59E0B',
-  sprint: '#EF4444',
-  endurance: '#3B82F6',
   other: '#6B7280',
 };
 
@@ -43,14 +39,14 @@ export default function BlockEditor({
   onRemove,
   onMoveUp,
   onMoveDown,
+  onSaveToLibrary,
+  onReplaceFromLibrary,
 }: BlockEditorProps) {
   const addSubBlock = () => {
     const newSubBlock: SubBlock = {
       id: generateId(),
-      title: '',
-      series: 1,
       distance: 0,
-      exercises: [],
+      repetitions: 1,
     };
     onChange({ ...block, sub_blocks: [...block.sub_blocks, newSubBlock] });
   };
@@ -66,10 +62,10 @@ export default function BlockEditor({
     onChange({ ...block, sub_blocks: updated });
   };
 
-  const totalDistance = block.sub_blocks.reduce((sum, sb) => {
-    const sbDist = sb.exercises.reduce((s, ex) => s + ex.distance, 0) * sb.series;
-    return sum + sbDist;
-  }, 0);
+  const totalDistance = block.sub_blocks.reduce(
+    (sum, sb) => sum + sb.distance * sb.repetitions,
+    0,
+  );
 
   const accentColor = BLOCK_COLORS[block.type] || BLOCK_COLORS.other;
 
@@ -86,10 +82,14 @@ export default function BlockEditor({
             )}
           </View>
           <PickerSelect
-            label="Type de bloc"
+            label="Type"
             value={block.type}
             options={BLOCK_TYPES}
-            onChange={(v) => onChange({ ...block, type: v as WorkoutBlock['type'] })}
+            onChange={(v) => {
+              const newType = v as BlockType;
+              const newName = block.name || BLOCK_TYPE_LABELS[newType] || '';
+              onChange({ ...block, type: newType, name: newName });
+            }}
             style={styles.typePicker}
           />
         </View>
@@ -105,6 +105,15 @@ export default function BlockEditor({
           />
         </View>
       </View>
+
+      <TextInput
+        label="Nom du bloc"
+        value={block.name}
+        onChangeText={(v) => onChange({ ...block, name: v })}
+        mode="outlined"
+        dense
+        style={styles.nameInput}
+      />
 
       <Divider style={styles.divider} />
 
@@ -126,6 +135,31 @@ export default function BlockEditor({
       >
         Ajouter sous-bloc
       </Button>
+
+      <View style={styles.libraryRow}>
+        {onSaveToLibrary && (
+          <Button
+            mode="text"
+            icon="content-save"
+            onPress={onSaveToLibrary}
+            compact
+            style={styles.libBtn}
+          >
+            Sauvegarder dans biblio
+          </Button>
+        )}
+        {onReplaceFromLibrary && (
+          <Button
+            mode="text"
+            icon="swap-horizontal"
+            onPress={onReplaceFromLibrary}
+            compact
+            style={styles.libBtn}
+          >
+            Depuis biblio
+          </Button>
+        )}
+      </View>
     </View>
   );
 }
@@ -167,11 +201,28 @@ const styles = StyleSheet.create({
   distance: {
     fontWeight: 'bold',
   },
+  nameInput: {
+    backgroundColor: '#FFFFFF',
+    marginTop: 8,
+    marginBottom: 4,
+  },
   divider: {
     marginVertical: 10,
   },
   addBtn: {
     alignSelf: 'flex-start',
     borderColor: '#D1D5DB',
+    marginBottom: 8,
+  },
+  libraryRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 4,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+    paddingTop: 8,
+  },
+  libBtn: {
+    alignSelf: 'flex-start',
   },
 });
