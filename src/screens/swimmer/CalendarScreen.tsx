@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { Text, IconButton } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
-import { WorkoutAssignment, WorkoutSession, WORKOUT_TYPES, TrainingSlot } from '../../types';
+import { WorkoutAssignment, WorkoutSession, TrainingSlot } from '../../types';
 import {
   groupService,
   trainingSlotService,
@@ -107,7 +107,7 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
         try {
           const workout = await workoutService.getById(assignment.workout_id);
           workoutTitle = workout.title;
-          workoutType = workout.type;
+          workoutType = workout.type || 'other';
           totalDistance = workout.total_distance;
         } catch {}
 
@@ -251,7 +251,6 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
                           navigation.navigate('SessionDetail', {
                             assignment: item.assignment,
                             workoutTitle: item.workoutTitle,
-                            workoutType: item.workoutType,
                             totalDistance: item.totalDistance,
                             slotName: item.slotName,
                             slot: item.slot,
@@ -277,11 +276,6 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
                           {item.workoutTitle}
                         </Text>
                         <View style={styles.chipRow}>
-                          <View style={styles.typeChip}>
-                            <Text style={styles.typeChipText}>
-                              {WORKOUT_TYPES[item.workoutType as keyof typeof WORKOUT_TYPES] || item.workoutType}
-                            </Text>
-                          </View>
                           {item.totalDistance ? (
                             <View style={styles.typeChip}>
                               <Text style={styles.typeChipText}>

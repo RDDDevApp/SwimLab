@@ -103,12 +103,8 @@ describe('workoutService', () => {
             sub_blocks: [
               {
                 id: 'sb1',
-                title: '400 crawl',
-                series: 1,
                 distance: 400,
-                exercises: [
-                  { id: 'e1', distance: 400, stroke: 'freestyle', intensity: 'easy' },
-                ],
+                repetitions: 1,
               },
             ],
           },
@@ -119,12 +115,8 @@ describe('workoutService', () => {
             sub_blocks: [
               {
                 id: 'sb2',
-                title: '8x100',
-                series: 8,
                 distance: 100,
-                exercises: [
-                  { id: 'e2', distance: 100, stroke: 'freestyle', intensity: 'threshold' },
-                ],
+                repetitions: 8,
               },
             ],
           },
@@ -135,12 +127,8 @@ describe('workoutService', () => {
             sub_blocks: [
               {
                 id: 'sb3',
-                title: '200 souple',
-                series: 1,
                 distance: 200,
-                exercises: [
-                  { id: 'e3', distance: 200, stroke: 'choice', intensity: 'recovery' },
-                ],
+                repetitions: 1,
               },
             ],
           },
@@ -155,7 +143,7 @@ describe('workoutService', () => {
       expect(workoutService.calculateTotalDistance({ blocks: [] })).toBe(0);
     });
 
-    it('should handle multiple exercises in a sub-block', () => {
+    it('should handle multiple sub-blocks in a block', () => {
       const content: WorkoutContent = {
         blocks: [
           {
@@ -165,22 +153,15 @@ describe('workoutService', () => {
             sub_blocks: [
               {
                 id: 'sb1',
-                title: '4x(50pap+50dos+50br+50nl)',
-                series: 4,
                 distance: 200,
-                exercises: [
-                  { id: 'e1', distance: 50, stroke: 'butterfly', intensity: 'moderate' },
-                  { id: 'e2', distance: 50, stroke: 'backstroke', intensity: 'moderate' },
-                  { id: 'e3', distance: 50, stroke: 'breaststroke', intensity: 'moderate' },
-                  { id: 'e4', distance: 50, stroke: 'freestyle', intensity: 'moderate' },
-                ],
+                repetitions: 4,
               },
             ],
           },
         ],
       };
 
-      // (50+50+50+50) * 4 = 800
+      // 200 * 4 = 800
       expect(workoutService.calculateTotalDistance(content)).toBe(800);
     });
   });

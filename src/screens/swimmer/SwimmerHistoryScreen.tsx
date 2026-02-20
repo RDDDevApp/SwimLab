@@ -3,7 +3,6 @@ import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, Card, Chip, Button } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
-import { WORKOUT_TYPES } from '../../types';
 import { workoutSessionService } from '../../services';
 import type { SwimmerHistoryEntry } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
@@ -135,11 +134,6 @@ export default function SwimmerHistoryScreen({ navigation }: Props) {
               </Text>
 
               <View style={styles.chipRow}>
-                <Chip compact style={styles.chip}>
-                  {WORKOUT_TYPES[
-                    item.workoutType as keyof typeof WORKOUT_TYPES
-                  ] || item.workoutType}
-                </Chip>
                 {item.totalDistance ? (
                   <Chip compact icon="ruler" style={styles.chip}>
                     {item.totalDistance}m

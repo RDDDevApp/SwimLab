@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, Card, Button, Chip, RadioButton, HelperText } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Workout, WORKOUT_TYPES } from '../../types';
+import { Workout } from '../../types';
 import { workoutService, workoutAssignmentService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
@@ -132,14 +132,11 @@ export default function AssignWorkoutScreen({ navigation, route }: Props) {
                     {item.title}
                   </Text>
                   <View style={styles.cardMeta}>
-                    <Chip compact style={styles.typeChip}>
-                      {WORKOUT_TYPES[item.type as keyof typeof WORKOUT_TYPES]}
-                    </Chip>
-                    {item.total_distance && (
+                    {item.total_distance ? (
                       <Text variant="bodySmall" style={styles.distance}>
                         {item.total_distance}m
                       </Text>
-                    )}
+                    ) : null}
                   </View>
                   {item.description && (
                     <Text variant="bodySmall" style={styles.desc} numberOfLines={2}>

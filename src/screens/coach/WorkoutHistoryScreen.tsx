@@ -5,11 +5,9 @@ import {
   Card,
   Chip,
   Button,
-  SegmentedButtons,
 } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
-import { WORKOUT_TYPES } from '../../types';
 import {
   workoutAssignmentService,
   workoutService,
@@ -25,15 +23,13 @@ interface HistoryItem {
   assignmentId: string;
   scheduledDate: string;
   workoutTitle: string;
-  workoutType: string;
+  workoutType?: string;
   totalDistance: number | null;
   groupName: string;
   attendedCount: number;
   totalSwimmers: number;
   averageRpe: number | null;
 }
-
-type FilterType = 'all' | 'endurance' | 'sprint' | 'technique';
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr + 'T00:00:00');
@@ -52,7 +48,6 @@ export default function WorkoutHistoryScreen({ navigation }: Props) {
   const { user, clubId } = useAuthStore();
   const [items, setItems] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<FilterType>('all');
 
   const loadData = useCallback(async () => {
     if (!user || !clubId) return;
@@ -153,11 +148,6 @@ export default function WorkoutHistoryScreen({ navigation }: Props) {
     }, [loadData]),
   );
 
-  const filtered =
-    filter === 'all'
-      ? items
-      : items.filter((i) => i.workoutType === filter);
-
   function getRpeColor(rpe: number): { bg: string; text: string } {
     if (rpe <= 12) return { bg: '#D1FAE5', text: '#065F46' };
     if (rpe <= 15) return { bg: '#FEF3C7', text: '#92400E' };
@@ -178,32 +168,17 @@ export default function WorkoutHistoryScreen({ navigation }: Props) {
         <Text variant="titleLarge" style={styles.title}>
           Historique des seances
         </Text>
-        <SegmentedButtons
-          value={filter}
-          onValueChange={(v) => setFilter(v as FilterType)}
-          buttons={[
-            { value: 'all', label: 'Tout' },
-            { value: 'endurance', label: 'Endurance' },
-            { value: 'sprint', label: 'Sprint' },
-            { value: 'technique', label: 'Technique' },
-          ]}
-          style={styles.segmented}
-        />
       </View>
 
-      {filtered.length === 0 && !loading ? (
+      {items.length === 0 && !loading ? (
         <EmptyState
           icon="history"
           title="Aucun historique"
-          subtitle={
-            filter !== 'all'
-              ? 'Aucune seance de ce type'
-              : 'Les seances passees apparaitront ici'
-          }
+          subtitle="Les seances passees apparaitront ici"
         />
       ) : (
         <FlatList
-          data={filtered}
+          data={items}
           keyExtractor={(item) => item.assignmentId}
           contentContainerStyle={styles.list}
           refreshing={loading}
@@ -231,11 +206,6 @@ export default function WorkoutHistoryScreen({ navigation }: Props) {
                   {item.workoutTitle}
                 </Text>
                 <View style={styles.chipRow}>
-                  <Chip compact style={styles.chip}>
-                    {WORKOUT_TYPES[
-                      item.workoutType as keyof typeof WORKOUT_TYPES
-                    ] || item.workoutType}
-                  </Chip>
                   {item.totalDistance ? (
                     <Chip compact icon="ruler" style={styles.chip}>
                       {item.totalDistance}m

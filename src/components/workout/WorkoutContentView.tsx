@@ -1,30 +1,12 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, Card, Chip } from 'react-native-paper';
-import {
-  Workout,
-  WorkoutBlock,
-  STROKE_LABELS,
-  INTENSITY_LABELS,
-} from '../../types';
-
-const blockTypeLabels: Record<string, string> = {
-  warmup: 'Echauffement',
-  main: 'Serie Principale',
-  cooldown: 'Retour Calme',
-  drill: 'Educatifs',
-  sprint: 'Sprint',
-  endurance: 'Endurance',
-  other: 'Autre',
-};
+import { Workout, WorkoutBlock, BLOCK_TYPE_LABELS } from '../../types';
 
 const blockTypeColors: Record<string, string> = {
   warmup: '#10B981',
-  main: '#3B82F6',
+  main: '#06B6D4',
   cooldown: '#8B5CF6',
-  drill: '#F59E0B',
-  sprint: '#EF4444',
-  endurance: '#06B6D4',
   other: '#6B7280',
 };
 
@@ -49,6 +31,10 @@ export default function WorkoutContentView({ workout }: Props) {
 
       {blocks.map((block, bIndex) => {
         const color = blockTypeColors[block.type] || '#6B7280';
+        const blockDistance = block.sub_blocks.reduce(
+          (sum, sb) => sum + sb.distance * sb.repetitions,
+          0,
+        );
 
         return (
           <Card
@@ -59,7 +45,7 @@ export default function WorkoutContentView({ workout }: Props) {
               <View style={styles.blockHeader}>
                 <Chip compact style={[styles.blockTypeChip, { backgroundColor: color + '20' }]}>
                   <Text style={{ color, fontWeight: '600', fontSize: 11 }}>
-                    {blockTypeLabels[block.type] || block.type}
+                    {BLOCK_TYPE_LABELS[block.type as keyof typeof BLOCK_TYPE_LABELS] || block.type}
                   </Text>
                 </Chip>
                 {block.name ? (
@@ -67,54 +53,34 @@ export default function WorkoutContentView({ workout }: Props) {
                     {block.name}
                   </Text>
                 ) : null}
+                {blockDistance > 0 ? (
+                  <Text variant="labelSmall" style={styles.blockDistance}>
+                    {blockDistance}m
+                  </Text>
+                ) : null}
               </View>
 
               {block.sub_blocks.map((sb, sbIndex) => {
-                const sbDistance = sb.distance > 0
-                  ? sb.distance
-                  : sb.exercises.reduce((sum, ex) => sum + (ex.distance || 0), 0);
+                const sbTotal = sb.distance * sb.repetitions;
 
                 return (
                   <View key={sb.id || sbIndex} style={styles.subBlock}>
                     <Text variant="titleSmall" style={styles.subBlockTitle}>
-                      {sb.title || `${sb.series}x${sbDistance}m`}
+                      {sb.repetitions > 1
+                        ? `${sb.repetitions} x ${sb.distance}m`
+                        : `${sb.distance}m`}
+                      {sbTotal > 0 ? ` — ${sbTotal}m` : ''}
                     </Text>
                     {sb.departure ? (
                       <Text variant="bodySmall" style={styles.departure}>
                         Depart: {sb.departure}
                       </Text>
                     ) : null}
-                    {sb.notes ? (
-                      <Text variant="bodySmall" style={styles.notes}>
-                        {sb.notes}
+                    {sb.description ? (
+                      <Text variant="bodySmall" style={styles.description}>
+                        {sb.description}
                       </Text>
                     ) : null}
-
-                    {sb.exercises.map((ex, exIndex) => (
-                      <View key={ex.id || exIndex} style={styles.exercise}>
-                        <View style={styles.exerciseRow}>
-                          <Chip compact style={styles.exChip}>
-                            {ex.distance}m
-                          </Chip>
-                          <Chip compact style={styles.exChip}>
-                            {STROKE_LABELS[ex.stroke as keyof typeof STROKE_LABELS] || ex.stroke}
-                          </Chip>
-                          <Chip compact style={styles.exChip}>
-                            {INTENSITY_LABELS[ex.intensity as keyof typeof INTENSITY_LABELS] || ex.intensity}
-                          </Chip>
-                        </View>
-                        {ex.target_time ? (
-                          <Text variant="bodySmall" style={styles.targetTime}>
-                            Objectif: {ex.target_time}
-                          </Text>
-                        ) : null}
-                        {ex.notes ? (
-                          <Text variant="bodySmall" style={styles.exNotes}>
-                            {ex.notes}
-                          </Text>
-                        ) : null}
-                      </View>
-                    ))}
                   </View>
                 );
               })}
@@ -151,6 +117,11 @@ const styles = StyleSheet.create({
   blockName: {
     fontWeight: '600',
     color: '#1F2937',
+    flex: 1,
+  },
+  blockDistance: {
+    color: '#06B6D4',
+    fontWeight: 'bold',
   },
   subBlock: {
     marginTop: 8,
@@ -161,36 +132,14 @@ const styles = StyleSheet.create({
   subBlockTitle: {
     fontWeight: '600',
     color: '#374151',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   departure: {
     color: '#6B7280',
     marginBottom: 2,
   },
-  notes: {
+  description: {
     color: '#6B7280',
     fontStyle: 'italic',
-    marginBottom: 4,
-  },
-  exercise: {
-    marginTop: 6,
-    paddingLeft: 8,
-  },
-  exerciseRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 4,
-  },
-  exChip: {
-    height: 24,
-  },
-  targetTime: {
-    color: '#6B7280',
-    marginTop: 2,
-  },
-  exNotes: {
-    color: '#9CA3AF',
-    fontStyle: 'italic',
-    marginTop: 2,
   },
 });

@@ -3,8 +3,8 @@ import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, FAB, Card, Chip, IconButton, Portal, Dialog, Button, Paragraph } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
-import { Workout, WORKOUT_TYPES, WorkoutType } from '../../types';
-import { workoutService, workoutTemplateService } from '../../services';
+import { Workout } from '../../types';
+import { workoutService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
 import EmptyState from '../../components/EmptyState';
@@ -58,7 +58,6 @@ export default function WorkoutsScreen({ navigation }: Props) {
         club_id: clubId,
         coach_id: user.id,
         title: `${workout.title} (copie)`,
-        type: workout.type,
         description: workout.description,
         content: workout.content,
         total_distance: workout.total_distance,
@@ -68,24 +67,6 @@ export default function WorkoutsScreen({ navigation }: Props) {
       loadWorkouts();
     } catch (err) {
       showSnackbar('Erreur lors de la duplication', 'error');
-    }
-  };
-
-  const handleSaveAsTemplate = async (workout: Workout) => {
-    if (!user || !clubId) return;
-    try {
-      await workoutTemplateService.create({
-        club_id: clubId,
-        coach_id: user.id,
-        title: workout.title,
-        type: workout.type as WorkoutType,
-        description: workout.description,
-        content: workout.content,
-        total_distance: workout.total_distance,
-      });
-      showSnackbar('Template sauvegarde', 'success');
-    } catch (err) {
-      showSnackbar('Erreur lors de la sauvegarde du template', 'error');
     }
   };
 
@@ -113,21 +94,12 @@ export default function WorkoutsScreen({ navigation }: Props) {
         <View style={styles.headerButtons}>
           <Button
             mode="outlined"
-            icon="file-document-multiple"
-            onPress={() => navigation.navigate('WorkoutTemplates')}
-            compact
-            style={styles.headerBtn}
-          >
-            Templates
-          </Button>
-          <Button
-            mode="outlined"
             icon="bookshelf"
-            onPress={() => navigation.navigate('ExerciseLibrary')}
+            onPress={() => navigation.navigate('BlockLibrary')}
             compact
             style={styles.headerBtn}
           >
-            Bibliotheque
+            Biblio Blocs
           </Button>
           <Button
             mode="outlined"
@@ -168,9 +140,9 @@ export default function WorkoutsScreen({ navigation }: Props) {
                   </Text>
                   <View style={styles.cardActions}>
                     <IconButton
-                      icon="file-document-plus-outline"
+                      icon="pencil"
                       size={20}
-                      onPress={() => handleSaveAsTemplate(item)}
+                      onPress={() => navigation.navigate('CreateWorkout', { workout: item })}
                     />
                     <IconButton
                       icon="content-copy"
@@ -191,9 +163,6 @@ export default function WorkoutsScreen({ navigation }: Props) {
                   </View>
                 </View>
                 <View style={styles.chipRow}>
-                  <Chip compact style={styles.chip}>
-                    {WORKOUT_TYPES[item.type as keyof typeof WORKOUT_TYPES]}
-                  </Chip>
                   {item.total_distance ? (
                     <Chip compact icon="ruler" style={styles.chip}>
                       {item.total_distance}m

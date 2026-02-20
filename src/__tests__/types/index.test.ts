@@ -1,7 +1,6 @@
 import {
   DAYS_OF_WEEK,
   GROUP_LEVELS,
-  WORKOUT_TYPES,
   STROKE_LABELS,
   INTENSITY_LABELS,
 } from '../../types';
@@ -43,25 +42,6 @@ describe('Constants', () => {
       expect(GROUP_LEVELS.intermediate).toBe('Intermediaire');
       expect(GROUP_LEVELS.advanced).toBe('Avance');
       expect(GROUP_LEVELS.competition).toBe('Competition');
-    });
-  });
-
-  describe('WORKOUT_TYPES', () => {
-    it('should have 5 types', () => {
-      expect(Object.keys(WORKOUT_TYPES)).toHaveLength(5);
-    });
-
-    it('should have all expected types', () => {
-      expect(WORKOUT_TYPES).toHaveProperty('endurance');
-      expect(WORKOUT_TYPES).toHaveProperty('sprint');
-      expect(WORKOUT_TYPES).toHaveProperty('technique');
-      expect(WORKOUT_TYPES).toHaveProperty('recovery');
-      expect(WORKOUT_TYPES).toHaveProperty('other');
-    });
-
-    it('should have French labels', () => {
-      expect(WORKOUT_TYPES.endurance).toBe('Endurance');
-      expect(WORKOUT_TYPES.recovery).toBe('Recuperation');
     });
   });
 

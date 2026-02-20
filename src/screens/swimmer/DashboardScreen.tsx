@@ -13,7 +13,7 @@ import {
   clubService,
 } from '../../services';
 import type { SwimmerHistoryEntry } from '../../services';
-import { WorkoutAssignment, WorkoutSession, WORKOUT_TYPES, Club } from '../../types';
+import { WorkoutAssignment, WorkoutSession, Club } from '../../types';
 import { toISODate, formatShortDate } from '../../utils/dateHelpers';
 
 interface UpcomingWorkout {
@@ -160,7 +160,7 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
         try {
           const workout = await workoutService.getById(assignment.workout_id);
           workoutTitle = workout.title;
-          workoutType = workout.type;
+          workoutType = workout.type || 'other';
           totalDistance = workout.total_distance;
         } catch {}
 
@@ -394,9 +394,6 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
                         {item.workoutTitle}
                       </Text>
                       <View style={styles.chipRow}>
-                        <Chip compact style={styles.chip} textStyle={styles.chipText}>
-                          {WORKOUT_TYPES[item.workoutType as keyof typeof WORKOUT_TYPES] || item.workoutType}
-                        </Chip>
                         {item.totalDistance ? (
                           <Chip compact icon="ruler" style={styles.chip} textStyle={styles.chipText}>
                             {item.totalDistance}m

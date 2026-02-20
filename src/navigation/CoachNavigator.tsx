@@ -16,9 +16,6 @@ import AssignWorkoutScreen from '../screens/coach/AssignWorkoutScreen';
 import AttendanceScreen from '../screens/coach/AttendanceScreen';
 import GroupDetailScreen from '../screens/coach/GroupDetailScreen';
 import WorkoutStatsScreen from '../screens/coach/WorkoutStatsScreen';
-import ExerciseLibraryScreen from '../screens/coach/ExerciseLibraryScreen';
-import CreateExerciseScreen from '../screens/coach/CreateExerciseScreen';
-import WorkoutTemplatesScreen from '../screens/coach/WorkoutTemplatesScreen';
 import WorkoutHistoryScreen from '../screens/coach/WorkoutHistoryScreen';
 import SessionDetailModal from '../screens/coach/SessionDetailModal';
 import { CoachTabParamList, CoachStackParamList } from '../types';
@@ -113,9 +110,6 @@ export default function CoachNavigator() {
           animation: 'slide_from_bottom',
         }}
       />
-      <Stack.Screen name="ExerciseLibrary" component={ExerciseLibraryScreen} />
-      <Stack.Screen name="CreateExercise" component={CreateExerciseScreen} />
-      <Stack.Screen name="WorkoutTemplates" component={WorkoutTemplatesScreen} />
       <Stack.Screen name="WorkoutHistory" component={WorkoutHistoryScreen} />
     </Stack.Navigator>
   );
