@@ -131,7 +131,7 @@ export default function WorkoutsScreen({ navigation }: Props) {
             <Card
               style={styles.card}
               onPress={() =>
-                navigation.navigate('CreateWorkout', { workout: item })
+                navigation.navigate('WorkoutDetail', { workoutId: item.id })
               }
             >
               <Card.Content>
