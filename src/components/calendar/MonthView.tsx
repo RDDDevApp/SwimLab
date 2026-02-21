@@ -29,10 +29,10 @@ const getDotsForDay = (
     const assignment = assignments.find(
       (a) => a.training_slot_id === slot.id && a.scheduled_date === dateStr,
     );
-    if (!assignment) return '#D1D5DB'; // light gray - slot exists but no assignment
+    if (!assignment) return 'rgba(255,255,255,0.25)'; // dim - slot exists but no assignment
     if (!assignment.attendance_marked) return '#3B82F6'; // blue - assigned
-    if (rpeMap?.[assignment.id] != null) return '#10B981'; // green - feedback done
-    return '#F59E0B'; // orange - attendance done, feedback pending
+    if (rpeMap?.[assignment.id] != null) return '#34D399'; // green - feedback done
+    return '#FB923C'; // orange - attendance done, feedback pending
   });
 };
 
@@ -110,11 +110,12 @@ export default function MonthView({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderWidth: 1,
+    borderRadius: 20,
     margin: 12,
     padding: 8,
-    elevation: 1,
   },
   headerRow: {
     flexDirection: 'row',
@@ -126,7 +127,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   headerText: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     fontWeight: '600',
     fontSize: 12,
   },
@@ -141,18 +142,18 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   todayCell: {
-    backgroundColor: '#CFFAFE',
+    backgroundColor: 'rgba(0, 201, 219, 0.15)',
   },
   dayNumber: {
     fontWeight: '500',
-    color: '#1F2937',
+    color: '#FFFFFF',
     fontSize: 14,
   },
   otherMonthDay: {
-    color: '#D1D5DB',
+    color: 'rgba(255,255,255,0.25)',
   },
   todayNumber: {
-    color: '#0E7490',
+    color: '#00C9DB',
     fontWeight: 'bold',
   },
   dotsRow: {

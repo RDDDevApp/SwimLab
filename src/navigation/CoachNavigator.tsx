@@ -1,8 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useTheme } from 'react-native-paper';
-import { Ionicons } from '@expo/vector-icons';
 import DashboardScreen from '../screens/coach/DashboardScreen';
 import CalendarScreen from '../screens/coach/CalendarScreen';
 import WorkoutsScreen from '../screens/coach/WorkoutsScreen';
@@ -20,74 +18,31 @@ import WorkoutDetailScreen from '../screens/coach/WorkoutDetailScreen';
 import BlockLibraryScreen from '../screens/coach/BlockLibraryScreen';
 import WorkoutHistoryScreen from '../screens/coach/WorkoutHistoryScreen';
 import SessionDetailModal from '../screens/coach/SessionDetailModal';
+import GlassTabBar from '../components/GlassTabBar';
 import { CoachTabParamList, CoachStackParamList } from '../types';
 
 const Tab = createBottomTabNavigator<CoachTabParamList>();
 const Stack = createNativeStackNavigator<CoachStackParamList>();
 
-function CoachTabs() {
-  const theme = useTheme();
+const COACH_TABS = [
+  { name: 'Dashboard', icon: 'home', label: 'Accueil' },
+  { name: 'Calendar', icon: 'calendar', label: 'Calendrier' },
+  { name: 'Workouts', icon: 'fitness', label: 'Seances' },
+  { name: 'Groups', icon: 'people', label: 'Groupes' },
+  { name: 'Profile', icon: 'person', label: 'Profil' },
+];
 
+function CoachTabs() {
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: '#9CA3AF',
-        tabBarStyle: {
-          backgroundColor: '#FFFFFF',
-          borderTopColor: '#E5E7EB',
-        },
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName: keyof typeof Ionicons.glyphMap = 'home';
-
-          switch (route.name) {
-            case 'Dashboard':
-              iconName = focused ? 'home' : 'home-outline';
-              break;
-            case 'Calendar':
-              iconName = focused ? 'calendar' : 'calendar-outline';
-              break;
-            case 'Workouts':
-              iconName = focused ? 'fitness' : 'fitness-outline';
-              break;
-            case 'Groups':
-              iconName = focused ? 'people' : 'people-outline';
-              break;
-            case 'Profile':
-              iconName = focused ? 'person' : 'person-outline';
-              break;
-          }
-
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
-      })}
+      tabBar={(props) => <GlassTabBar {...props} tabs={COACH_TABS} />}
+      screenOptions={{ headerShown: false }}
     >
-      <Tab.Screen
-        name="Dashboard"
-        component={DashboardScreen}
-        options={{ tabBarLabel: 'Accueil' }}
-      />
-      <Tab.Screen
-        name="Calendar"
-        component={CalendarScreen}
-        options={{ tabBarLabel: 'Calendrier' }}
-      />
-      <Tab.Screen
-        name="Workouts"
-        component={WorkoutsScreen}
-        options={{ tabBarLabel: 'Seances' }}
-      />
-      <Tab.Screen
-        name="Groups"
-        component={GroupsScreen}
-        options={{ tabBarLabel: 'Groupes' }}
-      />
-      <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{ tabBarLabel: 'Profil' }}
-      />
+      <Tab.Screen name="Dashboard" component={DashboardScreen} />
+      <Tab.Screen name="Calendar" component={CalendarScreen} />
+      <Tab.Screen name="Workouts" component={WorkoutsScreen} />
+      <Tab.Screen name="Groups" component={GroupsScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }

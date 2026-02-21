@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions, RefreshControl } from 'react-native';
 import { Text, Card, Chip, SegmentedButtons } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import GradientScreen from '../../components/GradientScreen';
 import { useFocusEffect } from '@react-navigation/native';
 import { BarChart, LineChart } from 'react-native-chart-kit';
 import { useAuthStore } from '../../stores/authStore';
@@ -12,20 +12,20 @@ import EmptyState from '../../components/EmptyState';
 const screenWidth = Dimensions.get('window').width - 48;
 
 const chartConfig = {
-  backgroundGradientFrom: '#FFFFFF',
-  backgroundGradientTo: '#FFFFFF',
+  backgroundGradientFrom: 'rgba(255, 255, 255, 0.10)',
+  backgroundGradientTo: 'rgba(255, 255, 255, 0.10)',
   decimalCount: 0,
   color: (opacity = 1) => `rgba(6, 182, 212, ${opacity})`,
-  labelColor: () => '#6B7280',
+  labelColor: () => 'rgba(255,255,255,0.50)',
   barPercentage: 0.6,
   propsForBackgroundLines: {
-    stroke: '#E5E7EB',
+    stroke: 'rgba(255, 255, 255, 0.15)',
   },
 };
 
 const rpeChartConfig = {
   ...chartConfig,
-  color: (opacity = 1) => `rgba(236, 72, 153, ${opacity})`,
+  color: (opacity = 1) => `rgba(244, 63, 142, ${opacity})`,
 };
 
 type Period = '4w' | '8w' | '12w';
@@ -155,7 +155,7 @@ export default function SwimmerStatsScreen({ navigation }: Props) {
 
   if (!loading && history.length === 0) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <GradientScreen>
         <View style={styles.header}>
           <Text variant="titleLarge" style={styles.title}>
             Mes statistiques
@@ -166,12 +166,12 @@ export default function SwimmerStatsScreen({ navigation }: Props) {
           title="Pas encore de donnees"
           subtitle="Tes stats apparaitront apres tes premiers entrainements"
         />
-      </SafeAreaView>
+      </GradientScreen>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <GradientScreen>
       <ScrollView
         contentContainerStyle={styles.content}
         refreshControl={
@@ -322,20 +322,20 @@ export default function SwimmerStatsScreen({ navigation }: Props) {
           </Card.Content>
         </Card>
       </ScrollView>
-    </SafeAreaView>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'transparent',
   },
   header: {
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
   },
   content: {
     padding: 16,
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
   },
   segmented: {
     marginBottom: 4,
@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
   },
   summaryCard: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
   },
   summaryContent: {
     alignItems: 'center',
@@ -362,18 +362,18 @@ const styles = StyleSheet.create({
   },
   summaryValue: {
     fontWeight: 'bold',
-    color: '#EC4899',
+    color: '#F43F8E',
   },
   summaryLabel: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     marginTop: 4,
   },
   chartCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
   },
   chartTitle: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     marginBottom: 12,
   },
   chart: {
@@ -385,6 +385,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   countChip: {
-    backgroundColor: '#EDE9FE',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
   },
 });

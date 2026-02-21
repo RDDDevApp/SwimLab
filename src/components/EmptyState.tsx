@@ -11,7 +11,7 @@ interface EmptyStateProps {
 export default function EmptyState({ icon, title, subtitle }: EmptyStateProps) {
   return (
     <View style={styles.container}>
-      <Icon source={icon} size={48} color="#D1D5DB" />
+      <Icon source={icon} size={48} color="rgba(255,255,255,0.30)" />
       <Text variant="bodyLarge" style={styles.title}>
         {title}
       </Text>
@@ -33,12 +33,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   title: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.60)',
     textAlign: 'center',
     marginTop: 8,
   },
   subtitle: {
-    color: '#9CA3AF',
+    color: 'rgba(255,255,255,0.40)',
     textAlign: 'center',
   },
 });

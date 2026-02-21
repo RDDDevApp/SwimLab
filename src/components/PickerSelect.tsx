@@ -65,10 +65,10 @@ export default function PickerSelect({
 
 const styles = StyleSheet.create({
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(0, 0, 0, 0.20)',
   },
   menuContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#0C2D48',
     maxHeight: 300,
   },
   selectedItem: {

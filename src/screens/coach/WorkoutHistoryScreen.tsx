@@ -6,7 +6,7 @@ import {
   Chip,
   Button,
 } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import GradientScreen from '../../components/GradientScreen';
 import { useFocusEffect } from '@react-navigation/native';
 import {
   workoutAssignmentService,
@@ -155,7 +155,7 @@ export default function WorkoutHistoryScreen({ navigation }: Props) {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <GradientScreen>
       <View style={styles.header}>
         <View style={styles.headerRow}>
           <Button icon="arrow-left" onPress={() => navigation.goBack()}>
@@ -234,21 +234,21 @@ export default function WorkoutHistoryScreen({ navigation }: Props) {
           )}
         />
       )}
-    </SafeAreaView>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'transparent',
   },
   header: {
     padding: 16,
     paddingTop: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
   },
   headerRow: {
     flexDirection: 'row',
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     marginBottom: 10,
   },
   cardHeader: {
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   date: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     fontWeight: '600',
   },
   groupChip: {
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
   },
   workoutTitle: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     marginBottom: 6,
   },
   chipRow: {
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
   },
   chip: {
     height: 26,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
   },
   rpeChip: {
     height: 26,

@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   sheet: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#0C2D48',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '92%',
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
   handleBar: {
     width: 40,
     height: 4,
-    backgroundColor: '#D1D5DB',
+    backgroundColor: 'rgba(255,255,255,0.30)',
     borderRadius: 2,
     alignSelf: 'center',
     marginTop: 12,
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: 'rgba(255,255,255,0.10)',
   },
   headerLeft: {
     flex: 1,
@@ -307,10 +307,10 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
   },
   subtitle: {
-    color: '#6B7280',
+    color: '#67E8F9',
     marginTop: 2,
   },
   infoRow: {
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   infoChip: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'rgba(255,255,255,0.10)',
   },
   closeBtn: {
     margin: -4,
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
   },
   workoutTitle: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     marginBottom: 6,
   },
   chipRow: {
@@ -344,31 +344,31 @@ const styles = StyleSheet.create({
   },
   typeChip: {
     height: 24,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'rgba(255,255,255,0.10)',
   },
   distanceChip: {
     height: 24,
-    backgroundColor: '#CFFAFE',
+    backgroundColor: 'rgba(255,255,255,0.10)',
   },
   // Feedback section
   feedbackSection: {
     marginTop: 20,
     paddingTop: 20,
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    borderTopColor: 'rgba(255,255,255,0.10)',
   },
   sectionTitle: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     marginBottom: 12,
   },
   fieldLabel: {
     fontWeight: '600',
-    color: '#374151',
+    color: '#67E8F9',
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(0, 0, 0, 0.20)',
   },
   submitBtn: {
     marginTop: 16,
@@ -379,48 +379,48 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   rpeDisplay: {
-    backgroundColor: '#F0FDF4',
+    backgroundColor: 'rgba(255,255,255,0.10)',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
   },
   rpeLabel: {
-    color: '#065F46',
+    color: '#67E8F9',
     fontWeight: '500',
   },
   rpeValue: {
     fontWeight: 'bold',
-    color: '#065F46',
+    color: '#FFFFFF',
   },
   commentDisplay: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 12,
     padding: 12,
   },
   commentLabel: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     fontWeight: '500',
     marginBottom: 4,
   },
   commentText: {
-    color: '#1F2937',
+    color: '#FFFFFF',
   },
   // Notices
   noticeBox: {
     marginTop: 20,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
   },
   noticeText: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     fontWeight: '600',
   },
   noticeBlue: {
-    backgroundColor: '#DBEAFE',
+    backgroundColor: 'rgba(255,255,255,0.10)',
   },
   noticeBlueText: {
-    color: '#1E40AF',
+    color: '#67E8F9',
   },
 });

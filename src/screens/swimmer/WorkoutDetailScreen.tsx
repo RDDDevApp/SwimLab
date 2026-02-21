@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Chip, Button } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import GradientScreen from '../../components/GradientScreen';
 import { Workout } from '../../types';
 import { workoutService } from '../../services';
 import WorkoutContentView from '../../components/workout/WorkoutContentView';
@@ -34,7 +34,7 @@ export default function WorkoutDetailScreen({ navigation, route }: Props) {
 
   if (loading || !workout) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <GradientScreen>
         <View style={styles.header}>
           <Button icon="arrow-left" onPress={() => navigation.goBack()}>
             Retour
@@ -45,12 +45,12 @@ export default function WorkoutDetailScreen({ navigation, route }: Props) {
             Chargement...
           </Text>
         </View>
-      </SafeAreaView>
+      </GradientScreen>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <GradientScreen>
       <View style={styles.header}>
         <Button icon="arrow-left" onPress={() => navigation.goBack()}>
           Retour
@@ -70,24 +70,24 @@ export default function WorkoutDetailScreen({ navigation, route }: Props) {
       <ScrollView contentContainerStyle={styles.content}>
         <WorkoutContentView workout={workout} />
       </ScrollView>
-    </SafeAreaView>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'transparent',
   },
   header: {
     padding: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     paddingHorizontal: 16,
   },
   chipRow: {
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     height: 26,
   },
   distanceChip: {
-    backgroundColor: '#CFFAFE',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     height: 26,
   },
   content: {
@@ -114,6 +114,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingText: {
-    color: '#9CA3AF',
+    color: 'rgba(255,255,255,0.50)',
   },
 });

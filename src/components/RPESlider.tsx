@@ -12,18 +12,33 @@ export default function RPESlider({ value, onChange }: RPESliderProps) {
   const color = getRPEColor(value);
   const label = RPE_LABELS[value] || '';
 
-  // Build RPE scale buttons (6-20)
   const rpeValues = Array.from({ length: 15 }, (_, i) => i + 6);
 
   return (
     <View style={styles.container}>
       <View style={styles.valueDisplay}>
-        <Text variant="displaySmall" style={[styles.valueText, { color }]}>
+        <Text style={[styles.valueText, { color, textShadowColor: color, textShadowRadius: 20 }]}>
           {value}
         </Text>
-        <Text variant="titleMedium" style={[styles.label, { color }]}>
+        <Text style={[styles.label, { color }]}>
           {label}
         </Text>
+      </View>
+
+      <View style={styles.barTrack}>
+        <View
+          style={[
+            styles.barFill,
+            {
+              width: `${((value - 6) / 14) * 100}%`,
+              backgroundColor: color,
+              shadowColor: color,
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.6,
+              shadowRadius: 8,
+            },
+          ]}
+        />
       </View>
 
       <View style={styles.scaleRow}>
@@ -37,15 +52,24 @@ export default function RPESlider({ value, onChange }: RPESliderProps) {
               onPress={() => onChange(rpeVal)}
               style={[
                 styles.scaleButton,
-                { backgroundColor: isSelected ? bgColor : '#F3F4F6' },
-                isSelected && styles.selectedButton,
+                {
+                  backgroundColor: isSelected ? bgColor : 'rgba(255,255,255,0.08)',
+                  borderColor: isSelected ? bgColor : 'rgba(255,255,255,0.10)',
+                },
+                isSelected && {
+                  shadowColor: bgColor,
+                  shadowOffset: { width: 0, height: 0 },
+                  shadowOpacity: 0.5,
+                  shadowRadius: 10,
+                  elevation: 5,
+                  transform: [{ scale: 1.15 }],
+                },
               ]}
             >
               <Text
-                variant="labelSmall"
                 style={[
                   styles.scaleText,
-                  { color: isSelected ? '#FFFFFF' : '#6B7280' },
+                  { color: isSelected ? '#FFFFFF' : 'rgba(255,255,255,0.5)' },
                 ]}
               >
                 {rpeVal}
@@ -56,12 +80,8 @@ export default function RPESlider({ value, onChange }: RPESliderProps) {
       </View>
 
       <View style={styles.legendRow}>
-        <Text variant="bodySmall" style={styles.legendLeft}>
-          Repos
-        </Text>
-        <Text variant="bodySmall" style={styles.legendRight}>
-          Maximal
-        </Text>
+        <Text style={styles.legendLeft}>Repos</Text>
+        <Text style={styles.legendRight}>Maximal</Text>
       </View>
     </View>
   );
@@ -69,56 +89,67 @@ export default function RPESlider({ value, onChange }: RPESliderProps) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderColor: 'rgba(255,255,255,0.12)',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderRadius: 20,
+    padding: 20,
   },
   valueDisplay: {
     alignItems: 'center',
     marginBottom: 16,
   },
   valueText: {
-    fontWeight: 'bold',
+    fontWeight: '800',
+    fontSize: 52,
   },
   label: {
-    fontWeight: '600',
+    fontWeight: '700',
     marginTop: 4,
+    fontSize: 16,
+  },
+  barTrack: {
+    height: 6,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 3,
+    overflow: 'hidden',
+    marginBottom: 16,
+  },
+  barFill: {
+    height: '100%',
+    borderRadius: 3,
   },
   scaleRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    gap: 6,
+    gap: 8,
   },
   scaleButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  selectedButton: {
-    transform: [{ scale: 1.15 }],
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-  },
   scaleText: {
-    fontWeight: '600',
+    fontWeight: '700',
+    fontSize: 13,
   },
   legendRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 12,
+    marginTop: 14,
   },
   legendLeft: {
-    color: '#22C55E',
+    color: '#34D399',
+    fontWeight: '600',
+    fontSize: 13,
   },
   legendRight: {
-    color: '#DC2626',
+    color: '#F87171',
+    fontWeight: '600',
+    fontSize: 13,
   },
 });

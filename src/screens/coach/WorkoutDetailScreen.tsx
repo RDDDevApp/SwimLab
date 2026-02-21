@@ -9,7 +9,7 @@ import {
   Dialog,
   Paragraph,
 } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import GradientScreen from '../../components/GradientScreen';
 import { useFocusEffect } from '@react-navigation/native';
 import { Workout } from '../../types';
 import { workoutService } from '../../services';
@@ -76,7 +76,7 @@ export default function WorkoutDetailScreen({ navigation, route }: Props) {
 
   if (loading || !workout) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <GradientScreen>
         <View style={styles.header}>
           <Button icon="arrow-left" onPress={() => navigation.goBack()}>
             Retour
@@ -87,12 +87,12 @@ export default function WorkoutDetailScreen({ navigation, route }: Props) {
             Chargement...
           </Text>
         </View>
-      </SafeAreaView>
+      </GradientScreen>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <GradientScreen>
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <Button icon="arrow-left" onPress={() => navigation.goBack()}>
@@ -168,20 +168,20 @@ export default function WorkoutDetailScreen({ navigation, route }: Props) {
           </Dialog.Actions>
         </Dialog>
       </Portal>
-    </SafeAreaView>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'transparent',
   },
   header: {
     padding: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
   },
   headerTop: {
     flexDirection: 'row',
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     paddingHorizontal: 16,
   },
   chipRow: {
@@ -229,6 +229,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingText: {
-    color: '#9CA3AF',
+    color: 'rgba(255,255,255,0.50)',
   },
 });

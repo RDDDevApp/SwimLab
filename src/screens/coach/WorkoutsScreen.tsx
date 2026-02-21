@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, FAB, Card, Chip, IconButton, Portal, Dialog, Button, Paragraph, Divider } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import GradientScreen from '../../components/GradientScreen';
 import { useFocusEffect } from '@react-navigation/native';
 import { Workout, WorkoutBlock, BLOCK_TYPE_LABELS } from '../../types';
 import { workoutService } from '../../services';
@@ -190,7 +190,7 @@ export default function WorkoutsScreen({ navigation }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <GradientScreen>
       <View style={styles.header}>
         <Text variant="headlineMedium" style={styles.title}>
           Entrainements
@@ -325,24 +325,24 @@ export default function WorkoutsScreen({ navigation }: Props) {
           </Dialog.Actions>
         </Dialog>
       </Portal>
-    </SafeAreaView>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'transparent',
   },
   header: {
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
   },
   headerButtons: {
     flexDirection: 'row',
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     marginBottom: 10,
   },
   cardHeader: {
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     flex: 1,
   },
   cardActions: {
@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   expandDesc: {
-    color: '#374151',
+    color: '#67E8F9',
     fontStyle: 'italic',
     marginBottom: 10,
   },
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   blockName: {
-    color: '#1F2937',
+    color: '#FFFFFF',
     fontWeight: '600',
     flex: 1,
   },
@@ -436,7 +436,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   subBlockLine: {
-    color: '#4B5563',
+    color: 'rgba(255,255,255,0.70)',
     marginBottom: 2,
     paddingLeft: 4,
   },
