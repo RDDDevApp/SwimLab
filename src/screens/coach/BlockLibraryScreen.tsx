@@ -32,9 +32,9 @@ interface Props {
 
 const BLOCK_COLORS: Record<string, string> = {
   warmup: '#10B981',
-  main: '#06B6D4',
+  main: '#0891B2',
   cooldown: '#8B5CF6',
-  other: '#6B7280',
+  other: 'rgba(27,67,50,0.50)',
 };
 
 const BLOCK_TYPES = [
@@ -197,17 +197,17 @@ const styles = StyleSheet.create({
   header: {
     padding: 16,
     paddingTop: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     paddingHorizontal: 8,
   },
   subtitle: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     paddingHorizontal: 8,
     marginTop: 4,
   },
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     marginBottom: 10,
     borderLeftWidth: 4,
   },
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
   },
   cardActions: {
     flexDirection: 'row',
@@ -241,17 +241,17 @@ const styles = StyleSheet.create({
     height: 26,
   },
   distanceChip: {
-    backgroundColor: '#CFFAFE',
+    backgroundColor: 'rgba(14, 116, 144, 0.10)',
     height: 26,
   },
   subBlockList: {
     marginTop: 8,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.08)',
+    borderTopColor: 'rgba(0, 0, 0, 0.06)',
   },
   subBlockText: {
-    color: '#67E8F9',
+    color: '#0E7490',
     marginBottom: 2,
   },
 });

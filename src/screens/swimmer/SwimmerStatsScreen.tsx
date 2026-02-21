@@ -12,20 +12,20 @@ import EmptyState from '../../components/EmptyState';
 const screenWidth = Dimensions.get('window').width - 48;
 
 const chartConfig = {
-  backgroundGradientFrom: 'rgba(255, 255, 255, 0.10)',
-  backgroundGradientTo: 'rgba(255, 255, 255, 0.10)',
+  backgroundGradientFrom: 'rgba(255, 255, 255, 0.55)',
+  backgroundGradientTo: 'rgba(255, 255, 255, 0.55)',
   decimalCount: 0,
   color: (opacity = 1) => `rgba(6, 182, 212, ${opacity})`,
-  labelColor: () => 'rgba(255,255,255,0.50)',
+  labelColor: () => 'rgba(27,67,50,0.50)',
   barPercentage: 0.6,
   propsForBackgroundLines: {
-    stroke: 'rgba(255, 255, 255, 0.15)',
+    stroke: 'rgba(0, 0, 0, 0.08)',
   },
 };
 
 const rpeChartConfig = {
   ...chartConfig,
-  color: (opacity = 1) => `rgba(244, 63, 142, ${opacity})`,
+  color: (opacity = 1) => `rgba(219, 39, 119, ${opacity})`,
 };
 
 type Period = '4w' | '8w' | '12w';
@@ -333,9 +333,9 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
   },
   content: {
     padding: 16,
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
   },
   segmented: {
     marginBottom: 4,
@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
   },
   summaryCard: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
   },
   summaryContent: {
     alignItems: 'center',
@@ -362,18 +362,18 @@ const styles = StyleSheet.create({
   },
   summaryValue: {
     fontWeight: 'bold',
-    color: '#F43F8E',
+    color: '#DB2777',
   },
   summaryLabel: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     marginTop: 4,
   },
   chartCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
   },
   chartTitle: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     marginBottom: 12,
   },
   chart: {
@@ -385,6 +385,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   countChip: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
   },
 });

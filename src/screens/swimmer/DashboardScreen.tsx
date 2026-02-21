@@ -213,7 +213,7 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
       return { label: 'Absent', color: '#FEE2E2', textColor: '#991B1B' };
     }
     if (isPast && assignment.attendance_marked) {
-      return { label: 'Non marque', color: 'rgba(255, 255, 255, 0.08)', textColor: 'rgba(255,255,255,0.50)' };
+      return { label: 'Non marque', color: 'rgba(255, 255, 255, 0.45)', textColor: 'rgba(27,67,50,0.50)' };
     }
     return { label: 'A venir', color: '#DBEAFE', textColor: '#1E40AF' };
   };
@@ -309,7 +309,7 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
         <Card style={styles.card} onPress={() => navigation.navigate('SwimmerTabs', { screen: 'Stats' })}>
           <Card.Content>
             <View style={styles.statsHeader}>
-              <Text variant="titleMedium" style={{ color: '#FFFFFF' }}>Mes statistiques</Text>
+              <Text variant="titleMedium" style={{ color: '#1B4332' }}>Mes statistiques</Text>
               <Chip compact icon="chart-line" style={styles.statsChip}>
                 Voir plus
               </Chip>
@@ -320,19 +320,19 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
                   <Text variant="headlineLarge" style={styles.statValue}>
                     {stats.attended}
                   </Text>
-                  <Text variant="bodySmall" style={{ color: 'rgba(255,255,255,0.50)' }}>Presences</Text>
+                  <Text variant="bodySmall" style={{ color: 'rgba(27,67,50,0.50)' }}>Presences</Text>
                 </View>
                 <View style={styles.stat}>
                   <Text variant="headlineLarge" style={styles.statValue}>
                     {Math.round((stats.attended / stats.total) * 100)}%
                   </Text>
-                  <Text variant="bodySmall" style={{ color: 'rgba(255,255,255,0.50)' }}>Assiduite</Text>
+                  <Text variant="bodySmall" style={{ color: 'rgba(27,67,50,0.50)' }}>Assiduite</Text>
                 </View>
                 <View style={styles.stat}>
                   <Text variant="headlineLarge" style={styles.statValue}>
                     {stats.averageRpe ? stats.averageRpe.toFixed(1) : '-'}
                   </Text>
-                  <Text variant="bodySmall" style={{ color: 'rgba(255,255,255,0.50)' }}>RPE moy.</Text>
+                  <Text variant="bodySmall" style={{ color: 'rgba(27,67,50,0.50)' }}>RPE moy.</Text>
                 </View>
               </View>
             ) : (
@@ -455,13 +455,13 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
   },
   subtitle: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
   },
   avatar: {
-    backgroundColor: '#F43F8E',
+    backgroundColor: '#DB2777',
   },
   // Pending feedback banner
   pendingCard: {
@@ -490,13 +490,13 @@ const styles = StyleSheet.create({
   },
   // Achievements
   achievementsCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(0, 0, 0, 0.08)',
   },
   achievementsTitle: {
     fontWeight: 'bold',
-    color: '#67E8F9',
+    color: '#0E7490',
     marginBottom: 12,
   },
   achievementsRow: {
@@ -513,22 +513,22 @@ const styles = StyleSheet.create({
     color: '#06B6D4',
   },
   achievementLabel: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     textAlign: 'center',
     marginTop: 2,
   },
   achievementDivider: {
     width: 1,
     height: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: 'rgba(0, 0, 0, 0.08)',
   },
   // Stats card
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
   },
   sectionTitle: {
     marginBottom: 12,
-    color: '#FFFFFF',
+    color: '#1B4332',
   },
   statsHeader: {
     flexDirection: 'row',
@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statsChip: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
   },
   statsRow: {
     flexDirection: 'row',
@@ -547,7 +547,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statValue: {
-    color: '#F43F8E',
+    color: '#DB2777',
     fontWeight: 'bold',
   },
   loader: {
@@ -558,10 +558,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyText: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
   },
   workoutCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(255, 255, 255, 0.35)',
     marginBottom: 8,
   },
   workoutHeader: {
@@ -571,7 +571,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   date: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     fontWeight: '600',
   },
   badge: {
@@ -579,7 +579,7 @@ const styles = StyleSheet.create({
   },
   workoutTitle: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     marginBottom: 6,
   },
   chipRow: {
@@ -588,7 +588,7 @@ const styles = StyleSheet.create({
   },
   chip: {
     height: 26,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.65)',
   },
   chipText: {
     fontSize: 11,
@@ -597,6 +597,6 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   historyBtn: {
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(0, 0, 0, 0.08)',
   },
 });

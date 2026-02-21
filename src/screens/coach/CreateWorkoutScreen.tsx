@@ -31,9 +31,9 @@ function generateId(): string {
 
 const BLOCK_COLORS: Record<string, string> = {
   warmup: '#10B981',
-  main: '#06B6D4',
+  main: '#0891B2',
   cooldown: '#8B5CF6',
-  other: '#6B7280',
+  other: 'rgba(27,67,50,0.50)',
 };
 
 interface Props {
@@ -407,9 +407,9 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
   },
   headerRow: {
     flexDirection: 'row',
@@ -418,12 +418,12 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
   distanceChip: {
-    backgroundColor: '#CFFAFE',
+    backgroundColor: 'rgba(14, 116, 144, 0.10)',
     marginRight: 8,
   },
   form: {
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     marginBottom: 12,
   },
   flex1: {
@@ -442,11 +442,11 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     marginBottom: 12,
   },
   addBlockBtn: {
-    borderColor: '#06B6D4',
+    borderColor: '#0891B2',
     borderStyle: 'dashed',
     marginBottom: 16,
   },
@@ -468,16 +468,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   dialogEmptyText: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     textAlign: 'center',
   },
   dialogEmptySubtext: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     textAlign: 'center',
     marginTop: 4,
   },
   libCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     marginHorizontal: 16,
     marginVertical: 4,
     borderLeftWidth: 4,
@@ -493,18 +493,18 @@ const styles = StyleSheet.create({
   },
   libCardTitle: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
   },
   libTypeChip: {
     alignSelf: 'flex-start',
     height: 24,
   },
   libDistChip: {
-    backgroundColor: '#CFFAFE',
+    backgroundColor: 'rgba(14, 116, 144, 0.10)',
     height: 24,
   },
   libCardSub: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     marginTop: 4,
   },
 });

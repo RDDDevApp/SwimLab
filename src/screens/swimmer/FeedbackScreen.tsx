@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   sheet: {
-    backgroundColor: '#0C2D48',
+    backgroundColor: '#F0F7F4',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '92%',
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   handleBar: {
     width: 40,
     height: 4,
-    backgroundColor: 'rgba(255,255,255,0.30)',
+    backgroundColor: 'rgba(0,0,0,0.15)',
     borderRadius: 2,
     alignSelf: 'center',
     marginTop: 12,
@@ -169,17 +169,17 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.10)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.06)',
   },
   headerLeft: {
     flex: 1,
   },
   title: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
   },
   subtitle: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     marginTop: 2,
   },
   closeBtn: {
@@ -191,11 +191,11 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     marginBottom: 12,
   },
   input: {
-    backgroundColor: 'rgba(0, 0, 0, 0.20)',
+    backgroundColor: 'rgba(255, 255, 255, 0.60)',
   },
   submitBtn: {
     marginTop: 20,
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   editHint: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     textAlign: 'center',
     marginTop: 8,
   },

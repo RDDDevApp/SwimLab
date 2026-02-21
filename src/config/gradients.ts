@@ -1,42 +1,42 @@
 export const OCEAN_GRADIENT = {
-  colors: ['#0B1426', '#0C2D48', '#0A4A6B', '#0891B2'] as const,
+  colors: ['#82C8D1', '#A4D4CC', '#C2E0C7', '#DEEDC2', '#F8F9BC'] as const,
   start: { x: 0, y: 0 },
-  end: { x: 0.3, y: 1 },
+  end: { x: 0, y: 1 },
 };
 
 export const ACCENT_GRADIENTS = {
   cta: {
-    colors: ['#00C9DB', '#0891B2'] as const,
+    colors: ['#0891B2', '#0E7490'] as const,
     start: { x: 0, y: 0 },
     end: { x: 1, y: 0 },
   },
   hot: {
-    colors: ['#F43F8E', '#FB923C'] as const,
+    colors: ['#DB2777', '#EA580C'] as const,
     start: { x: 0, y: 0 },
     end: { x: 1, y: 0 },
   },
   achievement: {
-    colors: ['#00C9DB', '#F43F8E'] as const,
+    colors: ['#0891B2', '#DB2777'] as const,
     start: { x: 0, y: 0 },
     end: { x: 1, y: 0 },
   },
   endurance: {
-    colors: ['#0891B2', '#00C9DB'] as const,
+    colors: ['#0E7490', '#0891B2'] as const,
     start: { x: 0, y: 0 },
     end: { x: 0, y: 1 },
   },
   sprint: {
-    colors: ['#EF4444', '#FB923C'] as const,
+    colors: ['#DC2626', '#EA580C'] as const,
     start: { x: 0, y: 0 },
     end: { x: 0, y: 1 },
   },
   technique: {
-    colors: ['#8B5CF6', '#A78BFA'] as const,
+    colors: ['#7C3AED', '#8B5CF6'] as const,
     start: { x: 0, y: 0 },
     end: { x: 0, y: 1 },
   },
   recovery: {
-    colors: ['#10B981', '#34D399'] as const,
+    colors: ['#059669', '#10B981'] as const,
     start: { x: 0, y: 0 },
     end: { x: 0, y: 1 },
   },

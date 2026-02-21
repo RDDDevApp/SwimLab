@@ -12,9 +12,9 @@ import { exportWorkoutPdf } from '../../utils/workoutPdfExport';
 
 const BLOCK_COLORS: Record<string, string> = {
   warmup: '#10B981',
-  main: '#06B6D4',
+  main: '#0891B2',
   cooldown: '#8B5CF6',
-  other: '#6B7280',
+  other: 'rgba(27,67,50,0.50)',
 };
 
 interface Props {
@@ -336,13 +336,13 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
   },
   headerButtons: {
     flexDirection: 'row',
@@ -350,13 +350,13 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   headerBtn: {
-    borderColor: '#D1D5DB',
+    borderColor: 'rgba(0, 0, 0, 0.10)',
   },
   list: {
     padding: 16,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     marginBottom: 10,
   },
   cardHeader: {
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     flex: 1,
   },
   cardActions: {
@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   expandDesc: {
-    color: '#67E8F9',
+    color: '#0E7490',
     fontStyle: 'italic',
     marginBottom: 10,
   },
@@ -427,16 +427,16 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   blockName: {
-    color: '#FFFFFF',
+    color: '#1B4332',
     fontWeight: '600',
     flex: 1,
   },
   blockDist: {
-    color: '#06B6D4',
+    color: '#0891B2',
     fontWeight: 'bold',
   },
   subBlockLine: {
-    color: 'rgba(255,255,255,0.70)',
+    color: 'rgba(27,67,50,0.65)',
     marginBottom: 2,
     paddingLeft: 4,
   },
@@ -447,10 +447,10 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   editBtn: {
-    backgroundColor: '#06B6D4',
+    backgroundColor: '#0891B2',
   },
   pdfBtn: {
-    borderColor: '#06B6D4',
+    borderColor: '#0891B2',
   },
   editBtnLabel: {
     fontSize: 12,
@@ -460,6 +460,6 @@ const styles = StyleSheet.create({
     margin: 16,
     right: 0,
     bottom: 0,
-    backgroundColor: '#06B6D4',
+    backgroundColor: '#0891B2',
   },
 });

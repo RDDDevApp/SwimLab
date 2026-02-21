@@ -18,10 +18,10 @@ const getSlotStatus = (
   assignment: WorkoutAssignment | undefined,
   rpeMap?: Record<string, number | null>,
 ) => {
-  if (!assignment) return { color: 'rgba(255,255,255,0.30)', label: 'Non assigne' };
-  if (!assignment.attendance_marked) return { color: '#3B82F6', label: 'A emarger' };
-  if (rpeMap?.[assignment.id] != null) return { color: '#34D399', label: 'Emarger' };
-  return { color: '#FB923C', label: 'Feedback manquant' };
+  if (!assignment) return { color: 'rgba(27,67,50,0.25)', label: 'Non assigne' };
+  if (!assignment.attendance_marked) return { color: '#2563EB', label: 'A emarger' };
+  if (rpeMap?.[assignment.id] != null) return { color: '#059669', label: 'Emarger' };
+  return { color: '#EA580C', label: 'Feedback manquant' };
 };
 
 export default function WeekView({
@@ -125,8 +125,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   dayColumn: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    borderColor: 'rgba(0, 0, 0, 0.08)',
     borderWidth: 1,
     borderRadius: 16,
     overflow: 'hidden',
@@ -134,39 +134,39 @@ const styles = StyleSheet.create({
   },
   todayColumn: {
     borderWidth: 2,
-    borderColor: '#00C9DB',
+    borderColor: '#0891B2',
   },
   dayHeader: {
     padding: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(255, 255, 255, 0.35)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.06)',
   },
   todayHeader: {
-    backgroundColor: 'rgba(0, 201, 219, 0.15)',
+    backgroundColor: 'rgba(14, 116, 144, 0.10)',
   },
   dayLabel: {
-    color: '#67E8F9',
+    color: '#0E7490',
     fontWeight: '600',
   },
   todayLabel: {
-    color: '#00C9DB',
+    color: '#0891B2',
     fontWeight: 'bold',
   },
   emptyDay: {
     padding: 12,
   },
   emptyText: {
-    color: 'rgba(255,255,255,0.30)',
+    color: 'rgba(27,67,50,0.30)',
     fontStyle: 'italic',
   },
   slotItem: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.06)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.04)',
   },
   slotFilled: {
-    backgroundColor: 'rgba(0, 201, 219, 0.08)',
+    backgroundColor: 'rgba(14, 116, 144, 0.06)',
   },
   slotEmpty: {
     backgroundColor: 'transparent',
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   slotName: {
-    color: '#FFFFFF',
+    color: '#1B4332',
     fontWeight: '600',
   },
   statusLabel: {
@@ -195,12 +195,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   slotTime: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     marginTop: 2,
     marginLeft: 18,
   },
   workoutTitle: {
-    color: '#67E8F9',
+    color: '#0E7490',
     fontWeight: '500',
     marginTop: 4,
     marginLeft: 18,

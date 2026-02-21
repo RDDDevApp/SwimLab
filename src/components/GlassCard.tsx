@@ -34,22 +34,22 @@ export default function GlassCard({ children, elevated, onPress, style }: Props)
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    borderColor: 'rgba(0, 0, 0, 0.08)',
     borderWidth: 1,
     borderRadius: 20,
     padding: 16,
-    shadowColor: '#00C9DB',
+    shadowColor: '#0891B2',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.06,
     shadowRadius: 12,
     elevation: 3,
   },
   elevated: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    borderColor: 'rgba(255, 255, 255, 0.25)',
+    backgroundColor: 'rgba(255, 255, 255, 0.65)',
+    borderColor: 'rgba(0, 0, 0, 0.10)',
     borderRadius: 24,
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.10,
   },
   pressed: {
     opacity: 0.85,

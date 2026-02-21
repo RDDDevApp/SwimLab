@@ -148,23 +148,23 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     marginTop: 24,
   },
   subtitle: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     marginBottom: 8,
   },
   input: {
-    backgroundColor: 'rgba(0,0,0,0.20)',
+    backgroundColor: 'rgba(255,255,255,0.60)',
   },
   createBtn: {
     marginTop: 8,
   },
   successCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderLeftWidth: 4,
-    borderLeftColor: 'rgba(255, 255, 255, 0.15)',
+    borderLeftColor: 'rgba(0, 0, 0, 0.08)',
     marginTop: 16,
   },
   successContent: {
@@ -173,15 +173,15 @@ const styles = StyleSheet.create({
   },
   successTitle: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     fontSize: 20,
   },
   successText: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     textAlign: 'center',
   },
   codeChip: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.45)',
     paddingHorizontal: 12,
     paddingVertical: 4,
   },
@@ -189,10 +189,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     letterSpacing: 2,
-    color: '#00C9DB',
+    color: '#0891B2',
   },
   hint: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     textAlign: 'center',
     marginTop: 4,
   },

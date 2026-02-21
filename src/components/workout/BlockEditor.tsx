@@ -23,10 +23,10 @@ const BLOCK_TYPES = [
 ];
 
 const BLOCK_COLORS: Record<string, string> = {
-  warmup: '#10B981',
-  main: '#06B6D4',
-  cooldown: '#8B5CF6',
-  other: '#6B7280',
+  warmup: '#059669',
+  main: '#0891B2',
+  cooldown: '#7C3AED',
+  other: '#4B5563',
 };
 
 function generateId(): string {
@@ -100,7 +100,7 @@ export default function BlockEditor({
           <IconButton
             icon="delete"
             size={20}
-            iconColor="#EF4444"
+            iconColor="#DC2626"
             onPress={onRemove}
           />
         </View>
@@ -166,13 +166,13 @@ export default function BlockEditor({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.45)',
     borderRadius: 12,
     padding: 12,
     marginBottom: 16,
     borderLeftWidth: 4,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(0, 0, 0, 0.08)',
   },
   header: {
     flexDirection: 'row',
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   nameInput: {
-    backgroundColor: 'rgba(0, 0, 0, 0.20)',
+    backgroundColor: 'rgba(255, 255, 255, 0.60)',
     marginTop: 8,
     marginBottom: 4,
   },
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
   },
   addBtn: {
     alignSelf: 'flex-start',
-    borderColor: 'rgba(255, 255, 255, 0.25)',
+    borderColor: 'rgba(0, 0, 0, 0.15)',
     marginBottom: 8,
   },
   libraryRow: {
@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 4,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.15)',
+    borderTopColor: 'rgba(0, 0, 0, 0.08)',
     paddingTop: 8,
   },
   libBtn: {

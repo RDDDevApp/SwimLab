@@ -145,13 +145,13 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
   },
   list: {
     padding: 16,
@@ -163,16 +163,16 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   emptyText: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     textAlign: 'center',
   },
   emptySubtext: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     textAlign: 'center',
     marginTop: 8,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     marginBottom: 10,
   },
   cardHeader: {
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     flex: 1,
   },
   chipRow: {
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     height: 26,
   },
   desc: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     marginTop: 8,
   },
   fab: {
@@ -203,6 +203,6 @@ const styles = StyleSheet.create({
     margin: 16,
     right: 0,
     bottom: 0,
-    backgroundColor: '#06B6D4',
+    backgroundColor: '#0891B2',
   },
 });

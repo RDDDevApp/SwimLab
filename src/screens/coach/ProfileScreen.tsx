@@ -184,19 +184,19 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
   },
   avatar: {
-    backgroundColor: '#06B6D4',
+    backgroundColor: '#0891B2',
   },
   name: {
     marginTop: 16,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
   },
   role: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     marginTop: 4,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     marginBottom: 16,
   },
   codeRow: {
@@ -207,10 +207,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   codeLabel: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
   },
   codeChip: {
-    backgroundColor: '#CFFAFE',
+    backgroundColor: 'rgba(14, 116, 144, 0.10)',
   },
   logoutButton: {
     marginTop: 16,

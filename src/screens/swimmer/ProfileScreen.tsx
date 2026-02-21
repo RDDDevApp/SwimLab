@@ -95,15 +95,15 @@ export default function SwimmerProfileScreen() {
               title="Email"
               description={user?.email}
               left={(props) => <List.Icon {...props} icon="email" />}
-              titleStyle={{ color: '#FFFFFF' }}
-              descriptionStyle={{ color: 'rgba(255,255,255,0.50)' }}
+              titleStyle={{ color: '#1B4332' }}
+              descriptionStyle={{ color: 'rgba(27,67,50,0.50)' }}
             />
             <List.Item
               title="Membre depuis"
               description={new Date(profile?.created_at || '').toLocaleDateString('fr-FR')}
               left={(props) => <List.Icon {...props} icon="calendar" />}
-              titleStyle={{ color: '#FFFFFF' }}
-              descriptionStyle={{ color: 'rgba(255,255,255,0.50)' }}
+              titleStyle={{ color: '#1B4332' }}
+              descriptionStyle={{ color: 'rgba(27,67,50,0.50)' }}
             />
           </Card.Content>
         </Card>
@@ -111,13 +111,13 @@ export default function SwimmerProfileScreen() {
         {club ? (
           <Card style={styles.card}>
             <Card.Content>
-              <Text variant="titleMedium" style={{ color: '#FFFFFF' }}>Mon club</Text>
+              <Text variant="titleMedium" style={{ color: '#1B4332' }}>Mon club</Text>
               <List.Item
                 title={club.name}
                 description={club.description || undefined}
                 left={(props) => <List.Icon {...props} icon="shield-outline" />}
-                titleStyle={{ color: '#FFFFFF' }}
-                descriptionStyle={{ color: 'rgba(255,255,255,0.50)' }}
+                titleStyle={{ color: '#1B4332' }}
+                descriptionStyle={{ color: 'rgba(27,67,50,0.50)' }}
               />
             </Card.Content>
           </Card>
@@ -160,13 +160,13 @@ export default function SwimmerProfileScreen() {
         {groupNames.length > 0 && (
           <Card style={styles.card}>
             <Card.Content>
-              <Text variant="titleMedium" style={{ color: '#FFFFFF' }}>Mes groupes</Text>
+              <Text variant="titleMedium" style={{ color: '#1B4332' }}>Mes groupes</Text>
               {groupNames.map((name) => (
                 <List.Item
                   key={name}
                   title={name}
                   left={(props) => <List.Icon {...props} icon="account-group" />}
-                  titleStyle={{ color: '#FFFFFF' }}
+                  titleStyle={{ color: '#1B4332' }}
                 />
               ))}
             </Card.Content>
@@ -175,13 +175,13 @@ export default function SwimmerProfileScreen() {
 
         <Card style={styles.card}>
           <Card.Content>
-            <Text variant="titleMedium" style={{ color: '#FFFFFF' }}>Notifications</Text>
+            <Text variant="titleMedium" style={{ color: '#1B4332' }}>Notifications</Text>
             <List.Item
               title="Rappels d'entrainement"
               description="1h avant chaque seance"
               left={(props) => <List.Icon {...props} icon="bell-outline" />}
-              titleStyle={{ color: '#FFFFFF' }}
-              descriptionStyle={{ color: 'rgba(255,255,255,0.50)' }}
+              titleStyle={{ color: '#1B4332' }}
+              descriptionStyle={{ color: 'rgba(27,67,50,0.50)' }}
               right={() => (
                 <Switch
                   value={profile?.notification_reminder ?? true}
@@ -199,8 +199,8 @@ export default function SwimmerProfileScreen() {
               title="Demandes de feedback"
               description="Apres chaque emargement"
               left={(props) => <List.Icon {...props} icon="comment-outline" />}
-              titleStyle={{ color: '#FFFFFF' }}
-              descriptionStyle={{ color: 'rgba(255,255,255,0.50)' }}
+              titleStyle={{ color: '#1B4332' }}
+              descriptionStyle={{ color: 'rgba(27,67,50,0.50)' }}
               right={() => (
                 <Switch
                   value={profile?.notification_feedback ?? true}
@@ -244,38 +244,38 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
   },
   avatar: {
-    backgroundColor: '#F43F8E',
+    backgroundColor: '#DB2777',
   },
   name: {
     marginTop: 16,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
   },
   role: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     marginTop: 4,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     marginBottom: 16,
   },
   joinCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     marginBottom: 16,
     borderLeftWidth: 4,
     borderLeftColor: '#06B6D4',
   },
   joinTitle: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     marginBottom: 4,
   },
   joinSubtitle: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     marginBottom: 12,
   },
   joinInput: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
   },
   joinBtn: {
     marginTop: 12,

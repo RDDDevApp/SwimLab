@@ -132,15 +132,15 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     marginTop: 24,
   },
   subtitle: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     marginBottom: 8,
   },
   input: {
-    backgroundColor: 'rgba(0,0,0,0.20)',
+    backgroundColor: 'rgba(255,255,255,0.60)',
   },
   joinBtn: {
     marginTop: 8,
@@ -149,9 +149,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   successCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderLeftWidth: 4,
-    borderLeftColor: 'rgba(255, 255, 255, 0.15)',
+    borderLeftColor: 'rgba(0, 0, 0, 0.08)',
     marginTop: 16,
   },
   successContent: {
@@ -159,10 +159,10 @@ const styles = StyleSheet.create({
   },
   successTitle: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
   },
   successText: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
   },
   continueBtn: {
     marginTop: 16,

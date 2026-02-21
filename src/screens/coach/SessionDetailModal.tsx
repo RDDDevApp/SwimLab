@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   sheet: {
-    backgroundColor: '#0C2D48',
+    backgroundColor: '#F0F7F4',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '92%',
@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
   handleBar: {
     width: 40,
     height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: 'rgba(0, 0, 0, 0.08)',
     borderRadius: 2,
     alignSelf: 'center',
     marginTop: 12,
@@ -439,17 +439,17 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.06)',
   },
   headerLeft: {
     flex: 1,
   },
   title: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
   },
   subtitle: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     marginTop: 2,
   },
   infoRow: {
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   infoChip: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.45)',
   },
   closeBtn: {
     margin: -4,
@@ -471,7 +471,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     marginBottom: 12,
   },
   // Empty slot view
@@ -483,7 +483,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.45)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
@@ -493,11 +493,11 @@ const styles = StyleSheet.create({
   },
   emptySlotTitle: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     marginBottom: 4,
   },
   emptySlotSubtitle: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     textAlign: 'center',
     marginBottom: 20,
   },
@@ -513,17 +513,17 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   emptyText: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
   },
   workoutCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(0, 0, 0, 0.08)',
   },
   selectedCard: {
     borderWidth: 2,
-    borderColor: '#06B6D4',
+    borderColor: '#0891B2',
   },
   cardContent: {
     flexDirection: 'row',
@@ -535,7 +535,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
   },
   cardMeta: {
     flexDirection: 'row',
@@ -545,14 +545,14 @@ const styles = StyleSheet.create({
   },
   typeChip: {
     height: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.45)',
   },
   distanceChip: {
     height: 24,
-    backgroundColor: '#CFFAFE',
+    backgroundColor: 'rgba(14, 116, 144, 0.10)',
   },
   distance: {
-    color: '#06B6D4',
+    color: '#0891B2',
     fontWeight: '600',
   },
   assignBtn: {
@@ -571,14 +571,14 @@ const styles = StyleSheet.create({
   },
   lockedBadge: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.45)',
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: 8,
   },
   lockedText: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     fontWeight: '600',
     fontSize: 13,
   },
@@ -590,18 +590,18 @@ const styles = StyleSheet.create({
   },
   statItem: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(255, 255, 255, 0.35)',
     borderRadius: 10,
     padding: 12,
     alignItems: 'center',
   },
   statLabel: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     fontWeight: '500',
   },
   statValue: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     marginTop: 2,
   },
   // Workout recap
@@ -613,7 +613,7 @@ const styles = StyleSheet.create({
   },
   recapTitle: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     marginBottom: 6,
   },
   recapChips: {

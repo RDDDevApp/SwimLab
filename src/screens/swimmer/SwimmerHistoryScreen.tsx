@@ -181,26 +181,26 @@ const styles = StyleSheet.create({
   header: {
     padding: 8,
     paddingBottom: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     paddingHorizontal: 16,
   },
   countChip: {
     alignSelf: 'flex-start',
     marginLeft: 16,
     marginTop: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
   },
   list: {
     padding: 16,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     marginBottom: 10,
   },
   absentCard: {
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   date: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     fontWeight: '600',
   },
   presentBadge: {
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
   },
   workoutTitle: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     marginBottom: 6,
   },
   chipRow: {
@@ -244,13 +244,13 @@ const styles = StyleSheet.create({
   },
   chip: {
     height: 26,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.65)',
   },
   rpeChip: {
     height: 26,
   },
   feedback: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     fontStyle: 'italic',
     marginTop: 8,
   },

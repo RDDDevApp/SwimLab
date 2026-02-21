@@ -21,13 +21,13 @@ const styles = StyleSheet.create({
   },
   block: {
     height: 80,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: 'rgba(0, 0, 0, 0.06)',
     borderRadius: 12,
     opacity: 0.5,
   },
   blockSmall: {
     height: 48,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: 'rgba(0, 0, 0, 0.06)',
     borderRadius: 12,
     opacity: 0.3,
   },

@@ -266,13 +266,13 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     paddingHorizontal: 16,
   },
   levelChip: {
@@ -285,9 +285,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
   },
   statChip: {
     backgroundColor: '#DBEAFE',
@@ -302,16 +302,16 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   emptyText: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     textAlign: 'center',
   },
   emptySubtext: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     textAlign: 'center',
     marginTop: 8,
   },
   memberCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     marginBottom: 6,
   },
   memberRow: {
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   memberName: {
-    color: '#FFFFFF',
+    color: '#1B4332',
     fontWeight: '600',
   },
   slotsBtn: {
@@ -337,7 +337,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
   },
   noSwimmers: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     textAlign: 'center',
     padding: 16,
   },
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   checkboxLabel: {
-    color: '#FFFFFF',
+    color: '#1B4332',
     marginLeft: 8,
   },
 });

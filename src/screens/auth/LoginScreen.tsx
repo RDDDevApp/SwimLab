@@ -135,18 +135,18 @@ const styles = StyleSheet.create({
     marginBottom: 48,
   },
   title: {
-    color: '#06B6D4',
+    color: '#0891B2',
     fontWeight: 'bold',
   },
   subtitle: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     marginTop: 8,
   },
   form: {
     gap: 16,
   },
   input: {
-    backgroundColor: 'rgba(0,0,0,0.20)',
+    backgroundColor: 'rgba(255,255,255,0.60)',
   },
   errorBanner: {
     backgroundColor: '#FEE2E2',
