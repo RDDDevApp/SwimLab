@@ -81,12 +81,12 @@ export default function SubBlockEditor({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: 8,
     padding: 10,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#D1D5DB',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
   },
   topRow: {
     flexDirection: 'row',
@@ -110,13 +110,13 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(0, 0, 0, 0.20)',
   },
   flex1: {
     flex: 1,
   },
   multiply: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     fontWeight: 'bold',
     fontSize: 16,
   },
@@ -127,6 +127,6 @@ const styles = StyleSheet.create({
     width: 80,
   },
   descInput: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(0, 0, 0, 0.20)',
   },
 });

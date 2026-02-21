@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, TextInput, Button, HelperText } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import GradientScreen from '../../components/GradientScreen';
 import { GROUP_LEVELS, GroupLevel } from '../../types';
 import { groupService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
@@ -57,7 +57,7 @@ export default function CreateGroupScreen({ navigation, route }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <GradientScreen>
       <View style={styles.header}>
         <Button icon="arrow-left" onPress={() => navigation.goBack()}>
           Retour
@@ -110,24 +110,24 @@ export default function CreateGroupScreen({ navigation, route }: Props) {
           Creer le groupe
         </Button>
       </ScrollView>
-    </SafeAreaView>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'transparent',
   },
   header: {
     padding: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
   },
   saveButton: {
     marginTop: 16,

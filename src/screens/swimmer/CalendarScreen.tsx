@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { Text, IconButton } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import GradientScreen from '../../components/GradientScreen';
 import { useFocusEffect } from '@react-navigation/native';
 import { WorkoutAssignment, WorkoutSession, TrainingSlot } from '../../types';
 import {
@@ -185,7 +185,7 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <GradientScreen>
       <View style={styles.header}>
         <Text variant="headlineMedium" style={styles.title}>
           Mes Entrainements
@@ -313,25 +313,25 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
           );
         })}
       </ScrollView>
-    </SafeAreaView>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'transparent',
   },
   header: {
     padding: 16,
     paddingBottom: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
   },
   weekNav: {
     flexDirection: 'row',
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   weekRange: {
-    color: '#374151',
+    color: '#67E8F9',
     fontWeight: '500',
   },
   errorBanner: {
@@ -361,50 +361,50 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   dayColumn: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderRadius: 10,
     overflow: 'hidden',
     marginBottom: 4,
   },
   todayColumn: {
     borderWidth: 2,
-    borderColor: '#EC4899',
+    borderColor: '#F43F8E',
   },
   dayHeader: {
     padding: 10,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
   },
   todayHeader: {
-    backgroundColor: '#FCE7F3',
+    backgroundColor: 'rgba(244, 63, 142, 0.15)',
   },
   dayLabel: {
-    color: '#374151',
+    color: '#67E8F9',
     fontWeight: '600',
   },
   todayLabel: {
-    color: '#BE185D',
+    color: '#F43F8E',
     fontWeight: 'bold',
   },
   emptyDay: {
     padding: 12,
   },
   emptyText: {
-    color: '#9CA3AF',
+    color: 'rgba(255,255,255,0.50)',
     fontStyle: 'italic',
   },
   slotItem: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-    backgroundColor: '#FEFCE8',
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
   },
   slotItemEmpty: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-    backgroundColor: '#FFFFFF',
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
   },
   slotHeader: {
     flexDirection: 'row',
@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   slotName: {
-    color: '#1F2937',
+    color: '#FFFFFF',
     fontWeight: '600',
   },
   statusLabel: {
@@ -430,12 +430,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   slotTime: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     marginTop: 2,
   },
   workoutTitle: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     marginTop: 4,
     marginBottom: 4,
   },
@@ -447,11 +447,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
   },
   typeChipText: {
     fontSize: 11,
-    color: '#374151',
+    color: '#67E8F9',
     fontWeight: '500',
   },
 });

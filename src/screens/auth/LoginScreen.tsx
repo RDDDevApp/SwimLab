@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import GradientScreen from '../../components/GradientScreen';
 import { useAuthStore } from '../../stores/authStore';
 
 export default function LoginScreen({ navigation }: any) {
@@ -50,7 +50,7 @@ export default function LoginScreen({ navigation }: any) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <GradientScreen>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
@@ -116,14 +116,14 @@ export default function LoginScreen({ navigation }: any) {
           </Button>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'transparent',
   },
   keyboardView: {
     flex: 1,
@@ -139,14 +139,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   subtitle: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     marginTop: 8,
   },
   form: {
     gap: 16,
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(0,0,0,0.20)',
   },
   errorBanner: {
     backgroundColor: '#FEE2E2',

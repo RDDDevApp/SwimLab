@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { Text, Card, Button, Avatar, Chip, ActivityIndicator } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import GradientScreen from '../../components/GradientScreen';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuthStore } from '../../stores/authStore';
 import { groupService, workoutService, clubService } from '../../services';
@@ -58,7 +58,7 @@ export default function CoachDashboardScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <GradientScreen>
       <ScrollView
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
@@ -138,14 +138,14 @@ export default function CoachDashboardScreen() {
           Se deconnecter
         </Button>
       </ScrollView>
-    </SafeAreaView>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 16,
@@ -159,13 +159,13 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
   },
   subtitle: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
   },
   codeRow: {
     flexDirection: 'row',
@@ -174,13 +174,13 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   codeLabel: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
   },
   codeChip: {
     backgroundColor: '#CFFAFE',
   },
   clubDesc: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     marginTop: 4,
   },
   statsRow: {

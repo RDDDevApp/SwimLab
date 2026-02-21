@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, Checkbox, Button, Card, Chip, HelperText } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import GradientScreen from '../../components/GradientScreen';
 import { Profile } from '../../types';
 import {
   groupService,
@@ -98,7 +98,7 @@ export default function AttendanceScreen({ navigation, route }: Props) {
   const totalCount = swimmers.length;
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <GradientScreen>
       <View style={styles.header}>
         <Button icon="arrow-left" onPress={() => navigation.goBack()}>
           Retour
@@ -167,28 +167,28 @@ export default function AttendanceScreen({ navigation, route }: Props) {
           Valider l'emargement ({presentCount}/{totalCount})
         </Button>
       </View>
-    </SafeAreaView>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'transparent',
   },
   header: {
     padding: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     paddingHorizontal: 16,
   },
   subtitle: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
@@ -197,9 +197,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
   },
   statChip: {
     backgroundColor: '#D1FAE5',
@@ -211,11 +211,11 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   swimmerCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     marginBottom: 6,
   },
   presentCard: {
-    backgroundColor: '#F0FDF4',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderLeftWidth: 3,
     borderLeftColor: '#10B981',
   },
@@ -225,12 +225,12 @@ const styles = StyleSheet.create({
   },
   swimmerName: {
     marginLeft: 8,
-    color: '#1F2937',
+    color: '#FFFFFF',
   },
   footer: {
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    borderTopColor: 'rgba(255, 255, 255, 0.15)',
   },
 });

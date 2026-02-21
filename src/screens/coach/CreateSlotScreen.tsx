@@ -7,7 +7,7 @@ import {
   SegmentedButtons,
   HelperText,
 } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import GradientScreen from '../../components/GradientScreen';
 import { DAYS_OF_WEEK } from '../../types';
 import { trainingSlotService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
@@ -82,7 +82,7 @@ export default function CreateSlotScreen({ navigation, route }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <GradientScreen>
       <View style={styles.header}>
         <Button icon="arrow-left" onPress={() => navigation.goBack()}>
           Retour
@@ -155,24 +155,24 @@ export default function CreateSlotScreen({ navigation, route }: Props) {
           {editingSlot ? 'Modifier' : 'Creer le creneau'}
         </Button>
       </ScrollView>
-    </SafeAreaView>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'transparent',
   },
   header: {
     padding: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
@@ -181,10 +181,10 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
   },
   label: {
-    color: '#374151',
+    color: '#67E8F9',
     marginTop: 4,
   },
   segmented: {

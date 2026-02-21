@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, TextInput, Button, HelperText, Card } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import GradientScreen from '../../components/GradientScreen';
 import { clubService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 
@@ -44,7 +44,7 @@ export default function JoinClubScreen({ navigation, onSkip }: Props) {
 
   if (joinedClubName) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <GradientScreen>
         <ScrollView contentContainerStyle={styles.content}>
           <Text variant="headlineMedium" style={styles.title}>
             Bienvenue !
@@ -69,12 +69,12 @@ export default function JoinClubScreen({ navigation, onSkip }: Props) {
             Acceder a mon espace
           </Button>
         </ScrollView>
-      </SafeAreaView>
+      </GradientScreen>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <GradientScreen>
       <ScrollView contentContainerStyle={styles.content}>
         <Text variant="headlineMedium" style={styles.title}>
           Rejoindre un club
@@ -117,14 +117,14 @@ export default function JoinClubScreen({ navigation, onSkip }: Props) {
           Passer pour le moment
         </Button>
       </ScrollView>
-    </SafeAreaView>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 24,
@@ -132,15 +132,15 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     marginTop: 24,
   },
   subtitle: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(0,0,0,0.20)',
   },
   joinBtn: {
     marginTop: 8,
@@ -149,9 +149,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   successCard: {
-    backgroundColor: '#F0FDF4',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderLeftWidth: 4,
-    borderLeftColor: '#10B981',
+    borderLeftColor: 'rgba(255, 255, 255, 0.15)',
     marginTop: 16,
   },
   successContent: {
@@ -159,10 +159,10 @@ const styles = StyleSheet.create({
   },
   successTitle: {
     fontWeight: 'bold',
-    color: '#065F46',
+    color: '#FFFFFF',
   },
   successText: {
-    color: '#374151',
+    color: 'rgba(255,255,255,0.50)',
   },
   continueBtn: {
     marginTop: 16,

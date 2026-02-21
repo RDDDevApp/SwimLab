@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, FAB, Card, Chip, IconButton, Portal, Dialog, Button, Paragraph } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import GradientScreen from '../../components/GradientScreen';
 import { useFocusEffect } from '@react-navigation/native';
 import { Group, GROUP_LEVELS } from '../../types';
 import { groupService } from '../../services';
@@ -52,7 +52,7 @@ export default function GroupsScreen({ navigation }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <GradientScreen>
       <View style={styles.header}>
         <Text variant="headlineMedium" style={styles.title}>
           Mes Groupes
@@ -134,24 +134,24 @@ export default function GroupsScreen({ navigation }: Props) {
           </Dialog.Actions>
         </Dialog>
       </Portal>
-    </SafeAreaView>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'transparent',
   },
   header: {
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
   },
   list: {
     padding: 16,
@@ -163,16 +163,16 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   emptyText: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     textAlign: 'center',
   },
   emptySubtext: {
-    color: '#9CA3AF',
+    color: 'rgba(255,255,255,0.50)',
     textAlign: 'center',
     marginTop: 8,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     marginBottom: 10,
   },
   cardHeader: {
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     flex: 1,
   },
   chipRow: {
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     height: 26,
   },
   desc: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     marginTop: 8,
   },
   fab: {

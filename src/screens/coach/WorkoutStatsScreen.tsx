@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, Card, Chip, Button, ProgressBar } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import GradientScreen from '../../components/GradientScreen';
 import { WorkoutSession } from '../../types';
 import { workoutSessionService } from '../../services';
 import { getRPEColor, RPE_LABELS } from '../../config/theme';
@@ -58,7 +58,7 @@ export default function WorkoutStatsScreen({ navigation, route }: Props) {
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <GradientScreen>
       <View style={styles.header}>
         <Button icon="arrow-left" onPress={() => navigation.goBack()}>
           Retour
@@ -225,28 +225,28 @@ export default function WorkoutStatsScreen({ navigation, route }: Props) {
         }
         contentContainerStyle={styles.content}
       />
-    </SafeAreaView>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'transparent',
   },
   header: {
     padding: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     paddingHorizontal: 16,
   },
   subtitle: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
@@ -255,12 +255,12 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   statsCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     marginBottom: 16,
   },
   sectionTitle: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     marginBottom: 12,
   },
   statRow: {
@@ -270,17 +270,17 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   statLabel: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
   },
   statValue: {
-    color: '#1F2937',
+    color: '#FFFFFF',
     fontWeight: '600',
   },
   progressBar: {
     height: 6,
     borderRadius: 3,
     marginTop: 4,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
   },
   minMaxRow: {
     flexDirection: 'row',
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   minMax: {
-    color: '#9CA3AF',
+    color: 'rgba(255,255,255,0.50)',
   },
   rpeChip: {
     height: 26,
@@ -305,11 +305,11 @@ const styles = StyleSheet.create({
   },
   listTitle: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   feedbackCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     marginBottom: 8,
   },
   feedbackHeader: {
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   swimmerName: {
-    color: '#1F2937',
+    color: '#FFFFFF',
     fontWeight: '600',
   },
   feedbackBadges: {
@@ -334,16 +334,16 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   rpeLabel: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     marginTop: 2,
   },
   commentText: {
-    color: '#374151',
+    color: '#67E8F9',
     marginTop: 8,
     fontStyle: 'italic',
   },
   pendingCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     marginBottom: 6,
   },
   pendingRow: {
@@ -352,18 +352,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   pendingName: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
   },
   pendingChip: {
     backgroundColor: '#FEF3C7',
     height: 26,
   },
   absentCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     marginBottom: 6,
   },
   absentName: {
-    color: '#9CA3AF',
+    color: 'rgba(255,255,255,0.50)',
   },
   absentChip: {
     backgroundColor: '#FEE2E2',

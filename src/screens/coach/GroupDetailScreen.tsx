@@ -12,7 +12,7 @@ import {
   IconButton,
   Checkbox,
 } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import GradientScreen from '../../components/GradientScreen';
 import { useFocusEffect } from '@react-navigation/native';
 import { Profile, Group, GROUP_LEVELS } from '../../types';
 import { groupService, profileService } from '../../services';
@@ -121,7 +121,7 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <GradientScreen>
       <View style={styles.header}>
         <Button icon="arrow-left" onPress={() => navigation.goBack()}>
           Retour
@@ -255,24 +255,24 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
           </Dialog.Actions>
         </Dialog>
       </Portal>
-    </SafeAreaView>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'transparent',
   },
   header: {
     padding: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     paddingHorizontal: 16,
   },
   levelChip: {
@@ -285,9 +285,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
   },
   statChip: {
     backgroundColor: '#DBEAFE',
@@ -302,16 +302,16 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   emptyText: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     textAlign: 'center',
   },
   emptySubtext: {
-    color: '#9CA3AF',
+    color: 'rgba(255,255,255,0.50)',
     textAlign: 'center',
     marginTop: 8,
   },
   memberCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     marginBottom: 6,
   },
   memberRow: {
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   memberName: {
-    color: '#1F2937',
+    color: '#FFFFFF',
     fontWeight: '600',
   },
   slotsBtn: {
@@ -337,7 +337,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
   },
   noSwimmers: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     textAlign: 'center',
     padding: 16,
   },
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   checkboxLabel: {
-    color: '#1F2937',
+    color: '#FFFFFF',
     marginLeft: 8,
   },
 });

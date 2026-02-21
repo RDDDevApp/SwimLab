@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, IconButton, SegmentedButtons } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import GradientScreen from '../../components/GradientScreen';
 import { useFocusEffect } from '@react-navigation/native';
 import { TrainingSlot, WorkoutAssignment } from '../../types';
 import { trainingSlotService, workoutAssignmentService, workoutService, workoutSessionService } from '../../services';
@@ -132,7 +132,7 @@ export default function CalendarScreen({ navigation }: Props) {
     : formatWeekRange(currentDate);
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <GradientScreen>
       <View style={styles.header}>
         <View style={styles.titleRow}>
           <Text variant="headlineMedium" style={styles.title}>
@@ -204,21 +204,21 @@ export default function CalendarScreen({ navigation }: Props) {
           }}
         />
       )}
-    </SafeAreaView>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'transparent',
   },
   header: {
     padding: 16,
     paddingBottom: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
   },
   titleRow: {
     flexDirection: 'row',
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
   },
   segmented: {
     maxWidth: 160,
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   weekRange: {
-    color: '#374151',
+    color: '#67E8F9',
     fontWeight: '500',
   },
 });

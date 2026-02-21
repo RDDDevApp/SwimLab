@@ -11,7 +11,7 @@ import {
   Dialog,
   Card,
 } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import GradientScreen from '../../components/GradientScreen';
 import {
   WorkoutBlock,
   WorkoutContent,
@@ -210,7 +210,7 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <GradientScreen>
       <View style={styles.header}>
         <View style={styles.headerRow}>
           <Button icon="arrow-left" onPress={() => navigation.goBack()}>
@@ -396,20 +396,20 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
           </Dialog.Actions>
         </Dialog>
       </Portal>
-    </SafeAreaView>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'transparent',
   },
   header: {
     padding: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
   },
   headerRow: {
     flexDirection: 'row',
@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     marginBottom: 12,
   },
   flex1: {
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     marginBottom: 12,
   },
   addBlockBtn: {
@@ -468,16 +468,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   dialogEmptyText: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     textAlign: 'center',
   },
   dialogEmptySubtext: {
-    color: '#9CA3AF',
+    color: 'rgba(255,255,255,0.50)',
     textAlign: 'center',
     marginTop: 4,
   },
   libCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     marginHorizontal: 16,
     marginVertical: 4,
     borderLeftWidth: 4,
@@ -493,7 +493,7 @@ const styles = StyleSheet.create({
   },
   libCardTitle: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
   },
   libTypeChip: {
     alignSelf: 'flex-start',
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
     height: 24,
   },
   libCardSub: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     marginTop: 4,
   },
 });

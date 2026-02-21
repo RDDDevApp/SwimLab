@@ -166,13 +166,13 @@ export default function BlockEditor({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 12,
     padding: 12,
     marginBottom: 16,
     borderLeftWidth: 4,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   header: {
     flexDirection: 'row',
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   nameInput: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(0, 0, 0, 0.20)',
     marginTop: 8,
     marginBottom: 4,
   },
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
   },
   addBtn: {
     alignSelf: 'flex-start',
-    borderColor: '#D1D5DB',
+    borderColor: 'rgba(255, 255, 255, 0.25)',
     marginBottom: 8,
   },
   libraryRow: {
@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 4,
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    borderTopColor: 'rgba(255, 255, 255, 0.15)',
     paddingTop: 8,
   },
   libBtn: {

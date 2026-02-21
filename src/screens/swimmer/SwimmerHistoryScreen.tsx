@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, Card, Chip, Button } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import GradientScreen from '../../components/GradientScreen';
 import { useFocusEffect } from '@react-navigation/native';
 import { workoutSessionService } from '../../services';
 import type { SwimmerHistoryEntry } from '../../services';
@@ -54,7 +54,7 @@ export default function SwimmerHistoryScreen({ navigation }: Props) {
 
   if (!loading && history.length === 0) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <GradientScreen>
         <View style={styles.header}>
           <Button icon="arrow-left" onPress={() => navigation.goBack()}>
             Retour
@@ -68,12 +68,12 @@ export default function SwimmerHistoryScreen({ navigation }: Props) {
           title="Aucun historique"
           subtitle="Ton historique apparaitra apres tes premiers entrainements"
         />
-      </SafeAreaView>
+      </GradientScreen>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <GradientScreen>
       <View style={styles.header}>
         <Button icon="arrow-left" onPress={() => navigation.goBack()}>
           Retour
@@ -169,38 +169,38 @@ export default function SwimmerHistoryScreen({ navigation }: Props) {
           </Card>
         )}
       />
-    </SafeAreaView>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'transparent',
   },
   header: {
     padding: 8,
     paddingBottom: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     paddingHorizontal: 16,
   },
   countChip: {
     alignSelf: 'flex-start',
     marginLeft: 16,
     marginTop: 8,
-    backgroundColor: '#CFFAFE',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
   },
   list: {
     padding: 16,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     marginBottom: 10,
   },
   absentCard: {
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   date: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     fontWeight: '600',
   },
   presentBadge: {
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
   },
   workoutTitle: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     marginBottom: 6,
   },
   chipRow: {
@@ -244,13 +244,13 @@ const styles = StyleSheet.create({
   },
   chip: {
     height: 26,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
   },
   rpeChip: {
     height: 26,
   },
   feedback: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     fontStyle: 'italic',
     marginTop: 8,
   },

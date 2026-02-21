@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { Text, Card, Button, Avatar, List, TextInput, HelperText, Switch } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import GradientScreen from '../../components/GradientScreen';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuthStore } from '../../stores/authStore';
 import { clubService, groupService, profileService } from '../../services';
@@ -70,7 +70,7 @@ export default function SwimmerProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <GradientScreen>
       <ScrollView
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
@@ -95,11 +95,15 @@ export default function SwimmerProfileScreen() {
               title="Email"
               description={user?.email}
               left={(props) => <List.Icon {...props} icon="email" />}
+              titleStyle={{ color: '#FFFFFF' }}
+              descriptionStyle={{ color: 'rgba(255,255,255,0.50)' }}
             />
             <List.Item
               title="Membre depuis"
               description={new Date(profile?.created_at || '').toLocaleDateString('fr-FR')}
               left={(props) => <List.Icon {...props} icon="calendar" />}
+              titleStyle={{ color: '#FFFFFF' }}
+              descriptionStyle={{ color: 'rgba(255,255,255,0.50)' }}
             />
           </Card.Content>
         </Card>
@@ -107,11 +111,13 @@ export default function SwimmerProfileScreen() {
         {club ? (
           <Card style={styles.card}>
             <Card.Content>
-              <Text variant="titleMedium">Mon club</Text>
+              <Text variant="titleMedium" style={{ color: '#FFFFFF' }}>Mon club</Text>
               <List.Item
                 title={club.name}
                 description={club.description || undefined}
                 left={(props) => <List.Icon {...props} icon="shield-outline" />}
+                titleStyle={{ color: '#FFFFFF' }}
+                descriptionStyle={{ color: 'rgba(255,255,255,0.50)' }}
               />
             </Card.Content>
           </Card>
@@ -154,12 +160,13 @@ export default function SwimmerProfileScreen() {
         {groupNames.length > 0 && (
           <Card style={styles.card}>
             <Card.Content>
-              <Text variant="titleMedium">Mes groupes</Text>
+              <Text variant="titleMedium" style={{ color: '#FFFFFF' }}>Mes groupes</Text>
               {groupNames.map((name) => (
                 <List.Item
                   key={name}
                   title={name}
                   left={(props) => <List.Icon {...props} icon="account-group" />}
+                  titleStyle={{ color: '#FFFFFF' }}
                 />
               ))}
             </Card.Content>
@@ -168,11 +175,13 @@ export default function SwimmerProfileScreen() {
 
         <Card style={styles.card}>
           <Card.Content>
-            <Text variant="titleMedium">Notifications</Text>
+            <Text variant="titleMedium" style={{ color: '#FFFFFF' }}>Notifications</Text>
             <List.Item
               title="Rappels d'entrainement"
               description="1h avant chaque seance"
               left={(props) => <List.Icon {...props} icon="bell-outline" />}
+              titleStyle={{ color: '#FFFFFF' }}
+              descriptionStyle={{ color: 'rgba(255,255,255,0.50)' }}
               right={() => (
                 <Switch
                   value={profile?.notification_reminder ?? true}
@@ -190,6 +199,8 @@ export default function SwimmerProfileScreen() {
               title="Demandes de feedback"
               description="Apres chaque emargement"
               left={(props) => <List.Icon {...props} icon="comment-outline" />}
+              titleStyle={{ color: '#FFFFFF' }}
+              descriptionStyle={{ color: 'rgba(255,255,255,0.50)' }}
               right={() => (
                 <Switch
                   value={profile?.notification_feedback ?? true}
@@ -216,14 +227,14 @@ export default function SwimmerProfileScreen() {
           Se deconnecter
         </Button>
       </ScrollView>
-    </SafeAreaView>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 16,
@@ -233,38 +244,38 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
   },
   avatar: {
-    backgroundColor: '#EC4899',
+    backgroundColor: '#F43F8E',
   },
   name: {
     marginTop: 16,
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
   },
   role: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     marginTop: 4,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     marginBottom: 16,
   },
   joinCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     marginBottom: 16,
     borderLeftWidth: 4,
     borderLeftColor: '#06B6D4',
   },
   joinTitle: {
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#FFFFFF',
     marginBottom: 4,
   },
   joinSubtitle: {
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.50)',
     marginBottom: 12,
   },
   joinInput: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
   },
   joinBtn: {
     marginTop: 12,
