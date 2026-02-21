@@ -178,13 +178,13 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
@@ -198,12 +198,12 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   workoutCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     marginBottom: 8,
   },
   selectedCard: {
     borderWidth: 2,
-    borderColor: '#06B6D4',
+    borderColor: '#0891B2',
   },
   cardContent: {
     flexDirection: 'row',
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
   },
   cardMeta: {
     flexDirection: 'row',
@@ -225,14 +225,14 @@ const styles = StyleSheet.create({
   },
   typeChip: {
     height: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.45)',
   },
   distance: {
-    color: '#06B6D4',
+    color: '#0891B2',
     fontWeight: '600',
   },
   desc: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     marginTop: 4,
   },
   emptyState: {
@@ -242,11 +242,11 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   emptyText: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     textAlign: 'center',
   },
   emptySubtext: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     textAlign: 'center',
     marginTop: 8,
   },
@@ -255,8 +255,8 @@ const styles = StyleSheet.create({
   },
   footer: {
     padding: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.15)',
+    borderTopColor: 'rgba(0, 0, 0, 0.08)',
   },
 });

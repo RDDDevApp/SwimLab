@@ -23,10 +23,10 @@ const getStatusDot = (session: any, assignment: any) => {
     return { color: '#F59E0B', label: 'Feedback a donner' };
   }
   if (session && !session.attended) {
-    return { color: '#9CA3AF', label: 'Absent' };
+    return { color: 'rgba(27,67,50,0.45)', label: 'Absent' };
   }
   if (isPast && !assignment.attendance_marked) {
-    return { color: '#9CA3AF', label: 'Non marque' };
+    return { color: 'rgba(27,67,50,0.45)', label: 'Non marque' };
   }
   return { color: '#3B82F6', label: 'A venir' };
 };
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   sheet: {
-    backgroundColor: '#0C2D48',
+    backgroundColor: '#F0F7F4',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '92%',
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
   handleBar: {
     width: 40,
     height: 4,
-    backgroundColor: 'rgba(255,255,255,0.30)',
+    backgroundColor: 'rgba(0,0,0,0.15)',
     borderRadius: 2,
     alignSelf: 'center',
     marginTop: 12,
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.10)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.06)',
   },
   headerLeft: {
     flex: 1,
@@ -307,10 +307,10 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
   },
   subtitle: {
-    color: '#67E8F9',
+    color: '#0E7490',
     marginTop: 2,
   },
   infoRow: {
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   infoChip: {
-    backgroundColor: 'rgba(255,255,255,0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
   },
   closeBtn: {
     margin: -4,
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
   },
   workoutTitle: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     marginBottom: 6,
   },
   chipRow: {
@@ -344,31 +344,31 @@ const styles = StyleSheet.create({
   },
   typeChip: {
     height: 24,
-    backgroundColor: 'rgba(255,255,255,0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
   },
   distanceChip: {
     height: 24,
-    backgroundColor: 'rgba(255,255,255,0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
   },
   // Feedback section
   feedbackSection: {
     marginTop: 20,
     paddingTop: 20,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.10)',
+    borderTopColor: 'rgba(0, 0, 0, 0.06)',
   },
   sectionTitle: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     marginBottom: 12,
   },
   fieldLabel: {
     fontWeight: '600',
-    color: '#67E8F9',
+    color: '#0E7490',
     marginBottom: 8,
   },
   input: {
-    backgroundColor: 'rgba(0, 0, 0, 0.20)',
+    backgroundColor: 'rgba(255, 255, 255, 0.60)',
   },
   submitBtn: {
     marginTop: 16,
@@ -379,48 +379,48 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   rpeDisplay: {
-    backgroundColor: 'rgba(255,255,255,0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
   },
   rpeLabel: {
-    color: '#67E8F9',
+    color: '#0E7490',
     fontWeight: '500',
   },
   rpeValue: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
   },
   commentDisplay: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.45)',
     borderRadius: 12,
     padding: 12,
   },
   commentLabel: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     fontWeight: '500',
     marginBottom: 4,
   },
   commentText: {
-    color: '#FFFFFF',
+    color: '#1B4332',
   },
   // Notices
   noticeBox: {
     marginTop: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.45)',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
   },
   noticeText: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     fontWeight: '600',
   },
   noticeBlue: {
-    backgroundColor: 'rgba(255,255,255,0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
   },
   noticeBlueText: {
-    color: '#67E8F9',
+    color: '#0E7490',
   },
 });

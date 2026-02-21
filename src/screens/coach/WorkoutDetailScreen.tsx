@@ -179,9 +179,9 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
   },
   headerTop: {
     flexDirection: 'row',
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     paddingHorizontal: 16,
   },
   chipRow: {
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   distanceChip: {
-    backgroundColor: '#CFFAFE',
+    backgroundColor: 'rgba(14, 116, 144, 0.10)',
     height: 26,
   },
   publishedChip: {
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
   },
   editBtn: {
     marginTop: 16,
-    backgroundColor: '#06B6D4',
+    backgroundColor: '#0891B2',
   },
   loading: {
     flex: 1,
@@ -229,6 +229,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingText: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
   },
 });

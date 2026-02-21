@@ -236,17 +236,17 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     paddingHorizontal: 16,
   },
   subtitle: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
@@ -255,12 +255,12 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   statsCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     marginBottom: 16,
   },
   sectionTitle: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     marginBottom: 12,
   },
   statRow: {
@@ -270,17 +270,17 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   statLabel: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
   },
   statValue: {
-    color: '#FFFFFF',
+    color: '#1B4332',
     fontWeight: '600',
   },
   progressBar: {
     height: 6,
     borderRadius: 3,
     marginTop: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.65)',
   },
   minMaxRow: {
     flexDirection: 'row',
@@ -288,13 +288,13 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   minMax: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
   },
   rpeChip: {
     height: 26,
   },
   rpeChipText: {
-    color: '#FFFFFF',
+    color: '#1B4332',
     fontWeight: 'bold',
     fontSize: 12,
   },
@@ -305,11 +305,11 @@ const styles = StyleSheet.create({
   },
   listTitle: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     marginBottom: 8,
   },
   feedbackCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     marginBottom: 8,
   },
   feedbackHeader: {
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   swimmerName: {
-    color: '#FFFFFF',
+    color: '#1B4332',
     fontWeight: '600',
   },
   feedbackBadges: {
@@ -334,16 +334,16 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   rpeLabel: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     marginTop: 2,
   },
   commentText: {
-    color: '#67E8F9',
+    color: '#0E7490',
     marginTop: 8,
     fontStyle: 'italic',
   },
   pendingCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     marginBottom: 6,
   },
   pendingRow: {
@@ -352,18 +352,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   pendingName: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
   },
   pendingChip: {
     backgroundColor: '#FEF3C7',
     height: 26,
   },
   absentCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     marginBottom: 6,
   },
   absentName: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
   },
   absentChip: {
     backgroundColor: '#FEE2E2',
