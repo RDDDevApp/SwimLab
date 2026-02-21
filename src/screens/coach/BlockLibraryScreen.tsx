@@ -34,7 +34,7 @@ const BLOCK_COLORS: Record<string, string> = {
   warmup: '#10B981',
   main: '#0891B2',
   cooldown: '#8B5CF6',
-  other: 'rgba(27,67,50,0.50)',
+  other: '#64748b',
 };
 
 const BLOCK_TYPES = [
@@ -197,17 +197,17 @@ const styles = StyleSheet.create({
   header: {
     padding: 16,
     paddingTop: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
     paddingHorizontal: 8,
   },
   subtitle: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     paddingHorizontal: 8,
     marginTop: 4,
   },
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     marginBottom: 10,
     borderLeftWidth: 4,
   },
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
   },
   cardActions: {
     flexDirection: 'row',
@@ -248,10 +248,10 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0, 0, 0, 0.06)',
+    borderTopColor: 'rgba(255, 255, 255, 0.50)',
   },
   subBlockText: {
-    color: '#0E7490',
+    color: '#0891b2',
     marginBottom: 2,
   },
 });

@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.06)',
+    borderColor: 'rgba(255, 255, 255, 0.50)',
   },
   topRow: {
     flexDirection: 'row',
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   multiply: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     fontWeight: 'bold',
     fontSize: 16,
   },

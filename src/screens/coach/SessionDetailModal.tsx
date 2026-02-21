@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
   handleBar: {
     width: 40,
     height: 4,
-    backgroundColor: 'rgba(0, 0, 0, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.60)',
     borderRadius: 2,
     alignSelf: 'center',
     marginTop: 12,
@@ -439,17 +439,17 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.06)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.50)',
   },
   headerLeft: {
     flex: 1,
   },
   title: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
   },
   subtitle: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     marginTop: 2,
   },
   infoRow: {
@@ -471,7 +471,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
     marginBottom: 12,
   },
   // Empty slot view
@@ -493,11 +493,11 @@ const styles = StyleSheet.create({
   },
   emptySlotTitle: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
     marginBottom: 4,
   },
   emptySlotSubtitle: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     textAlign: 'center',
     marginBottom: 20,
   },
@@ -513,13 +513,13 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   emptyText: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
   },
   workoutCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.60)',
   },
   selectedCard: {
     borderWidth: 2,
@@ -535,7 +535,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
   },
   cardMeta: {
     flexDirection: 'row',
@@ -578,7 +578,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   lockedText: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     fontWeight: '600',
     fontSize: 13,
   },
@@ -596,12 +596,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statLabel: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     fontWeight: '500',
   },
   statValue: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
     marginTop: 2,
   },
   // Workout recap
@@ -613,7 +613,7 @@ const styles = StyleSheet.create({
   },
   recapTitle: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
     marginBottom: 6,
   },
   recapChips: {

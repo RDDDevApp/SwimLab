@@ -169,17 +169,17 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.06)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.50)',
   },
   headerLeft: {
     flex: 1,
   },
   title: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
   },
   subtitle: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     marginTop: 2,
   },
   closeBtn: {
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
     marginBottom: 12,
   },
   input: {
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   editHint: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     textAlign: 'center',
     marginTop: 8,
   },

@@ -266,13 +266,13 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
     paddingHorizontal: 16,
   },
   levelChip: {
@@ -285,9 +285,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
   },
   statChip: {
     backgroundColor: '#DBEAFE',
@@ -302,16 +302,16 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   emptyText: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     textAlign: 'center',
   },
   emptySubtext: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     textAlign: 'center',
     marginTop: 8,
   },
   memberCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     marginBottom: 6,
   },
   memberRow: {
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   memberName: {
-    color: '#1B4332',
+    color: '#1e293b',
     fontWeight: '600',
   },
   slotsBtn: {
@@ -337,7 +337,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
   },
   noSwimmers: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     textAlign: 'center',
     padding: 16,
   },
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   checkboxLabel: {
-    color: '#1B4332',
+    color: '#1e293b',
     marginLeft: 8,
   },
 });

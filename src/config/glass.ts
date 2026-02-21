@@ -2,43 +2,43 @@ import { StyleSheet } from 'react-native';
 
 export const GLASS = StyleSheet.create({
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
-    borderColor: 'rgba(0, 0, 0, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    borderColor: 'rgba(255, 255, 255, 0.60)',
     borderWidth: 1,
     borderRadius: 20,
   },
   cardElevated: {
-    backgroundColor: 'rgba(255, 255, 255, 0.65)',
-    borderColor: 'rgba(0, 0, 0, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.50)',
+    borderColor: 'rgba(255, 255, 255, 0.60)',
     borderWidth: 1,
     borderRadius: 24,
   },
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.60)',
-    borderColor: 'rgba(0, 0, 0, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.50)',
+    borderColor: 'rgba(255, 255, 255, 0.60)',
     borderWidth: 1,
     borderRadius: 14,
   },
   bar: {
-    backgroundColor: 'rgba(255, 255, 255, 0.80)',
+    backgroundColor: 'rgba(255, 255, 255, 0.60)',
     borderTopWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.06)',
+    borderColor: 'rgba(255, 255, 255, 0.50)',
   },
   chip: {
-    backgroundColor: 'rgba(0, 0, 0, 0.06)',
+    backgroundColor: 'rgba(255, 255, 255, 0.50)',
     borderRadius: 10,
   },
 });
 
 export const COLORS = {
-  textPrimary: '#1B4332',
-  textSecondary: '#0E7490',
-  textMuted: 'rgba(27,67,50,0.50)',
+  textPrimary: '#1e293b',
+  textSecondary: '#0891b2',
+  textMuted: '#64748b',
   accent: '#0891B2',
-  accentPink: '#DB2777',
-  accentYellow: '#D97706',
+  accentPink: '#ec4899',
+  accentYellow: '#eab308',
   accentGreen: '#059669',
   accentRed: '#DC2626',
   accentOrange: '#EA580C',
-  glowShadow: 'rgba(14,116,144,0.15)',
+  glowShadow: 'rgba(30,41,59,0.08)',
 };

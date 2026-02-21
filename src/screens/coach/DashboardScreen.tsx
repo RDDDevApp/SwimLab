@@ -7,7 +7,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { groupService, workoutService, clubService } from '../../services';
 import { Club } from '../../types';
 
-export default function CoachDashboardScreen() {
+export default function CoachDashboardScreen({ navigation }: { navigation: any }) {
   const { profile, user, clubId, signOut } = useAuthStore();
   const [groupCount, setGroupCount] = useState(0);
   const [workoutCount, setWorkoutCount] = useState(0);
@@ -127,6 +127,15 @@ export default function CoachDashboardScreen() {
             </View>
             )}
           </Card.Content>
+          <Card.Actions>
+            <Button
+              mode="contained"
+              onPress={() => navigation.navigate('CoachStats')}
+              style={styles.statsButton}
+            >
+              Voir les statistiques
+            </Button>
+          </Card.Actions>
         </Card>
 
         <Button
@@ -159,13 +168,13 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
   },
   subtitle: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
   },
   codeRow: {
     flexDirection: 'row',
@@ -174,13 +183,13 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   codeLabel: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
   },
   codeChip: {
     backgroundColor: 'rgba(14, 116, 144, 0.10)',
   },
   clubDesc: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     marginTop: 4,
   },
   statsRow: {
@@ -197,6 +206,10 @@ const styles = StyleSheet.create({
   },
   loader: {
     paddingVertical: 24,
+  },
+  statsButton: {
+    backgroundColor: '#0891b2',
+    borderRadius: 12,
   },
   logoutButton: {
     marginTop: 16,

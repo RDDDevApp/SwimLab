@@ -18,7 +18,7 @@ const getSlotStatus = (
   assignment: WorkoutAssignment | undefined,
   rpeMap?: Record<string, number | null>,
 ) => {
-  if (!assignment) return { color: 'rgba(27,67,50,0.25)', label: 'Non assigne' };
+  if (!assignment) return { color: 'rgba(100,116,139,0.25)', label: 'Non assigne' };
   if (!assignment.attendance_marked) return { color: '#2563EB', label: 'A emarger' };
   if (rpeMap?.[assignment.id] != null) return { color: '#059669', label: 'Emarger' };
   return { color: '#EA580C', label: 'Feedback manquant' };
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   },
   dayColumn: {
     backgroundColor: 'rgba(255, 255, 255, 0.45)',
-    borderColor: 'rgba(0, 0, 0, 0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.60)',
     borderWidth: 1,
     borderRadius: 16,
     overflow: 'hidden',
@@ -140,13 +140,13 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: 'rgba(255, 255, 255, 0.35)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.06)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.50)',
   },
   todayHeader: {
     backgroundColor: 'rgba(14, 116, 144, 0.10)',
   },
   dayLabel: {
-    color: '#0E7490',
+    color: '#0891b2',
     fontWeight: '600',
   },
   todayLabel: {
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   emptyText: {
-    color: 'rgba(27,67,50,0.30)',
+    color: 'rgba(100,116,139,0.30)',
     fontStyle: 'italic',
   },
   slotItem: {
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   slotName: {
-    color: '#1B4332',
+    color: '#1e293b',
     fontWeight: '600',
   },
   statusLabel: {
@@ -195,12 +195,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   slotTime: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     marginTop: 2,
     marginLeft: 18,
   },
   workoutTitle: {
-    color: '#0E7490',
+    color: '#0891b2',
     fontWeight: '500',
     marginTop: 4,
     marginLeft: 18,

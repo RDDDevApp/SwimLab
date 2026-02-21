@@ -33,7 +33,7 @@ const BLOCK_COLORS: Record<string, string> = {
   warmup: '#10B981',
   main: '#0891B2',
   cooldown: '#8B5CF6',
-  other: 'rgba(27,67,50,0.50)',
+  other: '#64748b',
 };
 
 interface Props {
@@ -407,9 +407,9 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
   },
   headerRow: {
     flexDirection: 'row',
@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     marginBottom: 12,
   },
   flex1: {
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
     marginBottom: 12,
   },
   addBlockBtn: {
@@ -468,16 +468,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   dialogEmptyText: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     textAlign: 'center',
   },
   dialogEmptySubtext: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     textAlign: 'center',
     marginTop: 4,
   },
   libCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     marginHorizontal: 16,
     marginVertical: 4,
     borderLeftWidth: 4,
@@ -493,7 +493,7 @@ const styles = StyleSheet.create({
   },
   libCardTitle: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
   },
   libTypeChip: {
     alignSelf: 'flex-start',
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
     height: 24,
   },
   libCardSub: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     marginTop: 4,
   },
 });

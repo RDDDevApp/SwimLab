@@ -189,14 +189,14 @@ const styles = StyleSheet.create({
   name: {
     marginTop: 16,
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
   },
   role: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     marginTop: 4,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     marginBottom: 16,
   },
   codeRow: {
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   codeLabel: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
   },
   codeChip: {
     backgroundColor: 'rgba(14, 116, 144, 0.10)',

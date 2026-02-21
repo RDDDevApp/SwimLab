@@ -132,11 +132,11 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
     marginTop: 24,
   },
   subtitle: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     marginBottom: 8,
   },
   input: {
@@ -149,9 +149,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   successCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     borderLeftWidth: 4,
-    borderLeftColor: 'rgba(0, 0, 0, 0.08)',
+    borderLeftColor: 'rgba(255, 255, 255, 0.60)',
     marginTop: 16,
   },
   successContent: {
@@ -159,10 +159,10 @@ const styles = StyleSheet.create({
   },
   successTitle: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
   },
   successText: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
   },
   continueBtn: {
     marginTop: 16,

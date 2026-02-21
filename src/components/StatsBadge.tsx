@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 11,
-    color: 'rgba(27,67,50,0.55)',
+    color: 'rgba(100,116,139,0.55)',
     fontWeight: '500',
   },
 });

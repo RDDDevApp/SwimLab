@@ -1,26 +1,26 @@
 import { MD3LightTheme, MD3DarkTheme, configureFonts } from 'react-native-paper';
 
-// SwimLab Brand Colors – adapted for light pastel gradient
+// SwimLab Brand Colors – slate/blue palette (mockup-aligned)
 const colors = {
   primary: {
     turquoise: '#0891B2',
-    teal: '#115E59',
+    teal: '#0e7490',
   },
   secondary: {
-    pink: '#DB2777',
+    pink: '#ec4899',
     orange: '#D97706',
   },
   accent: {
-    yellow: '#D97706',
-    electricBlue: '#2563EB',
+    yellow: '#eab308',
+    electricBlue: '#6366f1',
   },
   neutral: {
     white: '#FFFFFF',
-    lightGray: '#F3F4F6',
-    gray: '#6B7280',
-    darkGray: '#374151',
-    dark: '#1B4332',
-    black: '#111827',
+    lightGray: '#F1F5F9',
+    gray: '#64748b',
+    darkGray: '#475569',
+    dark: '#1e293b',
+    black: '#0f172a',
   },
   semantic: {
     success: '#059669',
@@ -39,7 +39,7 @@ const colors = {
   },
 };
 
-// Light Theme (primary – matches pastel gradient)
+// Light Theme (primary – matches blue-50 gradient)
 export const lightTheme = {
   ...MD3LightTheme,
   colors: {
@@ -52,7 +52,7 @@ export const lightTheme = {
     tertiaryContainer: '#FEF3C7',
     surface: colors.neutral.white,
     surfaceVariant: colors.neutral.lightGray,
-    background: colors.neutral.lightGray,
+    background: '#EFF6FF',
     error: colors.semantic.error,
     errorContainer: '#FEE2E2',
     onPrimary: colors.neutral.white,
@@ -62,7 +62,7 @@ export const lightTheme = {
     onSurfaceVariant: colors.neutral.darkGray,
     onBackground: colors.neutral.dark,
     outline: colors.neutral.gray,
-    outlineVariant: '#D1D5DB',
+    outlineVariant: '#CBD5E1',
   },
   custom: colors,
 };

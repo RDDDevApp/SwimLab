@@ -188,14 +188,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   subtitle: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     marginTop: 8,
   },
   form: {
     gap: 16,
   },
   roleLabel: {
-    color: '#0E7490',
+    color: '#0891b2',
     marginBottom: -8,
   },
   segmented: {

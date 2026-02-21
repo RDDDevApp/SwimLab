@@ -53,7 +53,7 @@ export default function RPESlider({ value, onChange }: RPESliderProps) {
               style={[
                 styles.scaleButton,
                 {
-                  backgroundColor: isSelected ? bgColor : 'rgba(255,255,255,0.55)',
+                  backgroundColor: isSelected ? bgColor : 'rgba(255, 255, 255, 0.40)',
                   borderColor: isSelected ? bgColor : 'rgba(0,0,0,0.08)',
                 },
                 isSelected && {
@@ -69,7 +69,7 @@ export default function RPESlider({ value, onChange }: RPESliderProps) {
               <Text
                 style={[
                   styles.scaleText,
-                  { color: isSelected ? '#FFFFFF' : 'rgba(27,67,50,0.50)' },
+                  { color: isSelected ? '#FFFFFF' : '#64748b' },
                 ]}
               >
                 {rpeVal}

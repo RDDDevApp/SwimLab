@@ -14,7 +14,7 @@ const BLOCK_COLORS: Record<string, string> = {
   warmup: '#10B981',
   main: '#0891B2',
   cooldown: '#8B5CF6',
-  other: 'rgba(27,67,50,0.50)',
+  other: '#64748b',
 };
 
 interface Props {
@@ -336,13 +336,13 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
   },
   headerButtons: {
     flexDirection: 'row',
@@ -350,13 +350,13 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   headerBtn: {
-    borderColor: 'rgba(0, 0, 0, 0.10)',
+    borderColor: 'rgba(255, 255, 255, 0.60)',
   },
   list: {
     padding: 16,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     marginBottom: 10,
   },
   cardHeader: {
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
     flex: 1,
   },
   cardActions: {
@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   expandDesc: {
-    color: '#0E7490',
+    color: '#0891b2',
     fontStyle: 'italic',
     marginBottom: 10,
   },
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   blockName: {
-    color: '#1B4332',
+    color: '#1e293b',
     fontWeight: '600',
     flex: 1,
   },
@@ -436,7 +436,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   subBlockLine: {
-    color: 'rgba(27,67,50,0.65)',
+    color: 'rgba(100,116,139,0.65)',
     marginBottom: 2,
     paddingLeft: 4,
   },

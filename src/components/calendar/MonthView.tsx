@@ -29,7 +29,7 @@ const getDotsForDay = (
     const assignment = assignments.find(
       (a) => a.training_slot_id === slot.id && a.scheduled_date === dateStr,
     );
-    if (!assignment) return 'rgba(27,67,50,0.20)';
+    if (!assignment) return 'rgba(100,116,139,0.20)';
     if (!assignment.attendance_marked) return '#2563EB';
     if (rpeMap?.[assignment.id] != null) return '#059669';
     return '#EA580C';
@@ -109,7 +109,7 @@ export default function MonthView({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: 'rgba(255, 255, 255, 0.45)',
-    borderColor: 'rgba(0, 0, 0, 0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.60)',
     borderWidth: 1,
     borderRadius: 20,
     margin: 12,
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   headerText: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     fontWeight: '600',
     fontSize: 12,
   },
@@ -144,11 +144,11 @@ const styles = StyleSheet.create({
   },
   dayNumber: {
     fontWeight: '500',
-    color: '#1B4332',
+    color: '#1e293b',
     fontSize: 14,
   },
   otherMonthDay: {
-    color: 'rgba(27,67,50,0.25)',
+    color: 'rgba(100,116,139,0.25)',
   },
   todayNumber: {
     color: '#0891B2',
