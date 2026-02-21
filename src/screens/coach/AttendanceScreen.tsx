@@ -178,17 +178,17 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     paddingHorizontal: 16,
   },
   subtitle: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
@@ -197,9 +197,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
   },
   statChip: {
     backgroundColor: '#D1FAE5',
@@ -211,11 +211,11 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   swimmerCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     marginBottom: 6,
   },
   presentCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(255, 255, 255, 0.35)',
     borderLeftWidth: 3,
     borderLeftColor: '#10B981',
   },
@@ -225,12 +225,12 @@ const styles = StyleSheet.create({
   },
   swimmerName: {
     marginLeft: 8,
-    color: '#FFFFFF',
+    color: '#1B4332',
   },
   footer: {
     padding: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.15)',
+    borderTopColor: 'rgba(0, 0, 0, 0.08)',
   },
 });
