@@ -159,13 +159,13 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
   },
   subtitle: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
   },
   codeRow: {
     flexDirection: 'row',
@@ -174,13 +174,13 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   codeLabel: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
   },
   codeChip: {
-    backgroundColor: '#CFFAFE',
+    backgroundColor: 'rgba(14, 116, 144, 0.10)',
   },
   clubDesc: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     marginTop: 4,
   },
   statsRow: {
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statValue: {
-    color: '#06B6D4',
+    color: '#0891B2',
     fontWeight: 'bold',
   },
   loader: {
