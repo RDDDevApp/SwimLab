@@ -31,12 +31,12 @@ export default function GlassTabBar({ state, navigation, tabs }: Props) {
               <Ionicons
                 name={iconName}
                 size={22}
-                color={focused ? '#00C9DB' : 'rgba(255,255,255,0.40)'}
+                color={focused ? '#0E7490' : 'rgba(27,67,50,0.35)'}
               />
             </View>
             <Text style={[
               styles.label,
-              { color: focused ? '#00C9DB' : 'rgba(255,255,255,0.40)' },
+              { color: focused ? '#0E7490' : 'rgba(27,67,50,0.35)' },
               focused && { fontWeight: '700' },
             ]}>
               {tab.label}
@@ -51,9 +51,9 @@ export default function GlassTabBar({ state, navigation, tabs }: Props) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(11, 20, 38, 0.85)',
+    backgroundColor: 'rgba(255, 255, 255, 0.80)',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.08)',
+    borderTopColor: 'rgba(0, 0, 0, 0.06)',
     paddingBottom: 20,
     paddingTop: 8,
   },
@@ -70,10 +70,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   activeWrap: {
-    backgroundColor: 'rgba(0, 201, 219, 0.15)',
-    shadowColor: '#00C9DB',
+    backgroundColor: 'rgba(14, 116, 144, 0.12)',
+    shadowColor: '#0891B2',
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 8,
   },
   label: {

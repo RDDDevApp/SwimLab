@@ -25,7 +25,7 @@ export default function SubBlockEditor({
         <IconButton
           icon="close"
           size={16}
-          iconColor="#EF4444"
+          iconColor="#DC2626"
           onPress={onRemove}
           style={styles.removeBtn}
         />
@@ -81,12 +81,12 @@ export default function SubBlockEditor({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(255, 255, 255, 0.35)',
     borderRadius: 8,
     padding: 10,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderColor: 'rgba(0, 0, 0, 0.06)',
   },
   topRow: {
     flexDirection: 'row',
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   totalLabel: {
-    color: '#06B6D4',
+    color: '#0891B2',
     fontWeight: 'bold',
     fontSize: 13,
   },
@@ -110,13 +110,13 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   input: {
-    backgroundColor: 'rgba(0, 0, 0, 0.20)',
+    backgroundColor: 'rgba(255, 255, 255, 0.60)',
   },
   flex1: {
     flex: 1,
   },
   multiply: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     fontWeight: 'bold',
     fontSize: 16,
   },
@@ -127,6 +127,6 @@ const styles = StyleSheet.create({
     width: 80,
   },
   descInput: {
-    backgroundColor: 'rgba(0, 0, 0, 0.20)',
+    backgroundColor: 'rgba(255, 255, 255, 0.60)',
   },
 });

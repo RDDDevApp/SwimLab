@@ -4,10 +4,10 @@ import { Text, Card, Chip } from 'react-native-paper';
 import { Workout, WorkoutBlock, BLOCK_TYPE_LABELS } from '../../types';
 
 const blockTypeColors: Record<string, string> = {
-  warmup: '#10B981',
-  main: '#06B6D4',
-  cooldown: '#8B5CF6',
-  other: '#6B7280',
+  warmup: '#059669',
+  main: '#0891B2',
+  cooldown: '#7C3AED',
+  other: '#4B5563',
 };
 
 interface Props {
@@ -30,7 +30,7 @@ export default function WorkoutContentView({ workout }: Props) {
       ) : null}
 
       {blocks.map((block, bIndex) => {
-        const color = blockTypeColors[block.type] || '#6B7280';
+        const color = blockTypeColors[block.type] || '#4B5563';
         const blockDistance = block.sub_blocks.reduce(
           (sum, sb) => sum + sb.distance * sb.repetitions,
           0,
@@ -43,7 +43,7 @@ export default function WorkoutContentView({ workout }: Props) {
           >
             <Card.Content>
               <View style={styles.blockHeader}>
-                <Chip compact style={[styles.blockTypeChip, { backgroundColor: color + '20' }]}>
+                <Chip compact style={[styles.blockTypeChip, { backgroundColor: color + '18' }]}>
                   <Text style={{ color, fontWeight: '600', fontSize: 11 }}>
                     {BLOCK_TYPE_LABELS[block.type as keyof typeof BLOCK_TYPE_LABELS] || block.type}
                   </Text>
@@ -94,14 +94,14 @@ export default function WorkoutContentView({ workout }: Props) {
 
 const styles = StyleSheet.create({
   descCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     marginBottom: 12,
   },
   descText: {
-    color: 'rgba(255,255,255,0.70)',
+    color: 'rgba(27,67,50,0.65)',
   },
   blockCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     marginBottom: 12,
     borderLeftWidth: 4,
   },
@@ -116,30 +116,30 @@ const styles = StyleSheet.create({
   },
   blockName: {
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#1B4332',
     flex: 1,
   },
   blockDistance: {
-    color: '#06B6D4',
+    color: '#0891B2',
     fontWeight: 'bold',
   },
   subBlock: {
     marginTop: 8,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.10)',
+    borderTopColor: 'rgba(0, 0, 0, 0.06)',
   },
   subBlockTitle: {
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#1B4332',
     marginBottom: 2,
   },
   departure: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     marginBottom: 2,
   },
   description: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     fontStyle: 'italic',
   },
 });

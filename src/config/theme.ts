@@ -1,45 +1,45 @@
 import { MD3LightTheme, MD3DarkTheme, configureFonts } from 'react-native-paper';
 
-// SwimLab Brand Colors (from VISION.md)
+// SwimLab Brand Colors – adapted for light pastel gradient
 const colors = {
   primary: {
-    turquoise: '#06B6D4',
+    turquoise: '#0891B2',
     teal: '#115E59',
   },
   secondary: {
-    pink: '#EC4899',
-    orange: '#F59E0B',
+    pink: '#DB2777',
+    orange: '#D97706',
   },
   accent: {
-    yellow: '#FBBF24',
-    electricBlue: '#3B82F6',
+    yellow: '#D97706',
+    electricBlue: '#2563EB',
   },
   neutral: {
     white: '#FFFFFF',
     lightGray: '#F3F4F6',
-    gray: '#9CA3AF',
-    darkGray: '#4B5563',
-    dark: '#1F2937',
+    gray: '#6B7280',
+    darkGray: '#374151',
+    dark: '#1B4332',
     black: '#111827',
   },
   semantic: {
-    success: '#10B981',
-    warning: '#F59E0B',
-    error: '#EF4444',
-    info: '#3B82F6',
+    success: '#059669',
+    warning: '#D97706',
+    error: '#DC2626',
+    info: '#2563EB',
   },
   rpe: {
-    veryEasy: '#22C55E',    // 6-8
-    easy: '#84CC16',         // 9-10
-    light: '#A3E635',        // 11-12
-    moderate: '#FACC15',     // 13-14
-    hard: '#FB923C',         // 15-16
-    veryHard: '#F87171',     // 17-18
-    maximal: '#DC2626',      // 19-20
+    veryEasy: '#15803D',    // 6-8
+    easy: '#4D7C0F',         // 9-10
+    light: '#65A30D',        // 11-12
+    moderate: '#CA8A04',     // 13-14
+    hard: '#EA580C',         // 15-16
+    veryHard: '#DC2626',     // 17-18
+    maximal: '#991B1B',      // 19-20
   },
 };
 
-// Light Theme
+// Light Theme (primary – matches pastel gradient)
 export const lightTheme = {
   ...MD3LightTheme,
   colors: {
@@ -62,12 +62,12 @@ export const lightTheme = {
     onSurfaceVariant: colors.neutral.darkGray,
     onBackground: colors.neutral.dark,
     outline: colors.neutral.gray,
-    outlineVariant: '#E5E7EB',
+    outlineVariant: '#D1D5DB',
   },
   custom: colors,
 };
 
-// Dark Theme
+// Dark Theme (kept for reference)
 export const darkTheme = {
   ...MD3DarkTheme,
   colors: {

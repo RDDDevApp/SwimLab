@@ -17,7 +17,7 @@ export default function RPESlider({ value, onChange }: RPESliderProps) {
   return (
     <View style={styles.container}>
       <View style={styles.valueDisplay}>
-        <Text style={[styles.valueText, { color, textShadowColor: color, textShadowRadius: 20 }]}>
+        <Text style={[styles.valueText, { color }]}>
           {value}
         </Text>
         <Text style={[styles.label, { color }]}>
@@ -34,7 +34,7 @@ export default function RPESlider({ value, onChange }: RPESliderProps) {
               backgroundColor: color,
               shadowColor: color,
               shadowOffset: { width: 0, height: 0 },
-              shadowOpacity: 0.6,
+              shadowOpacity: 0.4,
               shadowRadius: 8,
             },
           ]}
@@ -53,13 +53,13 @@ export default function RPESlider({ value, onChange }: RPESliderProps) {
               style={[
                 styles.scaleButton,
                 {
-                  backgroundColor: isSelected ? bgColor : 'rgba(255,255,255,0.08)',
-                  borderColor: isSelected ? bgColor : 'rgba(255,255,255,0.10)',
+                  backgroundColor: isSelected ? bgColor : 'rgba(255,255,255,0.55)',
+                  borderColor: isSelected ? bgColor : 'rgba(0,0,0,0.08)',
                 },
                 isSelected && {
                   shadowColor: bgColor,
                   shadowOffset: { width: 0, height: 0 },
-                  shadowOpacity: 0.5,
+                  shadowOpacity: 0.4,
                   shadowRadius: 10,
                   elevation: 5,
                   transform: [{ scale: 1.15 }],
@@ -69,7 +69,7 @@ export default function RPESlider({ value, onChange }: RPESliderProps) {
               <Text
                 style={[
                   styles.scaleText,
-                  { color: isSelected ? '#FFFFFF' : 'rgba(255,255,255,0.5)' },
+                  { color: isSelected ? '#FFFFFF' : 'rgba(27,67,50,0.50)' },
                 ]}
               >
                 {rpeVal}
@@ -89,8 +89,8 @@ export default function RPESlider({ value, onChange }: RPESliderProps) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: 'rgba(255,255,255,0.45)',
+    borderColor: 'rgba(0,0,0,0.08)',
     borderWidth: 1,
     borderRadius: 20,
     padding: 20,
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
   },
   barTrack: {
     height: 6,
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: 'rgba(0,0,0,0.06)',
     borderRadius: 3,
     overflow: 'hidden',
     marginBottom: 16,
@@ -143,12 +143,12 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
   legendLeft: {
-    color: '#34D399',
+    color: '#059669',
     fontWeight: '600',
     fontSize: 13,
   },
   legendRight: {
-    color: '#F87171',
+    color: '#DC2626',
     fontWeight: '600',
     fontSize: 13,
   },

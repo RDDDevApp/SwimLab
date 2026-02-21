@@ -36,7 +36,7 @@ export default function SlotCard({ slot, onEdit, onDelete }: SlotCardProps) {
               <IconButton icon="pencil" size={20} onPress={() => onEdit(slot)} />
             )}
             {onDelete && (
-              <IconButton icon="delete" size={20} iconColor="#EF4444" onPress={() => onDelete(slot)} />
+              <IconButton icon="delete" size={20} iconColor="#DC2626" onPress={() => onDelete(slot)} />
             )}
           </View>
         </View>
@@ -47,7 +47,7 @@ export default function SlotCard({ slot, onEdit, onDelete }: SlotCardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     marginBottom: 8,
   },
   row: {
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1B4332',
     marginBottom: 8,
   },
   chips: {
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     height: 28,
   },
   location: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     marginTop: 6,
   },
   actions: {

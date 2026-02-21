@@ -13,10 +13,10 @@ interface Props {
 export default function StatsBadge({ icon, label, value, color }: Props) {
   return (
     <View style={styles.container}>
-      <View style={[styles.iconCircle, { backgroundColor: color + '25' }]}>
+      <View style={[styles.iconCircle, { backgroundColor: color + '20' }]}>
         <Ionicons name={icon as any} size={20} color={color} />
       </View>
-      <Text style={[styles.value, { color, textShadowColor: color, textShadowRadius: 12 }]}>
+      <Text style={[styles.value, { color }]}>
         {value}
       </Text>
       <Text style={styles.label}>{label}</Text>
@@ -27,8 +27,8 @@ export default function StatsBadge({ icon, label, value, color }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: 'rgba(255,255,255,0.45)',
+    borderColor: 'rgba(0,0,0,0.08)',
     borderWidth: 1,
     borderRadius: 18,
     padding: 14,
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 11,
-    color: 'rgba(255,255,255,0.60)',
+    color: 'rgba(27,67,50,0.55)',
     fontWeight: '500',
   },
 });

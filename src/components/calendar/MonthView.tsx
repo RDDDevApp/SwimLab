@@ -29,10 +29,10 @@ const getDotsForDay = (
     const assignment = assignments.find(
       (a) => a.training_slot_id === slot.id && a.scheduled_date === dateStr,
     );
-    if (!assignment) return 'rgba(255,255,255,0.25)'; // dim - slot exists but no assignment
-    if (!assignment.attendance_marked) return '#3B82F6'; // blue - assigned
-    if (rpeMap?.[assignment.id] != null) return '#34D399'; // green - feedback done
-    return '#FB923C'; // orange - attendance done, feedback pending
+    if (!assignment) return 'rgba(27,67,50,0.20)';
+    if (!assignment.attendance_marked) return '#2563EB';
+    if (rpeMap?.[assignment.id] != null) return '#059669';
+    return '#EA580C';
   });
 };
 
@@ -51,7 +51,6 @@ export default function MonthView({
 
   return (
     <View style={styles.container}>
-      {/* Day headers */}
       <View style={styles.headerRow}>
         {DAY_HEADERS.map((day) => (
           <View key={day} style={styles.headerCell}>
@@ -62,7 +61,6 @@ export default function MonthView({
         ))}
       </View>
 
-      {/* Calendar grid */}
       {weeks.map((week, wi) => (
         <View key={wi} style={styles.weekRow}>
           {week.map((date) => {
@@ -110,8 +108,8 @@ export default function MonthView({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    borderColor: 'rgba(0, 0, 0, 0.08)',
     borderWidth: 1,
     borderRadius: 20,
     margin: 12,
@@ -127,7 +125,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   headerText: {
-    color: 'rgba(255,255,255,0.50)',
+    color: 'rgba(27,67,50,0.50)',
     fontWeight: '600',
     fontSize: 12,
   },
@@ -142,18 +140,18 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   todayCell: {
-    backgroundColor: 'rgba(0, 201, 219, 0.15)',
+    backgroundColor: 'rgba(14, 116, 144, 0.10)',
   },
   dayNumber: {
     fontWeight: '500',
-    color: '#FFFFFF',
+    color: '#1B4332',
     fontSize: 14,
   },
   otherMonthDay: {
-    color: 'rgba(255,255,255,0.25)',
+    color: 'rgba(27,67,50,0.25)',
   },
   todayNumber: {
-    color: '#00C9DB',
+    color: '#0891B2',
     fontWeight: 'bold',
   },
   dotsRow: {
