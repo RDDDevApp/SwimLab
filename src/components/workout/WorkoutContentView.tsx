@@ -94,14 +94,14 @@ export default function WorkoutContentView({ workout }: Props) {
 
 const styles = StyleSheet.create({
   descCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     marginBottom: 12,
   },
   descText: {
-    color: 'rgba(27,67,50,0.65)',
+    color: 'rgba(100,116,139,0.65)',
   },
   blockCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     marginBottom: 12,
     borderLeftWidth: 4,
   },
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   },
   blockName: {
     fontWeight: '600',
-    color: '#1B4332',
+    color: '#1e293b',
     flex: 1,
   },
   blockDistance: {
@@ -127,19 +127,19 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0, 0, 0, 0.06)',
+    borderTopColor: 'rgba(255, 255, 255, 0.50)',
   },
   subBlockTitle: {
     fontWeight: '600',
-    color: '#1B4332',
+    color: '#1e293b',
     marginBottom: 2,
   },
   departure: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     marginBottom: 2,
   },
   description: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     fontStyle: 'italic',
   },
 });

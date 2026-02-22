@@ -246,9 +246,9 @@ const styles = StyleSheet.create({
   header: {
     padding: 16,
     paddingTop: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
   },
   headerRow: {
     flexDirection: 'row',
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     marginBottom: 10,
   },
   cardHeader: {
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   date: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     fontWeight: '600',
   },
   groupChip: {
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
   },
   workoutTitle: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
     marginBottom: 6,
   },
   chipRow: {
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
   },
   chip: {
     height: 26,
-    backgroundColor: 'rgba(255, 255, 255, 0.65)',
+    backgroundColor: 'rgba(255, 255, 255, 0.50)',
   },
   rpeChip: {
     height: 26,

@@ -47,7 +47,7 @@ export default function SlotCard({ slot, onEdit, onDelete }: SlotCardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     marginBottom: 8,
   },
   row: {
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
     marginBottom: 8,
   },
   chips: {
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     height: 28,
   },
   location: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     marginTop: 6,
   },
   actions: {

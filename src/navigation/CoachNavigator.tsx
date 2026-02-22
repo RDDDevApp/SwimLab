@@ -14,6 +14,7 @@ import AssignWorkoutScreen from '../screens/coach/AssignWorkoutScreen';
 import AttendanceScreen from '../screens/coach/AttendanceScreen';
 import GroupDetailScreen from '../screens/coach/GroupDetailScreen';
 import WorkoutStatsScreen from '../screens/coach/WorkoutStatsScreen';
+import CoachStatsScreen from '../screens/coach/CoachStatsScreen';
 import WorkoutDetailScreen from '../screens/coach/WorkoutDetailScreen';
 import BlockLibraryScreen from '../screens/coach/BlockLibraryScreen';
 import WorkoutHistoryScreen from '../screens/coach/WorkoutHistoryScreen';
@@ -59,6 +60,7 @@ export default function CoachNavigator() {
       <Stack.Screen name="Attendance" component={AttendanceScreen} />
       <Stack.Screen name="GroupDetail" component={GroupDetailScreen} />
       <Stack.Screen name="WorkoutStats" component={WorkoutStatsScreen} />
+      <Stack.Screen name="CoachStats" component={CoachStatsScreen} />
       <Stack.Screen
         name="SessionDetail"
         component={SessionDetailModal}

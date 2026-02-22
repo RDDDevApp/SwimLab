@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions, RefreshControl } from 'react-native';
-import { Text, Card, Chip, SegmentedButtons } from 'react-native-paper';
+import { Text, SegmentedButtons } from 'react-native-paper';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import GradientScreen from '../../components/GradientScreen';
 import { useFocusEffect } from '@react-navigation/native';
 import { BarChart, LineChart } from 'react-native-chart-kit';
@@ -12,20 +14,25 @@ import EmptyState from '../../components/EmptyState';
 const screenWidth = Dimensions.get('window').width - 48;
 
 const chartConfig = {
-  backgroundGradientFrom: 'rgba(255, 255, 255, 0.55)',
-  backgroundGradientTo: 'rgba(255, 255, 255, 0.55)',
+  backgroundGradientFrom: 'rgba(255, 255, 255, 0.40)',
+  backgroundGradientTo: 'rgba(255, 255, 255, 0.40)',
   decimalCount: 0,
   color: (opacity = 1) => `rgba(6, 182, 212, ${opacity})`,
-  labelColor: () => 'rgba(27,67,50,0.50)',
+  labelColor: () => '#64748b',
   barPercentage: 0.6,
   propsForBackgroundLines: {
-    stroke: 'rgba(0, 0, 0, 0.08)',
+    stroke: 'rgba(203, 213, 225, 0.50)',
   },
 };
 
 const rpeChartConfig = {
   ...chartConfig,
-  color: (opacity = 1) => `rgba(219, 39, 119, ${opacity})`,
+  color: (opacity = 1) => `rgba(236, 72, 153, ${opacity})`,
+};
+
+const attendanceChartConfig = {
+  ...chartConfig,
+  color: (opacity = 1) => `rgba(16, 185, 129, ${opacity})`,
 };
 
 type Period = '4w' | '8w' | '12w';
@@ -40,22 +47,71 @@ function getWeekLabel(date: string): string {
 function getWeekStart(date: string): string {
   const d = new Date(date + 'T00:00:00');
   const dayOfWeek = d.getDay();
-  const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Monday start
+  const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
   d.setDate(d.getDate() - diff);
   return d.toISOString().split('T')[0];
 }
 
 function getMonthKey(date: string): string {
-  return date.substring(0, 7); // "2026-02"
+  return date.substring(0, 7);
 }
 
 function getMonthLabel(key: string): string {
-  const [year, month] = key.split('-');
   const months = [
     'Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Jun',
     'Jul', 'Aou', 'Sep', 'Oct', 'Nov', 'Dec',
   ];
-  return months[parseInt(month, 10) - 1] || key;
+  return months[parseInt(key.split('-')[1], 10) - 1] || key;
+}
+
+interface StatCardData {
+  title: string;
+  value: string;
+  subtitle?: string;
+  icon: keyof typeof Ionicons.glyphMap;
+  color: string;
+  trend?: { value: number; isPositive: boolean };
+}
+
+function StatCardItem({ stat }: { stat: StatCardData }) {
+  return (
+    <View style={styles.statCard}>
+      <View style={styles.statCardInner}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.statCardTitle}>{stat.title}</Text>
+          <Text style={styles.statCardValue}>{stat.value}</Text>
+          {stat.subtitle && (
+            <Text style={styles.statCardSubtitle}>{stat.subtitle}</Text>
+          )}
+          {stat.trend && (
+            <View
+              style={[
+                styles.trendBadge,
+                {
+                  backgroundColor: stat.trend.isPositive
+                    ? 'rgba(16, 185, 129, 0.15)'
+                    : 'rgba(244, 63, 94, 0.15)',
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.trendText,
+                  { color: stat.trend.isPositive ? '#059669' : '#e11d48' },
+                ]}
+              >
+                {stat.trend.isPositive ? '+' : ''}{stat.trend.value}%
+              </Text>
+            </View>
+          )}
+        </View>
+        <View style={styles.statIconWrap}>
+          <Ionicons name={stat.icon} size={22} color="#475569" />
+        </View>
+      </View>
+      <View style={[styles.decorativeBlob, { backgroundColor: stat.color }]} />
+    </View>
+  );
 }
 
 interface Props {
@@ -94,7 +150,6 @@ export default function SwimmerStatsScreen({ navigation }: Props) {
     }, [loadData]),
   );
 
-  // Filter by period
   const weeksCount = period === '4w' ? 4 : period === '8w' ? 8 : 12;
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - weeksCount * 7);
@@ -103,7 +158,7 @@ export default function SwimmerStatsScreen({ navigation }: Props) {
   const filtered = history.filter((h) => h.scheduledDate >= cutoff);
   const attended = filtered.filter((h) => h.attended);
 
-  // --- Volume per week ---
+  // Volume per week
   const volumeByWeek: Record<string, number> = {};
   for (const h of attended) {
     const week = getWeekStart(h.scheduledDate);
@@ -113,7 +168,7 @@ export default function SwimmerStatsScreen({ navigation }: Props) {
   const volumeLabels = weekKeys.map(getWeekLabel);
   const volumeData = weekKeys.map((k) => volumeByWeek[k]);
 
-  // --- RPE trend (last attended sessions with RPE) ---
+  // RPE trend
   const withRpe = attended
     .filter((h) => h.rpeScore !== null)
     .sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate))
@@ -121,7 +176,7 @@ export default function SwimmerStatsScreen({ navigation }: Props) {
   const rpeLabels = withRpe.map((h) => getWeekLabel(h.scheduledDate));
   const rpeData = withRpe.map((h) => h.rpeScore!);
 
-  // --- Monthly attendance ---
+  // Monthly attendance
   const byMonth: Record<string, { total: number; attended: number }> = {};
   for (const h of filtered) {
     const month = getMonthKey(h.scheduledDate);
@@ -138,28 +193,74 @@ export default function SwimmerStatsScreen({ navigation }: Props) {
   );
 
   // Summary stats
-  const totalVolume = attended.reduce(
-    (s, h) => s + (h.totalDistance || 0),
-    0,
-  );
+  const totalVolume = attended.reduce((s, h) => s + (h.totalDistance || 0), 0);
   const attendanceRate =
     filtered.length > 0
       ? Math.round((attended.length / filtered.length) * 100)
       : 0;
   const avgRpe =
     withRpe.length > 0
-      ? (
-          withRpe.reduce((s, h) => s + h.rpeScore!, 0) / withRpe.length
-        ).toFixed(1)
+      ? (withRpe.reduce((s, h) => s + h.rpeScore!, 0) / withRpe.length).toFixed(1)
       : '-';
+
+  // Previous period for trends
+  const prevCutoff = new Date(cutoffDate);
+  prevCutoff.setDate(prevCutoff.getDate() - weeksCount * 7);
+  const prevCutoffStr = prevCutoff.toISOString().split('T')[0];
+  const prevFiltered = history.filter(
+    (h) => h.scheduledDate >= prevCutoffStr && h.scheduledDate < cutoff,
+  );
+  const prevAttended = prevFiltered.filter((h) => h.attended);
+  const prevVolume = prevAttended.reduce((s, h) => s + (h.totalDistance || 0), 0);
+  const volumeTrend =
+    prevVolume > 0
+      ? Math.round(((totalVolume - prevVolume) / prevVolume) * 100)
+      : null;
+
+  const now = new Date();
+  const currentMonth = now.toLocaleDateString('fr-FR', {
+    month: 'long',
+    year: 'numeric',
+  });
+
+  const statCards: StatCardData[] = [
+    {
+      title: 'Volume Total',
+      value: totalVolume > 0 ? `${(totalVolume / 1000).toFixed(1)} km` : '0 m',
+      subtitle: 'Distance parcourue',
+      icon: 'water-outline',
+      color: 'rgba(6, 182, 212, 0.30)',
+      trend: volumeTrend !== null ? { value: volumeTrend, isPositive: volumeTrend >= 0 } : undefined,
+    },
+    {
+      title: 'Assiduite',
+      value: `${attendanceRate}%`,
+      subtitle: `${attended.length} seances`,
+      icon: 'checkmark-circle-outline',
+      color: 'rgba(16, 185, 129, 0.30)',
+    },
+    {
+      title: 'RPE Moyen',
+      value: `${avgRpe}`,
+      subtitle: `${withRpe.length} feedbacks`,
+      icon: 'fitness-outline',
+      color: 'rgba(236, 72, 153, 0.30)',
+    },
+    {
+      title: 'Seances',
+      value: `${attended.length}`,
+      subtitle: 'Sur la periode',
+      icon: 'calendar-outline',
+      color: 'rgba(99, 102, 241, 0.30)',
+    },
+  ];
 
   if (!loading && history.length === 0) {
     return (
       <GradientScreen>
-        <View style={styles.header}>
-          <Text variant="titleLarge" style={styles.title}>
-            Mes statistiques
-          </Text>
+        <View style={styles.headerSection}>
+          <Text style={styles.headerTitle}>Mes Statistiques</Text>
+          <Text style={styles.headerSubtitle}>Suivi de tes performances</Text>
         </View>
         <EmptyState
           icon="chart-line"
@@ -178,10 +279,19 @@ export default function SwimmerStatsScreen({ navigation }: Props) {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        <Text variant="titleLarge" style={styles.title}>
-          Mes statistiques
-        </Text>
+        {/* Header */}
+        <View style={styles.headerSection}>
+          <Text style={styles.headerTitle}>Mes Statistiques</Text>
+          <Text style={styles.headerSubtitle}>Suivi de tes performances</Text>
+          <View style={styles.datePill}>
+            <Ionicons name="calendar-outline" size={16} color="#0891b2" />
+            <Text style={styles.datePillText}>
+              {currentMonth.charAt(0).toUpperCase() + currentMonth.slice(1)}
+            </Text>
+          </View>
+        </View>
 
+        {/* Period selector */}
         <SegmentedButtons
           value={period}
           onValueChange={(v) => setPeriod(v as Period)}
@@ -193,198 +303,257 @@ export default function SwimmerStatsScreen({ navigation }: Props) {
           style={styles.segmented}
         />
 
-        {/* Summary row */}
-        <View style={styles.summaryRow}>
-          <Card style={styles.summaryCard}>
-            <Card.Content style={styles.summaryContent}>
-              <Text variant="headlineMedium" style={styles.summaryValue}>
-                {totalVolume > 0
-                  ? `${(totalVolume / 1000).toFixed(1)}km`
-                  : '0m'}
-              </Text>
-              <Text variant="labelSmall" style={styles.summaryLabel}>
-                Volume total
-              </Text>
-            </Card.Content>
-          </Card>
-          <Card style={styles.summaryCard}>
-            <Card.Content style={styles.summaryContent}>
-              <Text variant="headlineMedium" style={styles.summaryValue}>
-                {attendanceRate}%
-              </Text>
-              <Text variant="labelSmall" style={styles.summaryLabel}>
-                Assiduite
-              </Text>
-            </Card.Content>
-          </Card>
-          <Card style={styles.summaryCard}>
-            <Card.Content style={styles.summaryContent}>
-              <Text variant="headlineMedium" style={styles.summaryValue}>
-                {avgRpe}
-              </Text>
-              <Text variant="labelSmall" style={styles.summaryLabel}>
-                RPE moy.
-              </Text>
-            </Card.Content>
-          </Card>
+        {/* Stats Grid (2x2) */}
+        <View style={styles.statsGrid}>
+          {statCards.map((stat, i) => (
+            <StatCardItem key={i} stat={stat} />
+          ))}
         </View>
 
         {/* Volume chart */}
         {volumeData.length > 0 && (
-          <Card style={styles.chartCard}>
-            <Card.Content>
-              <Text variant="titleMedium" style={styles.chartTitle}>
-                Volume par semaine (m)
-              </Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                <BarChart
-                  data={{
-                    labels: volumeLabels,
-                    datasets: [{ data: volumeData }],
-                  }}
-                  width={Math.max(screenWidth, volumeLabels.length * 60)}
-                  height={200}
-                  yAxisSuffix=""
-                  yAxisLabel=""
-                  chartConfig={chartConfig}
-                  style={styles.chart}
-                  fromZero
-                />
-              </ScrollView>
-            </Card.Content>
-          </Card>
+          <View style={styles.chartCard}>
+            <Text style={styles.chartTitle}>Volume par semaine (m)</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <BarChart
+                data={{
+                  labels: volumeLabels,
+                  datasets: [{ data: volumeData }],
+                }}
+                width={Math.max(screenWidth, volumeLabels.length * 60)}
+                height={220}
+                yAxisSuffix=""
+                yAxisLabel=""
+                chartConfig={chartConfig}
+                style={styles.chart}
+                fromZero
+              />
+            </ScrollView>
+          </View>
         )}
 
         {/* RPE chart */}
         {rpeData.length > 1 && (
-          <Card style={styles.chartCard}>
-            <Card.Content>
-              <Text variant="titleMedium" style={styles.chartTitle}>
-                Evolution RPE
-              </Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                <LineChart
-                  data={{
-                    labels: rpeLabels,
-                    datasets: [{ data: rpeData }],
-                  }}
-                  width={Math.max(screenWidth, rpeLabels.length * 60)}
-                  height={200}
-                  yAxisSuffix=""
-                  yAxisLabel=""
-                  chartConfig={rpeChartConfig}
-                  style={styles.chart}
-                  bezier
-                />
-              </ScrollView>
-            </Card.Content>
-          </Card>
+          <View style={styles.chartCard}>
+            <Text style={styles.chartTitle}>Evolution RPE</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <LineChart
+                data={{
+                  labels: rpeLabels,
+                  datasets: [{ data: rpeData }],
+                }}
+                width={Math.max(screenWidth, rpeLabels.length * 60)}
+                height={220}
+                yAxisSuffix=""
+                yAxisLabel=""
+                chartConfig={rpeChartConfig}
+                style={styles.chart}
+                bezier
+              />
+            </ScrollView>
+          </View>
         )}
 
         {/* Attendance chart */}
         {attendanceData.length > 0 && (
-          <Card style={styles.chartCard}>
-            <Card.Content>
-              <Text variant="titleMedium" style={styles.chartTitle}>
-                Assiduite par mois (%)
-              </Text>
-              <BarChart
-                data={{
-                  labels: attendanceLabels,
-                  datasets: [{ data: attendanceData }],
-                }}
-                width={screenWidth}
-                height={200}
-                yAxisSuffix="%"
-                yAxisLabel=""
-                chartConfig={{
-                  ...chartConfig,
-                  color: (opacity = 1) => `rgba(16, 185, 129, ${opacity})`,
-                }}
-                style={styles.chart}
-                fromZero
-              />
-            </Card.Content>
-          </Card>
+          <View style={styles.chartCard}>
+            <Text style={styles.chartTitle}>Assiduite par mois (%)</Text>
+            <BarChart
+              data={{
+                labels: attendanceLabels,
+                datasets: [{ data: attendanceData }],
+              }}
+              width={screenWidth}
+              height={220}
+              yAxisSuffix="%"
+              yAxisLabel=""
+              chartConfig={attendanceChartConfig}
+              style={styles.chart}
+              fromZero
+            />
+          </View>
         )}
 
-        {/* Session count */}
-        <Card style={styles.chartCard}>
-          <Card.Content>
-            <View style={styles.countRow}>
-              <Chip icon="swim" style={styles.countChip}>
-                {attended.length} seances sur la periode
-              </Chip>
-              <Chip icon="chart-timeline-variant" style={styles.countChip}>
-                {withRpe.length} feedbacks RPE
-              </Chip>
-            </View>
-          </Card.Content>
-        </Card>
+        {/* Insight Card */}
+        <LinearGradient
+          colors={['#0891b2', '#1d4ed8']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.insightCard}
+        >
+          <View style={styles.insightBlobDecor} />
+          <Text style={styles.insightTitle}>Ton Bilan</Text>
+          <Text style={styles.insightText}>
+            {totalVolume > 0
+              ? `Tu as parcouru ${(totalVolume / 1000).toFixed(1)} km sur ${attended.length} seances avec une assiduite de ${attendanceRate}%. `
+              : 'Continue tes entrainements pour voir ton bilan ici. '}
+            {avgRpe !== '-' ? `Ton effort moyen est de ${avgRpe}/20.` : ''}
+          </Text>
+        </LinearGradient>
       </ScrollView>
     </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'transparent',
-  },
-  header: {
-    padding: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
-  },
   content: {
     padding: 16,
-    gap: 12,
+    gap: 16,
+    paddingBottom: 40,
   },
-  title: {
-    fontWeight: 'bold',
-    color: '#1B4332',
-  },
-  segmented: {
+  headerSection: {
     marginBottom: 4,
   },
-  summaryRow: {
-    flexDirection: 'row',
-    gap: 8,
+  headerTitle: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: '#0891b2',
+    letterSpacing: -0.5,
   },
-  summaryCard: {
-    flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
-  },
-  summaryContent: {
-    alignItems: 'center',
-    paddingVertical: 12,
-  },
-  summaryValue: {
-    fontWeight: 'bold',
-    color: '#DB2777',
-  },
-  summaryLabel: {
-    color: 'rgba(27,67,50,0.50)',
+  headerSubtitle: {
+    fontSize: 16,
+    color: '#475569',
     marginTop: 4,
   },
+  datePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    borderColor: 'rgba(255, 255, 255, 0.50)',
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    gap: 6,
+    marginTop: 10,
+  },
+  datePillText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#475569',
+  },
+  segmented: {
+    marginBottom: 0,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  statCard: {
+    width: (screenWidth - 12) / 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    borderColor: 'rgba(255, 255, 255, 0.60)',
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 16,
+    overflow: 'hidden',
+    shadowColor: '#1e293b',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  statCardInner: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  statCardTitle: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#475569',
+    marginBottom: 4,
+  },
+  statCardValue: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1e293b',
+    letterSpacing: -0.5,
+  },
+  statCardSubtitle: {
+    fontSize: 11,
+    color: '#64748b',
+    marginTop: 2,
+  },
+  trendBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginTop: 6,
+  },
+  trendText: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  statIconWrap: {
+    backgroundColor: 'rgba(255, 255, 255, 0.60)',
+    borderColor: 'rgba(255, 255, 255, 0.50)',
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 10,
+  },
+  decorativeBlob: {
+    position: 'absolute',
+    bottom: -16,
+    right: -16,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+  },
   chartCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    borderColor: 'rgba(255, 255, 255, 0.60)',
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#1e293b',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 3,
   },
   chartTitle: {
-    fontWeight: 'bold',
-    color: '#1B4332',
-    marginBottom: 12,
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1e293b',
+    marginBottom: 16,
   },
   chart: {
     borderRadius: 8,
   },
-  countRow: {
-    flexDirection: 'row',
-    gap: 8,
-    flexWrap: 'wrap',
+  insightCard: {
+    borderRadius: 16,
+    padding: 20,
+    overflow: 'hidden',
+    shadowColor: '#0891b2',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 6,
   },
-  countChip: {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+  insightBlobDecor: {
+    position: 'absolute',
+    right: -30,
+    top: -30,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  insightTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 8,
+  },
+  insightText: {
+    fontSize: 14,
+    color: 'rgba(219, 234, 254, 0.90)',
+    lineHeight: 22,
   },
 });

@@ -168,10 +168,10 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
       return { color: '#F59E0B', label: 'Feedback a donner' };    // Orange
     }
     if (session && !session.attended) {
-      return { color: 'rgba(27,67,50,0.45)', label: 'Absent' };               // Gray
+      return { color: 'rgba(100,116,139,0.45)', label: 'Absent' };               // Gray
     }
     if (isPast && !assignment.attendance_marked) {
-      return { color: 'rgba(27,67,50,0.45)', label: 'Non marque' };           // Gray
+      return { color: 'rgba(100,116,139,0.45)', label: 'Non marque' };           // Gray
     }
     return { color: '#3B82F6', label: 'A venir' };               // Blue
   };
@@ -293,12 +293,12 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
                     <View key={slot.id} style={styles.slotItemEmpty}>
                       <View style={styles.slotHeader}>
                         <View style={styles.slotNameRow}>
-                          <View style={[styles.statusDot, { backgroundColor: 'rgba(27,67,50,0.45)' }]} />
+                          <View style={[styles.statusDot, { backgroundColor: 'rgba(100,116,139,0.45)' }]} />
                           <Text variant="labelMedium" style={styles.slotName}>
                             {slot.name}
                           </Text>
                         </View>
-                        <Text style={[styles.statusLabel, { color: 'rgba(27,67,50,0.45)' }]}>
+                        <Text style={[styles.statusLabel, { color: 'rgba(100,116,139,0.45)' }]}>
                           Pas de seance
                         </Text>
                       </View>
@@ -325,13 +325,13 @@ const styles = StyleSheet.create({
   header: {
     padding: 16,
     paddingBottom: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
   },
   weekNav: {
     flexDirection: 'row',
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   weekRange: {
-    color: '#0E7490',
+    color: '#0891b2',
     fontWeight: '500',
   },
   errorBanner: {
@@ -361,50 +361,50 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   dayColumn: {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     borderRadius: 10,
     overflow: 'hidden',
     marginBottom: 4,
   },
   todayColumn: {
     borderWidth: 2,
-    borderColor: '#DB2777',
+    borderColor: '#ec4899',
   },
   dayHeader: {
     padding: 10,
     backgroundColor: 'rgba(255, 255, 255, 0.35)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
   },
   todayHeader: {
     backgroundColor: 'rgba(219, 39, 119, 0.12)',
   },
   dayLabel: {
-    color: '#0E7490',
+    color: '#0891b2',
     fontWeight: '600',
   },
   todayLabel: {
-    color: '#DB2777',
+    color: '#ec4899',
     fontWeight: 'bold',
   },
   emptyDay: {
     padding: 12,
   },
   emptyText: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     fontStyle: 'italic',
   },
   slotItem: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.06)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.50)',
     backgroundColor: 'rgba(255, 255, 255, 0.45)',
   },
   slotItemEmpty: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.06)',
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.50)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
   },
   slotHeader: {
     flexDirection: 'row',
@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   slotName: {
-    color: '#1B4332',
+    color: '#1e293b',
     fontWeight: '600',
   },
   statusLabel: {
@@ -430,12 +430,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   slotTime: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     marginTop: 2,
   },
   workoutTitle: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
     marginTop: 4,
     marginBottom: 4,
   },
@@ -447,11 +447,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.65)',
+    backgroundColor: 'rgba(255, 255, 255, 0.50)',
   },
   typeChipText: {
     fontSize: 11,
-    color: '#0E7490',
+    color: '#0891b2',
     fontWeight: '500',
   },
 });

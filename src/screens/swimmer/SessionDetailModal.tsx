@@ -23,10 +23,10 @@ const getStatusDot = (session: any, assignment: any) => {
     return { color: '#F59E0B', label: 'Feedback a donner' };
   }
   if (session && !session.attended) {
-    return { color: 'rgba(27,67,50,0.45)', label: 'Absent' };
+    return { color: 'rgba(100,116,139,0.45)', label: 'Absent' };
   }
   if (isPast && !assignment.attendance_marked) {
-    return { color: 'rgba(27,67,50,0.45)', label: 'Non marque' };
+    return { color: 'rgba(100,116,139,0.45)', label: 'Non marque' };
   }
   return { color: '#3B82F6', label: 'A venir' };
 };
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.06)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.50)',
   },
   headerLeft: {
     flex: 1,
@@ -307,10 +307,10 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
   },
   subtitle: {
-    color: '#0E7490',
+    color: '#0891b2',
     marginTop: 2,
   },
   infoRow: {
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   infoChip: {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
   },
   closeBtn: {
     margin: -4,
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
   },
   workoutTitle: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
     marginBottom: 6,
   },
   chipRow: {
@@ -344,27 +344,27 @@ const styles = StyleSheet.create({
   },
   typeChip: {
     height: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
   },
   distanceChip: {
     height: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
   },
   // Feedback section
   feedbackSection: {
     marginTop: 20,
     paddingTop: 20,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0, 0, 0, 0.06)',
+    borderTopColor: 'rgba(255, 255, 255, 0.50)',
   },
   sectionTitle: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
     marginBottom: 12,
   },
   fieldLabel: {
     fontWeight: '600',
-    color: '#0E7490',
+    color: '#0891b2',
     marginBottom: 8,
   },
   input: {
@@ -379,18 +379,18 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   rpeDisplay: {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
   },
   rpeLabel: {
-    color: '#0E7490',
+    color: '#0891b2',
     fontWeight: '500',
   },
   rpeValue: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
   },
   commentDisplay: {
     backgroundColor: 'rgba(255, 255, 255, 0.45)',
@@ -398,12 +398,12 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   commentLabel: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     fontWeight: '500',
     marginBottom: 4,
   },
   commentText: {
-    color: '#1B4332',
+    color: '#1e293b',
   },
   // Notices
   noticeBox: {
@@ -414,13 +414,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   noticeText: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     fontWeight: '600',
   },
   noticeBlue: {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
   },
   noticeBlueText: {
-    color: '#0E7490',
+    color: '#0891b2',
   },
 });

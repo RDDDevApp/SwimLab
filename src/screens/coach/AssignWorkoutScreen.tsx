@@ -178,13 +178,13 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
   },
   title: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   workoutCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     marginBottom: 8,
   },
   selectedCard: {
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontWeight: 'bold',
-    color: '#1B4332',
+    color: '#1e293b',
   },
   cardMeta: {
     flexDirection: 'row',
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   desc: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     marginTop: 4,
   },
   emptyState: {
@@ -242,11 +242,11 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   emptyText: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     textAlign: 'center',
   },
   emptySubtext: {
-    color: 'rgba(27,67,50,0.50)',
+    color: '#64748b',
     textAlign: 'center',
     marginTop: 8,
   },
@@ -255,8 +255,8 @@ const styles = StyleSheet.create({
   },
   footer: {
     padding: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0, 0, 0, 0.08)',
+    borderTopColor: 'rgba(255, 255, 255, 0.60)',
   },
 });

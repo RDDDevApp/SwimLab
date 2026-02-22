@@ -73,10 +73,10 @@ export function generateWorkoutHtml(workout: Workout): string {
       <meta name="viewport" content="width=device-width,initial-scale=1">
       <style>
         body { font-family: -apple-system, sans-serif; padding: 24px; color: #1F2937; }
-        h1 { font-size: 24px; margin-bottom: 4px; color: #0E7490; }
+        h1 { font-size: 24px; margin-bottom: 4px; color: #0891b2; }
         .meta { color: #6B7280; margin-bottom: 20px; font-size: 14px; }
         .total { background: #F0FDFA; border: 1px solid #06B6D4; border-radius: 8px; padding: 12px; text-align: center; margin-bottom: 20px; }
-        .total strong { font-size: 20px; color: #0E7490; }
+        .total strong { font-size: 20px; color: #0891b2; }
         .footer { margin-top: 32px; text-align: center; color: #9CA3AF; font-size: 12px; }
       </style>
     </head>

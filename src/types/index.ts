@@ -38,6 +38,7 @@ export type CoachStackParamList = {
   AssignWorkout: { slotId: string; slotName: string; date: string };
   Attendance: { assignmentId: string; groupId: string; workoutTitle?: string };
   WorkoutStats: { assignmentId: string; workoutTitle?: string };
+  CoachStats: undefined;
   SessionDetail: {
     slot: TrainingSlot;
     date: string;
