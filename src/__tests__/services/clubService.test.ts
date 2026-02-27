@@ -111,33 +111,42 @@ describe('clubService', () => {
   });
 
   describe('joinByCode', () => {
-    it('should join a club with a valid invitation code', async () => {
-      const mockClub = { id: 'club-1', name: 'Test', invitation_code: 'CODE123' };
+    it('should join a club with a valid swimmer invitation code', async () => {
+      const mockClub = { id: 'club-1', name: 'Test', invitation_code: 'CODE123', invitation_code_coach: 'COACH456' };
 
-      const findBuilder = createMockQueryBuilder({ data: mockClub, error: null });
+      // 1st call: find by invitation_code (swimmer) - found
+      const findSwimmerBuilder = createMockQueryBuilder({ data: mockClub, error: null });
+      // 2nd call: find by invitation_code_coach (coach) - not found
+      const findCoachBuilder = createMockQueryBuilder({ data: null, error: null });
+      // 3rd call: check existing membership - not found
       const checkBuilder = createMockQueryBuilder({ data: null, error: null });
+      // 4th call: insert membership
       const joinBuilder = createMockQueryBuilder({ data: { id: 'member-1' }, error: null });
 
       mockFrom
-        .mockReturnValueOnce(findBuilder)
+        .mockReturnValueOnce(findSwimmerBuilder)
+        .mockReturnValueOnce(findCoachBuilder)
         .mockReturnValueOnce(checkBuilder)
         .mockReturnValueOnce(joinBuilder);
 
       const result = await clubService.joinByCode('CODE123', 'user-1', 'swimmer');
 
-      expect(result).toEqual(mockClub);
+      expect(result.club).toEqual(mockClub);
+      expect(result.detectedRole).toBe('swimmer');
     });
 
     it('should throw for invalid invitation code', async () => {
-      const builder = createMockQueryBuilder({
-        data: null,
-        error: { message: 'Not found' },
-      });
-      mockFrom.mockReturnValue(builder);
+      // Both swimmer and coach code lookups return null
+      const findSwimmerBuilder = createMockQueryBuilder({ data: null, error: null });
+      const findCoachBuilder = createMockQueryBuilder({ data: null, error: null });
+
+      mockFrom
+        .mockReturnValueOnce(findSwimmerBuilder)
+        .mockReturnValueOnce(findCoachBuilder);
 
       await expect(
         clubService.joinByCode('INVALID', 'user-1', 'swimmer'),
-      ).rejects.toThrow('Code d\'invitation invalide');
+      ).rejects.toThrow("Code d'invitation invalide");
     });
   });
 

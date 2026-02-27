@@ -1,5 +1,6 @@
 import { supabase } from '../config/supabase';
 import { Group, GroupInsert, GroupUpdate, GroupMember, Profile } from '../types';
+import { groupCoachService } from './groupCoachService';
 
 export interface GroupWithDetails extends Group {
   member_count?: number;
@@ -7,8 +8,8 @@ export interface GroupWithDetails extends Group {
 }
 
 export const groupService = {
-  /** Create a new group */
-  async create(data: GroupInsert): Promise<Group> {
+  /** Create a new group and add the creator as coach */
+  async create(data: GroupInsert, coachId: string): Promise<Group> {
     const { data: group, error } = await supabase
       .from('groups')
       .insert(data)
@@ -16,6 +17,10 @@ export const groupService = {
       .single();
 
     if (error) throw error;
+
+    // Auto-add the creator as coach of the group
+    await groupCoachService.addCoach(group.id, coachId, true);
+
     return group;
   },
 
@@ -43,12 +48,15 @@ export const groupService = {
     return data;
   },
 
-  /** Get all groups for a coach */
+  /** Get all groups for a coach (via group_coaches junction table) */
   async getByCoach(coachId: string): Promise<Group[]> {
+    const groupIds = await groupCoachService.getGroupIds(coachId);
+    if (!groupIds.length) return [];
+
     const { data, error } = await supabase
       .from('groups')
       .select('*')
-      .eq('coach_id', coachId)
+      .in('id', groupIds)
       .order('name');
 
     if (error) throw error;

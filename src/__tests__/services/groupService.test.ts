@@ -7,6 +7,14 @@ jest.mock('../../config/supabase', () => ({
   },
 }));
 
+// Mock groupCoachService to avoid circular dependency issues
+jest.mock('../../services/groupCoachService', () => ({
+  groupCoachService: {
+    addCoach: jest.fn().mockResolvedValue({ id: 'gc-1', group_id: 'group-1', coach_id: 'coach-1', is_creator: true }),
+    getGroupIds: jest.fn().mockResolvedValue(['g1']),
+  },
+}));
+
 import { groupService } from '../../services/groupService';
 
 describe('groupService', () => {
@@ -15,11 +23,10 @@ describe('groupService', () => {
   });
 
   describe('create', () => {
-    it('should create a group', async () => {
+    it('should create a group and add the coach as creator', async () => {
       const mockGroup = {
         id: 'group-1',
         club_id: 'club-1',
-        coach_id: 'coach-1',
         name: 'Poussins',
         level: 'beginner',
       };
@@ -28,13 +35,15 @@ describe('groupService', () => {
 
       const result = await groupService.create({
         club_id: 'club-1',
-        coach_id: 'coach-1',
         name: 'Poussins',
         level: 'beginner',
-      });
+      }, 'coach-1');
 
       expect(result).toEqual(mockGroup);
       expect(builder.insert).toHaveBeenCalled();
+      // Verify groupCoachService.addCoach was called
+      const { groupCoachService } = require('../../services/groupCoachService');
+      expect(groupCoachService.addCoach).toHaveBeenCalledWith('group-1', 'coach-1', true);
     });
   });
 
@@ -56,15 +65,16 @@ describe('groupService', () => {
   });
 
   describe('getByCoach', () => {
-    it('should return groups for a coach', async () => {
-      const groups = [{ id: 'g1', name: 'Compet', coach_id: 'coach-1' }];
+    it('should return groups for a coach via group_coaches', async () => {
+      const groups = [{ id: 'g1', name: 'Compet' }];
       const builder = createMockQueryBuilder({ data: groups, error: null });
       mockFrom.mockReturnValue(builder);
 
       const result = await groupService.getByCoach('coach-1');
 
       expect(result).toEqual(groups);
-      expect(builder.eq).toHaveBeenCalledWith('coach_id', 'coach-1');
+      // Should query via in('id', groupIds) not eq('coach_id', ...)
+      expect(builder.in).toHaveBeenCalledWith('id', ['g1']);
     });
   });
 
@@ -150,7 +160,6 @@ describe('groupService', () => {
   describe('getMemberCount', () => {
     it('should return member count', async () => {
       const builder = createMockQueryBuilder({ data: null, error: null, count: 5 });
-      // Override the then to also return count
       builder.then = jest.fn((resolve: any) => resolve({ data: null, error: null, count: 5 }));
       mockFrom.mockReturnValue(builder);
 

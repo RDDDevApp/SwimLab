@@ -16,10 +16,11 @@ export default function JoinClubScreen({ navigation, onSkip }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [joinedClubName, setJoinedClubName] = useState('');
+  const [joinedRole, setJoinedRole] = useState<'coach' | 'swimmer'>('swimmer');
 
   const handleJoin = async () => {
     if (!code.trim()) {
-      setError('Le code d\'invitation est requis');
+      setError("Le code d'invitation est requis");
       return;
     }
     if (!user) return;
@@ -28,9 +29,10 @@ export default function JoinClubScreen({ navigation, onSkip }: Props) {
     setError('');
 
     try {
-      const club = await clubService.joinByCode(code.trim().toLowerCase(), user.id, 'swimmer');
+      const { club, detectedRole } = await clubService.joinByCode(code.trim().toLowerCase(), user.id, 'swimmer');
       setClubId(club.id);
       setJoinedClubName(club.name);
+      setJoinedRole(detectedRole);
     } catch (err: any) {
       setError(err.message || 'Code invalide ou erreur de connexion');
     } finally {
@@ -56,7 +58,9 @@ export default function JoinClubScreen({ navigation, onSkip }: Props) {
                 Vous avez rejoint {joinedClubName}
               </Text>
               <Text variant="bodyMedium" style={styles.successText}>
-                Votre coach vous ajoutera a un groupe d'entrainement. Vous verrez ensuite vos seances dans le calendrier.
+                {joinedRole === 'coach'
+                  ? 'Vous avez rejoint en tant que coach. Vous pouvez maintenant gerer les groupes et entrainements.'
+                  : "Votre coach vous ajoutera a un groupe d'entrainement. Vous verrez ensuite vos seances dans le calendrier."}
               </Text>
             </Card.Content>
           </Card>

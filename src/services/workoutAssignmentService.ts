@@ -90,11 +90,16 @@ export const workoutAssignmentService = {
     return data;
   },
 
-  /** Mark attendance as done for an assignment */
-  async markAttendance(assignmentId: string): Promise<WorkoutAssignment> {
+  /** Mark attendance as done for an assignment, optionally recording which coach gave the session */
+  async markAttendance(assignmentId: string, coachId?: string): Promise<WorkoutAssignment> {
+    const updateData: Record<string, unknown> = { attendance_marked: true };
+    if (coachId) {
+      updateData.coach_id = coachId;
+    }
+
     const { data, error } = await supabase
       .from('workout_assignments')
-      .update({ attendance_marked: true })
+      .update(updateData)
       .eq('id', assignmentId)
       .select()
       .single();

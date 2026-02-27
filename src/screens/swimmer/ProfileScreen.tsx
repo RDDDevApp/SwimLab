@@ -57,7 +57,7 @@ export default function SwimmerProfileScreen() {
     setJoinError('');
 
     try {
-      const joinedClub = await clubService.joinByCode(joinCode.trim().toLowerCase(), user.id, 'swimmer');
+      const { club: joinedClub } = await clubService.joinByCode(joinCode.trim().toLowerCase(), user.id, 'swimmer');
       setClubId(joinedClub.id);
       setClub(joinedClub);
       setJoinCode('');

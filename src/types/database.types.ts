@@ -52,6 +52,7 @@ export type Database = {
           description: string | null;
           logo_url: string | null;
           invitation_code: string;
+          invitation_code_coach: string;
           owner_id: string;
           created_at: string;
           updated_at: string;
@@ -62,6 +63,7 @@ export type Database = {
           description?: string | null;
           logo_url?: string | null;
           invitation_code?: string;
+          invitation_code_coach?: string;
           owner_id: string;
           created_at?: string;
           updated_at?: string;
@@ -72,6 +74,7 @@ export type Database = {
           description?: string | null;
           logo_url?: string | null;
           invitation_code?: string;
+          invitation_code_coach?: string;
           owner_id?: string;
           created_at?: string;
           updated_at?: string;
@@ -106,7 +109,6 @@ export type Database = {
         Row: {
           id: string;
           club_id: string;
-          coach_id: string;
           name: string;
           description: string | null;
           level: 'beginner' | 'intermediate' | 'advanced' | 'competition' | null;
@@ -117,7 +119,6 @@ export type Database = {
         Insert: {
           id?: string;
           club_id: string;
-          coach_id: string;
           name: string;
           description?: string | null;
           level?: 'beginner' | 'intermediate' | 'advanced' | 'competition' | null;
@@ -128,13 +129,36 @@ export type Database = {
         Update: {
           id?: string;
           club_id?: string;
-          coach_id?: string;
           name?: string;
           description?: string | null;
           level?: 'beginner' | 'intermediate' | 'advanced' | 'competition' | null;
           schedule_info?: string | null;
           created_at?: string;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      group_coaches: {
+        Row: {
+          id: string;
+          group_id: string;
+          coach_id: string;
+          is_creator: boolean;
+          joined_at: string;
+        };
+        Insert: {
+          id?: string;
+          group_id: string;
+          coach_id: string;
+          is_creator?: boolean;
+          joined_at?: string;
+        };
+        Update: {
+          id?: string;
+          group_id?: string;
+          coach_id?: string;
+          is_creator?: boolean;
+          joined_at?: string;
         };
         Relationships: [];
       };
@@ -163,7 +187,6 @@ export type Database = {
         Row: {
           id: string;
           group_id: string;
-          coach_id: string;
           name: string;
           day_of_week: number;
           start_time: string;
@@ -176,7 +199,6 @@ export type Database = {
         Insert: {
           id?: string;
           group_id: string;
-          coach_id: string;
           name: string;
           day_of_week: number;
           start_time: string;
@@ -189,7 +211,6 @@ export type Database = {
         Update: {
           id?: string;
           group_id?: string;
-          coach_id?: string;
           name?: string;
           day_of_week?: number;
           start_time?: string;
@@ -252,6 +273,7 @@ export type Database = {
           workout_id: string;
           training_slot_id: string;
           scheduled_date: string;
+          coach_id: string | null;
           is_completed: boolean;
           attendance_marked: boolean;
           assigned_at: string;
@@ -261,6 +283,7 @@ export type Database = {
           workout_id: string;
           training_slot_id: string;
           scheduled_date: string;
+          coach_id?: string | null;
           is_completed?: boolean;
           attendance_marked?: boolean;
           assigned_at?: string;
@@ -270,6 +293,7 @@ export type Database = {
           workout_id?: string;
           training_slot_id?: string;
           scheduled_date?: string;
+          coach_id?: string | null;
           is_completed?: boolean;
           attendance_marked?: boolean;
           assigned_at?: string;
@@ -281,6 +305,7 @@ export type Database = {
           id: string;
           workout_assignment_id: string;
           swimmer_id: string;
+          is_guest: boolean;
           attended: boolean;
           rpe_score: number | null;
           feedback_text: string | null;
@@ -293,6 +318,7 @@ export type Database = {
           id?: string;
           workout_assignment_id: string;
           swimmer_id: string;
+          is_guest?: boolean;
           attended?: boolean;
           rpe_score?: number | null;
           feedback_text?: string | null;
@@ -305,6 +331,7 @@ export type Database = {
           id?: string;
           workout_assignment_id?: string;
           swimmer_id?: string;
+          is_guest?: boolean;
           attended?: boolean;
           rpe_score?: number | null;
           feedback_text?: string | null;
@@ -463,6 +490,8 @@ export type Club = Database['public']['Tables']['clubs']['Row'];
 export type ClubMember = Database['public']['Tables']['club_members']['Row'];
 export type Group = Database['public']['Tables']['groups']['Row'];
 export type GroupMember = Database['public']['Tables']['group_members']['Row'];
+export type GroupCoach = Database['public']['Tables']['group_coaches']['Row'];
+export type GroupCoachInsert = Database['public']['Tables']['group_coaches']['Insert'];
 export type TrainingSlot = Database['public']['Tables']['training_slots']['Row'];
 export type Workout = Database['public']['Tables']['workouts']['Row'];
 export type WorkoutAssignment = Database['public']['Tables']['workout_assignments']['Row'];
