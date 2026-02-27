@@ -69,6 +69,20 @@ DROP POLICY IF EXISTS "Coach can delete own slots" ON training_slots;
 DROP POLICY IF EXISTS "training_slots_coach_all" ON training_slots;
 DROP POLICY IF EXISTS "Coaches can manage their training slots" ON training_slots;
 
+-- Policies sur workout_assignments (referencent training_slots.coach_id via subquery)
+DROP POLICY IF EXISTS "Coach and swimmers can view assignments" ON workout_assignments;
+DROP POLICY IF EXISTS "Coach can view own slot assignments" ON workout_assignments;
+DROP POLICY IF EXISTS "Swimmers can view group assignments" ON workout_assignments;
+DROP POLICY IF EXISTS "Coach can create assignments" ON workout_assignments;
+DROP POLICY IF EXISTS "Coach can update assignments" ON workout_assignments;
+DROP POLICY IF EXISTS "Coach can delete assignments" ON workout_assignments;
+
+-- Policies sur workout_sessions (referencent training_slots.coach_id via subquery)
+DROP POLICY IF EXISTS "Swimmer can view own sessions" ON workout_sessions;
+DROP POLICY IF EXISTS "Coach can view group sessions" ON workout_sessions;
+DROP POLICY IF EXISTS "Coach can create sessions (attendance)" ON workout_sessions;
+DROP POLICY IF EXISTS "Swimmer can update own session (feedback)" ON workout_sessions;
+
 -- ============================================================
 -- 5. Supprimer coach_id de groups
 -- ============================================================
@@ -292,3 +306,104 @@ CREATE POLICY "group_members_delete"
       WHERE gc.coach_id = auth.uid()
     )
   );
+
+-- ============================================================
+-- 13. Nouvelles RLS policies pour workout_assignments
+--     (training_slots.coach_id supprime, verifier via group_coaches)
+-- ============================================================
+
+-- SELECT : coaches du groupe (via training_slot -> group -> group_coaches) + nageurs du groupe
+CREATE POLICY "workout_assignments_select"
+  ON workout_assignments FOR SELECT
+  TO authenticated
+  USING (
+    training_slot_id IN (
+      SELECT ts.id FROM training_slots ts
+      JOIN group_coaches gc ON gc.group_id = ts.group_id
+      WHERE gc.coach_id = auth.uid()
+    )
+    OR training_slot_id IN (
+      SELECT ts.id FROM training_slots ts
+      JOIN group_members gm ON gm.group_id = ts.group_id
+      WHERE gm.user_id = auth.uid()
+    )
+  );
+
+-- INSERT : coaches du groupe peuvent creer des assignments
+CREATE POLICY "workout_assignments_insert"
+  ON workout_assignments FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    training_slot_id IN (
+      SELECT ts.id FROM training_slots ts
+      JOIN group_coaches gc ON gc.group_id = ts.group_id
+      WHERE gc.coach_id = auth.uid()
+    )
+  );
+
+-- UPDATE : coaches du groupe peuvent modifier des assignments
+CREATE POLICY "workout_assignments_update"
+  ON workout_assignments FOR UPDATE
+  TO authenticated
+  USING (
+    training_slot_id IN (
+      SELECT ts.id FROM training_slots ts
+      JOIN group_coaches gc ON gc.group_id = ts.group_id
+      WHERE gc.coach_id = auth.uid()
+    )
+  );
+
+-- DELETE : coaches du groupe peuvent supprimer des assignments
+CREATE POLICY "workout_assignments_delete"
+  ON workout_assignments FOR DELETE
+  TO authenticated
+  USING (
+    training_slot_id IN (
+      SELECT ts.id FROM training_slots ts
+      JOIN group_coaches gc ON gc.group_id = ts.group_id
+      WHERE gc.coach_id = auth.uid()
+    )
+  );
+
+-- ============================================================
+-- 14. Nouvelles RLS policies pour workout_sessions
+--     (training_slots.coach_id supprime, verifier via group_coaches)
+-- ============================================================
+
+-- SELECT : nageur voit ses propres sessions
+CREATE POLICY "workout_sessions_swimmer_select"
+  ON workout_sessions FOR SELECT
+  TO authenticated
+  USING (swimmer_id = auth.uid());
+
+-- SELECT : coach voit les sessions de ses groupes
+CREATE POLICY "workout_sessions_coach_select"
+  ON workout_sessions FOR SELECT
+  TO authenticated
+  USING (
+    workout_assignment_id IN (
+      SELECT wa.id FROM workout_assignments wa
+      JOIN training_slots ts ON wa.training_slot_id = ts.id
+      JOIN group_coaches gc ON gc.group_id = ts.group_id
+      WHERE gc.coach_id = auth.uid()
+    )
+  );
+
+-- INSERT : coach peut creer des sessions (emargement)
+CREATE POLICY "workout_sessions_coach_insert"
+  ON workout_sessions FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    workout_assignment_id IN (
+      SELECT wa.id FROM workout_assignments wa
+      JOIN training_slots ts ON wa.training_slot_id = ts.id
+      JOIN group_coaches gc ON gc.group_id = ts.group_id
+      WHERE gc.coach_id = auth.uid()
+    )
+  );
+
+-- UPDATE : nageur peut modifier sa propre session (feedback)
+CREATE POLICY "workout_sessions_swimmer_update"
+  ON workout_sessions FOR UPDATE
+  TO authenticated
+  USING (swimmer_id = auth.uid());
