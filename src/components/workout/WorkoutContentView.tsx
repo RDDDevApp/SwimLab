@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, Card, Chip } from 'react-native-paper';
 import { Workout, WorkoutBlock, BLOCK_TYPE_LABELS } from '../../types';
+import { migrateWorkoutContent } from '../../utils';
 
 const blockTypeColors: Record<string, string> = {
   warmup: '#059669',
@@ -15,7 +16,10 @@ interface Props {
 }
 
 export default function WorkoutContentView({ workout }: Props) {
-  const blocks: WorkoutBlock[] = workout.content?.blocks || [];
+  const blocks: WorkoutBlock[] = useMemo(
+    () => migrateWorkoutContent(workout.content).blocks,
+    [workout.content],
+  );
 
   return (
     <View>
