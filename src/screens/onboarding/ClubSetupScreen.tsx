@@ -15,7 +15,7 @@ export default function ClubSetupScreen({ navigation }: Props) {
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [createdClub, setCreatedClub] = useState<{ id: string; invitation_code: string } | null>(null);
+  const [createdClub, setCreatedClub] = useState<{ id: string; invitation_code: string; invitation_code_coach: string } | null>(null);
 
   const handleCreate = async () => {
     if (!name.trim()) {
@@ -34,7 +34,7 @@ export default function ClubSetupScreen({ navigation }: Props) {
         owner_id: user.id,
       });
       setClubId(club.id);
-      setCreatedClub({ id: club.id, invitation_code: club.invitation_code });
+      setCreatedClub({ id: club.id, invitation_code: club.invitation_code, invitation_code_coach: club.invitation_code_coach });
     } catch (err: any) {
       setError(err.message || 'Erreur lors de la creation du club');
     } finally {
@@ -60,7 +60,7 @@ export default function ClubSetupScreen({ navigation }: Props) {
                 {name}
               </Text>
               <Text variant="bodyMedium" style={styles.successText}>
-                Partagez ce code d'invitation a vos nageurs :
+                Code nageur (pour vos nageurs) :
               </Text>
               <Chip
                 icon="content-copy"
@@ -69,8 +69,18 @@ export default function ClubSetupScreen({ navigation }: Props) {
               >
                 {createdClub.invitation_code}
               </Chip>
+              <Text variant="bodyMedium" style={[styles.successText, { marginTop: 8 }]}>
+                Code coach (pour les autres coaches) :
+              </Text>
+              <Chip
+                icon="content-copy"
+                style={styles.codeChipCoach}
+                textStyle={styles.codeText}
+              >
+                {createdClub.invitation_code_coach}
+              </Chip>
               <Text variant="bodySmall" style={styles.hint}>
-                Les nageurs entreront ce code lors de leur inscription pour rejoindre votre club.
+                Partagez le code nageur a vos nageurs et le code coach a vos collegues coaches.
               </Text>
             </Card.Content>
           </Card>
@@ -182,6 +192,11 @@ const styles = StyleSheet.create({
   },
   codeChip: {
     backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  codeChipCoach: {
+    backgroundColor: 'rgba(139, 92, 246, 0.15)',
     paddingHorizontal: 12,
     paddingVertical: 4,
   },

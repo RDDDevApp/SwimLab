@@ -84,10 +84,18 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
               <Text variant="titleMedium">{club.name}</Text>
               <View style={styles.codeRow}>
                 <Text variant="bodySmall" style={styles.codeLabel}>
-                  Code d'invitation :
+                  Code nageur :
                 </Text>
                 <Chip compact style={styles.codeChip}>
                   {club.invitation_code}
+                </Chip>
+              </View>
+              <View style={styles.codeRow}>
+                <Text variant="bodySmall" style={styles.codeLabel}>
+                  Code coach :
+                </Text>
+                <Chip compact style={styles.codeChipCoach}>
+                  {club.invitation_code_coach}
                 </Chip>
               </View>
               {club.description ? (
@@ -187,6 +195,9 @@ const styles = StyleSheet.create({
   },
   codeChip: {
     backgroundColor: 'rgba(14, 116, 144, 0.10)',
+  },
+  codeChipCoach: {
+    backgroundColor: 'rgba(139, 92, 246, 0.10)',
   },
   clubDesc: {
     color: '#64748b',

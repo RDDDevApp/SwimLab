@@ -7,6 +7,13 @@ jest.mock('../../config/supabase', () => ({
   },
 }));
 
+// Mock groupCoachService to avoid circular dependency issues
+jest.mock('../../services/groupCoachService', () => ({
+  groupCoachService: {
+    getGroupIds: jest.fn().mockResolvedValue(['g1', 'g2']),
+  },
+}));
+
 import { trainingSlotService } from '../../services/trainingSlotService';
 
 describe('trainingSlotService', () => {
@@ -15,11 +22,10 @@ describe('trainingSlotService', () => {
   });
 
   describe('create', () => {
-    it('should create a training slot', async () => {
+    it('should create a training slot without coach_id', async () => {
       const mockSlot = {
         id: 'slot-1',
         group_id: 'g1',
-        coach_id: 'c1',
         name: 'Mardi soir',
         day_of_week: 2,
         start_time: '18:00',
@@ -30,7 +36,6 @@ describe('trainingSlotService', () => {
 
       const result = await trainingSlotService.create({
         group_id: 'g1',
-        coach_id: 'c1',
         name: 'Mardi soir',
         day_of_week: 2,
         start_time: '18:00',
@@ -60,8 +65,22 @@ describe('trainingSlotService', () => {
     });
   });
 
+  describe('getByCoach', () => {
+    it('should return slots for groups where the coach is assigned', async () => {
+      const slots = [{ id: 's1', day_of_week: 2 }];
+      const builder = createMockQueryBuilder({ data: slots, error: null });
+      mockFrom.mockReturnValue(builder);
+
+      const result = await trainingSlotService.getByCoach('c1');
+
+      expect(result).toEqual(slots);
+      // Should use in('group_id', ...) instead of eq('coach_id', ...)
+      expect(builder.in).toHaveBeenCalledWith('group_id', ['g1', 'g2']);
+    });
+  });
+
   describe('getByDay', () => {
-    it('should return slots for a specific day', async () => {
+    it('should return slots for a specific day via group_coaches', async () => {
       const slots = [{ id: 's1', day_of_week: 2 }];
       const builder = createMockQueryBuilder({ data: slots, error: null });
       mockFrom.mockReturnValue(builder);
@@ -69,7 +88,7 @@ describe('trainingSlotService', () => {
       const result = await trainingSlotService.getByDay('c1', 2);
 
       expect(result).toEqual(slots);
-      expect(builder.eq).toHaveBeenCalledWith('coach_id', 'c1');
+      expect(builder.in).toHaveBeenCalledWith('group_id', ['g1', 'g2']);
       expect(builder.eq).toHaveBeenCalledWith('day_of_week', 2);
     });
   });

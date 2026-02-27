@@ -64,7 +64,6 @@ export default function CreateSlotScreen({ navigation, route }: Props) {
       } else {
         await trainingSlotService.create({
           group_id: groupId,
-          coach_id: user.id,
           name: name.trim(),
           day_of_week: Number(dayOfWeek),
           start_time: startTime,

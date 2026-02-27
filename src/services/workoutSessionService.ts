@@ -5,6 +5,7 @@ type SessionInsert = {
   workout_assignment_id: string;
   swimmer_id: string;
   attended?: boolean;
+  is_guest?: boolean;
 };
 
 type FeedbackData = {
@@ -49,16 +50,18 @@ export const workoutSessionService = {
     return session;
   },
 
-  /** Bulk create sessions for attendance (coach marks multiple swimmers) */
+  /** Bulk create sessions for attendance (coach marks multiple swimmers + optional guests) */
   async bulkCreateAttendance(
     assignmentId: string,
     swimmerIds: string[],
     attendedIds: string[],
+    guestIds: string[] = [],
   ): Promise<WorkoutSession[]> {
     const sessions = swimmerIds.map((swimmerId) => ({
       workout_assignment_id: assignmentId,
       swimmer_id: swimmerId,
       attended: attendedIds.includes(swimmerId),
+      is_guest: guestIds.includes(swimmerId),
     }));
 
     const { data, error } = await supabase

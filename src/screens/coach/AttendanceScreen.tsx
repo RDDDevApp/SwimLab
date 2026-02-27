@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
-import { Text, Checkbox, Button, Card, Chip, HelperText } from 'react-native-paper';
+import { Text, Checkbox, Button, Card, Chip, HelperText, Modal, Portal, RadioButton } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
 import { Profile } from '../../types';
 import {
   groupService,
+  groupCoachService,
   workoutSessionService,
   workoutAssignmentService,
   notificationService,
+  profileService,
 } from '../../services';
+import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
 
 interface Props {
@@ -18,26 +21,46 @@ interface Props {
 
 export default function AttendanceScreen({ navigation, route }: Props) {
   const { assignmentId, groupId, workoutTitle } = route.params;
+  const { user, clubId } = useAuthStore();
   const showSnackbar = useSnackbarStore((s) => s.show);
 
   const [swimmers, setSwimmers] = useState<Profile[]>([]);
+  const [guestSwimmers, setGuestSwimmers] = useState<Profile[]>([]);
   const [attendedIds, setAttendedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
+  // Multi-coach: coach selection
+  const [coaches, setCoaches] = useState<(Profile & { is_creator: boolean })[]>([]);
+  const [selectedCoachId, setSelectedCoachId] = useState<string>('');
+
+  // Guest swimmer modal
+  const [showGuestModal, setShowGuestModal] = useState(false);
+  const [availableGuests, setAvailableGuests] = useState<Profile[]>([]);
+
   useEffect(() => {
-    loadSwimmers();
+    loadData();
   }, []);
 
-  const loadSwimmers = async () => {
+  const loadData = async () => {
     try {
-      const members = await groupService.getMembers(groupId);
+      const [members, groupCoaches] = await Promise.all([
+        groupService.getMembers(groupId),
+        groupCoachService.getCoachProfiles(groupId),
+      ]);
       setSwimmers(members);
+      setCoaches(groupCoaches);
       // All checked by default
       setAttendedIds(new Set(members.map((m) => m.id)));
+      // Pre-select current user as coach if they are a coach of the group
+      if (user && groupCoaches.some((c) => c.id === user.id)) {
+        setSelectedCoachId(user.id);
+      } else if (groupCoaches.length === 1) {
+        setSelectedCoachId(groupCoaches[0].id);
+      }
     } catch (err) {
-      console.error('Error loading swimmers:', err);
+      console.error('Error loading attendance data:', err);
     } finally {
       setLoading(false);
     }
@@ -56,26 +79,63 @@ export default function AttendanceScreen({ navigation, route }: Props) {
   };
 
   const selectAll = () => {
-    setAttendedIds(new Set(swimmers.map((m) => m.id)));
+    const allIds = [...swimmers, ...guestSwimmers].map((m) => m.id);
+    setAttendedIds(new Set(allIds));
   };
 
   const deselectAll = () => {
     setAttendedIds(new Set());
   };
 
+  const handleAddGuest = async () => {
+    if (!clubId) return;
+    try {
+      const clubMembers = await profileService.getSwimmersByClub(clubId);
+      const memberIds = new Set(swimmers.map((s) => s.id));
+      const guestIds = new Set(guestSwimmers.map((g) => g.id));
+      const available = clubMembers.filter(
+        (m) => !memberIds.has(m.id) && !guestIds.has(m.id),
+      );
+      setAvailableGuests(available);
+      setShowGuestModal(true);
+    } catch (err) {
+      console.error('Error loading available guests:', err);
+    }
+  };
+
+  const addGuestSwimmer = (guest: Profile) => {
+    setGuestSwimmers((prev) => [...prev, guest]);
+    setAttendedIds((prev) => new Set([...prev, guest.id]));
+    setAvailableGuests((prev) => prev.filter((g) => g.id !== guest.id));
+  };
+
+  const removeGuest = (guestId: string) => {
+    setGuestSwimmers((prev) => prev.filter((g) => g.id !== guestId));
+    setAttendedIds((prev) => {
+      const next = new Set(prev);
+      next.delete(guestId);
+      return next;
+    });
+  };
+
   const handleSubmit = async () => {
     setSubmitting(true);
     setError('');
     try {
-      const swimmerIds = swimmers.map((s) => s.id);
+      const allSwimmerIds = [...swimmers, ...guestSwimmers].map((s) => s.id);
       const attendedArray = Array.from(attendedIds);
+      const guestIds = guestSwimmers.map((g) => g.id);
 
       await workoutSessionService.bulkCreateAttendance(
         assignmentId,
-        swimmerIds,
+        allSwimmerIds,
         attendedArray,
+        guestIds,
       );
-      await workoutAssignmentService.markAttendance(assignmentId);
+      await workoutAssignmentService.markAttendance(
+        assignmentId,
+        selectedCoachId || undefined,
+      );
 
       // Send push notifications to attended swimmers for feedback
       try {
@@ -88,14 +148,15 @@ export default function AttendanceScreen({ navigation, route }: Props) {
       showSnackbar('Emargement valide', 'success');
       navigation.goBack();
     } catch (err: any) {
-      setError(err.message || 'Erreur lors de l\'emargement');
+      setError(err.message || "Erreur lors de l'emargement");
     } finally {
       setSubmitting(false);
     }
   };
 
+  const allSwimmers = [...swimmers, ...guestSwimmers];
   const presentCount = attendedIds.size;
-  const totalCount = swimmers.length;
+  const totalCount = allSwimmers.length;
 
   return (
     <GradientScreen>
@@ -113,6 +174,26 @@ export default function AttendanceScreen({ navigation, route }: Props) {
         )}
       </View>
 
+      {/* Coach selector (only if multiple coaches) */}
+      {coaches.length > 1 && (
+        <View style={styles.coachSection}>
+          <Text variant="labelLarge" style={styles.sectionLabel}>
+            Coach qui a donne la seance
+          </Text>
+          <RadioButton.Group onValueChange={setSelectedCoachId} value={selectedCoachId}>
+            {coaches.map((coach) => (
+              <View key={coach.id} style={styles.radioRow}>
+                <RadioButton value={coach.id} />
+                <Text variant="bodyMedium">
+                  {coach.first_name} {coach.last_name}
+                  {coach.is_creator ? ' (createur)' : ''}
+                </Text>
+              </View>
+            ))}
+          </RadioButton.Group>
+        </View>
+      )}
+
       <View style={styles.statsBar}>
         <Chip icon="account-check" style={styles.statChip}>
           {presentCount}/{totalCount} presents
@@ -128,31 +209,47 @@ export default function AttendanceScreen({ navigation, route }: Props) {
       </View>
 
       <FlatList
-        data={swimmers}
+        data={allSwimmers}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
-        renderItem={({ item }) => (
-          <Card
-            style={[
-              styles.swimmerCard,
-              attendedIds.has(item.id) && styles.presentCard,
-            ]}
-            onPress={() => toggleSwimmer(item.id)}
-          >
-            <Card.Content style={styles.swimmerRow}>
-              <Checkbox
-                status={attendedIds.has(item.id) ? 'checked' : 'unchecked'}
-                onPress={() => toggleSwimmer(item.id)}
-              />
-              <Text variant="bodyLarge" style={styles.swimmerName}>
-                {item.first_name} {item.last_name}
-              </Text>
-            </Card.Content>
-          </Card>
-        )}
+        renderItem={({ item }) => {
+          const isGuest = guestSwimmers.some((g) => g.id === item.id);
+          return (
+            <Card
+              style={[
+                styles.swimmerCard,
+                attendedIds.has(item.id) && styles.presentCard,
+              ]}
+              onPress={() => toggleSwimmer(item.id)}
+            >
+              <Card.Content style={styles.swimmerRow}>
+                <Checkbox
+                  status={attendedIds.has(item.id) ? 'checked' : 'unchecked'}
+                  onPress={() => toggleSwimmer(item.id)}
+                />
+                <Text variant="bodyLarge" style={styles.swimmerName}>
+                  {item.first_name} {item.last_name}
+                </Text>
+                {isGuest && (
+                  <Chip compact style={styles.guestChip} onClose={() => removeGuest(item.id)}>
+                    Invite
+                  </Chip>
+                )}
+              </Card.Content>
+            </Card>
+          );
+        }}
       />
 
       <View style={styles.footer}>
+        <Button
+          mode="outlined"
+          onPress={handleAddGuest}
+          icon="account-plus"
+          style={styles.addGuestBtn}
+        >
+          Ajouter un nageur invite
+        </Button>
         {error ? (
           <HelperText type="error" visible>
             {error}
@@ -167,6 +264,48 @@ export default function AttendanceScreen({ navigation, route }: Props) {
           Valider l'emargement ({presentCount}/{totalCount})
         </Button>
       </View>
+
+      {/* Guest swimmer modal */}
+      <Portal>
+        <Modal
+          visible={showGuestModal}
+          onDismiss={() => setShowGuestModal(false)}
+          contentContainerStyle={styles.modal}
+        >
+          <Text variant="titleMedium" style={styles.modalTitle}>
+            Ajouter un nageur invite
+          </Text>
+          {availableGuests.length === 0 ? (
+            <Text variant="bodyMedium" style={styles.emptyText}>
+              Aucun nageur disponible
+            </Text>
+          ) : (
+            <FlatList
+              data={availableGuests}
+              keyExtractor={(item) => item.id}
+              style={styles.guestList}
+              renderItem={({ item }) => (
+                <Card
+                  style={styles.guestCard}
+                  onPress={() => addGuestSwimmer(item)}
+                >
+                  <Card.Content style={styles.swimmerRow}>
+                    <Text variant="bodyLarge">
+                      {item.first_name} {item.last_name}
+                    </Text>
+                    <Button compact icon="plus" onPress={() => addGuestSwimmer(item)}>
+                      Ajouter
+                    </Button>
+                  </Card.Content>
+                </Card>
+              )}
+            />
+          )}
+          <Button mode="outlined" onPress={() => setShowGuestModal(false)} style={styles.closeBtn}>
+            Fermer
+          </Button>
+        </Modal>
+      </Portal>
     </GradientScreen>
   );
 }
@@ -191,6 +330,20 @@ const styles = StyleSheet.create({
     color: '#64748b',
     paddingHorizontal: 16,
     paddingBottom: 8,
+  },
+  coachSection: {
+    padding: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+  },
+  sectionLabel: {
+    color: '#0891b2',
+    marginBottom: 4,
+  },
+  radioRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   statsBar: {
     flexDirection: 'row',
@@ -226,11 +379,45 @@ const styles = StyleSheet.create({
   swimmerName: {
     marginLeft: 8,
     color: '#1e293b',
+    flex: 1,
+  },
+  guestChip: {
+    backgroundColor: '#FEF3C7',
   },
   footer: {
     padding: 16,
     backgroundColor: 'rgba(255, 255, 255, 0.40)',
     borderTopWidth: 1,
     borderTopColor: 'rgba(255, 255, 255, 0.60)',
+    gap: 8,
+  },
+  addGuestBtn: {
+    borderColor: '#0891b2',
+  },
+  modal: {
+    backgroundColor: 'white',
+    margin: 20,
+    padding: 20,
+    borderRadius: 12,
+    maxHeight: '70%',
+  },
+  modalTitle: {
+    fontWeight: 'bold',
+    marginBottom: 12,
+  },
+  emptyText: {
+    color: '#64748b',
+    textAlign: 'center',
+    paddingVertical: 24,
+  },
+  guestList: {
+    maxHeight: 300,
+  },
+  guestCard: {
+    backgroundColor: '#f1f5f9',
+    marginBottom: 6,
+  },
+  closeBtn: {
+    marginTop: 12,
   },
 });

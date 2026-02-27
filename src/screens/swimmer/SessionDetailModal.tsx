@@ -132,6 +132,11 @@ export default function SessionDetailModal({ navigation, route }: Props) {
                 <Chip compact style={styles.infoChip}>
                   {dot.label}
                 </Chip>
+                {session?.is_guest && (
+                  <Chip compact style={styles.guestChip}>
+                    Invite
+                  </Chip>
+                )}
               </View>
             </View>
             <IconButton
@@ -321,6 +326,9 @@ const styles = StyleSheet.create({
   },
   infoChip: {
     backgroundColor: 'rgba(255, 255, 255, 0.40)',
+  },
+  guestChip: {
+    backgroundColor: '#FEF3C7',
   },
   closeBtn: {
     margin: -4,

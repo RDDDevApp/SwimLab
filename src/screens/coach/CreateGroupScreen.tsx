@@ -42,11 +42,10 @@ export default function CreateGroupScreen({ navigation, route }: Props) {
     try {
       await groupService.create({
         club_id: clubId,
-        coach_id: user.id,
         name: name.trim(),
         level: level as GroupLevel,
         description: description.trim() || null,
-      });
+      }, user.id);
       showSnackbar('Groupe cree', 'success');
       navigation.goBack();
     } catch (err: any) {

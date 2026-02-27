@@ -15,7 +15,7 @@ import {
 import GradientScreen from '../../components/GradientScreen';
 import { useFocusEffect } from '@react-navigation/native';
 import { Profile, Group, GROUP_LEVELS } from '../../types';
-import { groupService, profileService } from '../../services';
+import { groupService, groupCoachService, profileService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
 import EmptyState from '../../components/EmptyState';
@@ -27,11 +27,12 @@ interface Props {
 
 export default function GroupDetailScreen({ navigation, route }: Props) {
   const { groupId } = route.params;
-  const { clubId } = useAuthStore();
+  const { user, clubId } = useAuthStore();
   const showSnackbar = useSnackbarStore((s) => s.show);
 
   const [group, setGroup] = useState<Group | null>(null);
   const [members, setMembers] = useState<Profile[]>([]);
+  const [coaches, setCoaches] = useState<(Profile & { is_creator: boolean })[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Add swimmer modal
@@ -40,18 +41,26 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [addLoading, setAddLoading] = useState(false);
 
+  // Add coach modal
+  const [showAddCoachModal, setShowAddCoachModal] = useState(false);
+  const [clubCoaches, setClubCoaches] = useState<Profile[]>([]);
+  const [selectedCoachIds, setSelectedCoachIds] = useState<Set<string>>(new Set());
+  const [addCoachLoading, setAddCoachLoading] = useState(false);
+
   // Remove member
   const [removeTarget, setRemoveTarget] = useState<Profile | null>(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [groupData, memberData] = await Promise.all([
+      const [groupData, memberData, coachData] = await Promise.all([
         groupService.getById(groupId),
         groupService.getMembers(groupId),
+        groupCoachService.getCoachProfiles(groupId),
       ]);
       setGroup(groupData);
       setMembers(memberData);
+      setCoaches(coachData);
     } catch (err) {
       console.error('Error loading group detail:', err);
     } finally {
@@ -120,6 +129,59 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
     }
   };
 
+  const openAddCoachModal = async () => {
+    if (!clubId) return;
+    try {
+      const allCoaches = await profileService.getCoachesByClub(clubId);
+      const coachIds = new Set(coaches.map((c) => c.id));
+      const available = allCoaches.filter((c) => !coachIds.has(c.id));
+      setClubCoaches(available);
+      setSelectedCoachIds(new Set());
+      setShowAddCoachModal(true);
+    } catch (err) {
+      console.error('Error loading coaches:', err);
+    }
+  };
+
+  const toggleCoachSelection = (id: string) => {
+    setSelectedCoachIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const handleAddCoaches = async () => {
+    if (selectedCoachIds.size === 0) return;
+    setAddCoachLoading(true);
+    try {
+      for (const coachId of selectedCoachIds) {
+        await groupCoachService.addCoach(groupId, coachId);
+      }
+      setShowAddCoachModal(false);
+      showSnackbar(`${selectedCoachIds.size} coach(es) ajoute(s)`, 'success');
+      loadData();
+    } catch (err: any) {
+      showSnackbar(err.message || "Erreur lors de l'ajout", 'error');
+    } finally {
+      setAddCoachLoading(false);
+    }
+  };
+
+  const handleRemoveCoach = async (coachId: string) => {
+    try {
+      await groupCoachService.removeCoach(groupId, coachId);
+      showSnackbar('Coach retire du groupe', 'success');
+      loadData();
+    } catch (err: any) {
+      showSnackbar(err.message || 'Erreur lors du retrait', 'error');
+    }
+  };
+
   return (
     <GradientScreen>
       <View style={styles.header}>
@@ -134,6 +196,36 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
             {GROUP_LEVELS[group.level as keyof typeof GROUP_LEVELS]}
           </Chip>
         )}
+      </View>
+
+      {/* Coaches section */}
+      <View style={styles.coachSection}>
+        <View style={styles.coachHeader}>
+          <Text variant="labelLarge" style={styles.sectionLabel}>
+            Coaches ({coaches.length})
+          </Text>
+          <Button compact icon="account-plus" onPress={openAddCoachModal}>
+            Ajouter
+          </Button>
+        </View>
+        {coaches.map((coach) => (
+          <View key={coach.id} style={styles.coachRow}>
+            <Text variant="bodyMedium" style={styles.coachName}>
+              {coach.first_name} {coach.last_name}
+            </Text>
+            {coach.is_creator && (
+              <Chip compact style={styles.creatorChip}>Createur</Chip>
+            )}
+            {coaches.length > 1 && coach.id === user?.id && (
+              <IconButton
+                icon="close"
+                size={16}
+                iconColor="#EF4444"
+                onPress={() => handleRemoveCoach(coach.id)}
+              />
+            )}
+          </View>
+        ))}
       </View>
 
       <View style={styles.statsBar}>
@@ -254,6 +346,52 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
             </Button>
           </Dialog.Actions>
         </Dialog>
+
+        {/* Add coach dialog */}
+        <Dialog
+          visible={showAddCoachModal}
+          onDismiss={() => setShowAddCoachModal(false)}
+          style={styles.dialog}
+        >
+          <Dialog.Title>Ajouter des coaches</Dialog.Title>
+          <Dialog.ScrollArea style={styles.dialogScroll}>
+            {clubCoaches.length === 0 ? (
+              <Text variant="bodyMedium" style={styles.noSwimmers}>
+                Aucun coach disponible. Invitez des coaches avec le code coach de votre club.
+              </Text>
+            ) : (
+              <FlatList
+                data={clubCoaches}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <View style={styles.checkboxRow}>
+                    <Checkbox
+                      status={selectedCoachIds.has(item.id) ? 'checked' : 'unchecked'}
+                      onPress={() => toggleCoachSelection(item.id)}
+                    />
+                    <Text
+                      variant="bodyMedium"
+                      style={styles.checkboxLabel}
+                      onPress={() => toggleCoachSelection(item.id)}
+                    >
+                      {item.first_name} {item.last_name}
+                    </Text>
+                  </View>
+                )}
+              />
+            )}
+          </Dialog.ScrollArea>
+          <Dialog.Actions>
+            <Button onPress={() => setShowAddCoachModal(false)}>Annuler</Button>
+            <Button
+              onPress={handleAddCoaches}
+              loading={addCoachLoading}
+              disabled={addCoachLoading || selectedCoachIds.size === 0}
+            >
+              Ajouter ({selectedCoachIds.size})
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
       </Portal>
     </GradientScreen>
   );
@@ -279,6 +417,33 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginLeft: 16,
     marginBottom: 8,
+  },
+  coachSection: {
+    padding: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+  },
+  coachHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  sectionLabel: {
+    color: '#0891b2',
+  },
+  coachRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 4,
+    gap: 8,
+  },
+  coachName: {
+    color: '#1e293b',
+    flex: 1,
+  },
+  creatorChip: {
+    backgroundColor: '#FEF3C7',
   },
   statsBar: {
     flexDirection: 'row',

@@ -65,9 +65,9 @@ describe('workoutSessionService', () => {
 
       expect(result).toHaveLength(3);
       expect(builder.insert).toHaveBeenCalledWith([
-        { workout_assignment_id: 'assignment-1', swimmer_id: 'u1', attended: true },
-        { workout_assignment_id: 'assignment-1', swimmer_id: 'u2', attended: false },
-        { workout_assignment_id: 'assignment-1', swimmer_id: 'u3', attended: true },
+        { workout_assignment_id: 'assignment-1', swimmer_id: 'u1', attended: true, is_guest: false },
+        { workout_assignment_id: 'assignment-1', swimmer_id: 'u2', attended: false, is_guest: false },
+        { workout_assignment_id: 'assignment-1', swimmer_id: 'u3', attended: true, is_guest: false },
       ]);
     });
   });

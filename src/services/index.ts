@@ -1,5 +1,6 @@
 export { clubService } from './clubService';
 export { groupService } from './groupService';
+export { groupCoachService } from './groupCoachService';
 export { trainingSlotService } from './trainingSlotService';
 export { workoutService } from './workoutService';
 export { workoutAssignmentService } from './workoutAssignmentService';

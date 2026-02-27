@@ -97,7 +97,7 @@ export default function ProfileScreen() {
               />
               <View style={styles.codeRow}>
                 <Text variant="bodySmall" style={styles.codeLabel}>
-                  Code d'invitation :
+                  Code nageur :
                 </Text>
                 <Chip
                   compact
@@ -106,6 +106,19 @@ export default function ProfileScreen() {
                   icon="content-copy"
                 >
                   {club.invitation_code}
+                </Chip>
+              </View>
+              <View style={styles.codeRow}>
+                <Text variant="bodySmall" style={styles.codeLabel}>
+                  Code coach :
+                </Text>
+                <Chip
+                  compact
+                  style={styles.codeChipCoach}
+                  onPress={() => copyInvitationCode(club.invitation_code_coach)}
+                  icon="content-copy"
+                >
+                  {club.invitation_code_coach}
                 </Chip>
               </View>
               <List.Item
@@ -211,6 +224,9 @@ const styles = StyleSheet.create({
   },
   codeChip: {
     backgroundColor: 'rgba(14, 116, 144, 0.10)',
+  },
+  codeChipCoach: {
+    backgroundColor: 'rgba(139, 92, 246, 0.10)',
   },
   logoutButton: {
     marginTop: 16,

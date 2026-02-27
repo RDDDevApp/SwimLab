@@ -7,7 +7,7 @@ export interface ClubWithMembers extends Club {
 
 export const clubService = {
   /** Create a new club (coach only) */
-  async create(data: Omit<ClubInsert, 'invitation_code'>): Promise<Club> {
+  async create(data: Omit<ClubInsert, 'invitation_code' | 'invitation_code_coach'>): Promise<Club> {
     const { data: club, error } = await supabase
       .from('clubs')
       .insert(data)
@@ -85,21 +85,46 @@ export const clubService = {
     if (error) throw error;
   },
 
-  /** Join a club via invitation code */
+  /** Join a club via invitation code (auto-detects swimmer code vs coach code) */
   async joinByCode(
     code: string,
     userId: string,
     role: 'coach' | 'swimmer',
-  ): Promise<Club> {
-    const { data: club, error: clubError } = await supabase
+  ): Promise<{ club: Club; detectedRole: 'coach' | 'swimmer' }> {
+    // Try swimmer code first
+    const { data: clubBySwimmerCode } = await supabase
       .from('clubs')
       .select('*')
       .eq('invitation_code', code)
-      .single();
+      .maybeSingle();
 
-    if (clubError) throw new Error('Code d\'invitation invalide');
+    // Try coach code
+    const { data: clubByCoachCode } = await supabase
+      .from('clubs')
+      .select('*')
+      .eq('invitation_code_coach', code)
+      .maybeSingle();
 
-    // Check if already a member
+    const club = clubBySwimmerCode || clubByCoachCode;
+    if (!club) throw new Error("Code d'invitation invalide");
+
+    const detectedRole: 'coach' | 'swimmer' = clubByCoachCode ? 'coach' : 'swimmer';
+
+    // If joining as coach, verify not already coach in another club
+    if (detectedRole === 'coach') {
+      const { data: existingCoach } = await supabase
+        .from('club_members')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('role', 'coach')
+        .maybeSingle();
+
+      if (existingCoach) {
+        throw new Error('Vous etes deja coach dans un autre club. Un coach ne peut etre que dans un seul club.');
+      }
+    }
+
+    // Check if already a member of this club
     const { data: existing } = await supabase
       .from('club_members')
       .select('id')
@@ -114,11 +139,11 @@ export const clubService = {
       .insert({
         club_id: club.id,
         user_id: userId,
-        role,
+        role: detectedRole,
       });
 
     if (joinError) throw joinError;
-    return club;
+    return { club, detectedRole };
   },
 
   /** Get all members of a club */
