@@ -45,17 +45,42 @@ FROM groups
 WHERE coach_id IS NOT NULL;
 
 -- ============================================================
--- 4. Supprimer coach_id de groups
+-- 4. Supprimer TOUTES les anciennes RLS policies qui referencent
+--    groups.coach_id ou training_slots.coach_id AVANT de dropper les colonnes
+-- ============================================================
+
+-- Policies sur groups
+DROP POLICY IF EXISTS "Coaches can create groups" ON groups;
+DROP POLICY IF EXISTS "Coach can update own groups" ON groups;
+DROP POLICY IF EXISTS "Coach can delete own groups" ON groups;
+DROP POLICY IF EXISTS "groups_coach_all" ON groups;
+DROP POLICY IF EXISTS "Coaches can manage their groups" ON groups;
+
+-- Policies sur group_members (referencent groups.coach_id via subquery)
+DROP POLICY IF EXISTS "Group members and coach can view" ON group_members;
+DROP POLICY IF EXISTS "Coach can manage group members" ON group_members;
+DROP POLICY IF EXISTS "Coach can remove group members" ON group_members;
+
+-- Policies sur training_slots (referencent groups.coach_id ou training_slots.coach_id)
+DROP POLICY IF EXISTS "Group members can view slots" ON training_slots;
+DROP POLICY IF EXISTS "Coach can create slots" ON training_slots;
+DROP POLICY IF EXISTS "Coach can update own slots" ON training_slots;
+DROP POLICY IF EXISTS "Coach can delete own slots" ON training_slots;
+DROP POLICY IF EXISTS "training_slots_coach_all" ON training_slots;
+DROP POLICY IF EXISTS "Coaches can manage their training slots" ON training_slots;
+
+-- ============================================================
+-- 5. Supprimer coach_id de groups
 -- ============================================================
 ALTER TABLE groups DROP COLUMN coach_id;
 
 -- ============================================================
--- 5. Supprimer coach_id de training_slots
+-- 6. Supprimer coach_id de training_slots
 -- ============================================================
 ALTER TABLE training_slots DROP COLUMN IF EXISTS coach_id;
 
 -- ============================================================
--- 6. Ajouter coach_id dans workout_assignments
+-- 7. Ajouter coach_id dans workout_assignments
 --    (coach qui a donne la seance, rempli lors de l'emargement)
 -- ============================================================
 ALTER TABLE workout_assignments
@@ -64,7 +89,7 @@ ADD COLUMN coach_id UUID REFERENCES auth.users(id) ON DELETE SET NULL;
 CREATE INDEX idx_workout_assignments_coach_id ON workout_assignments(coach_id);
 
 -- ============================================================
--- 7. Ajouter is_guest dans workout_sessions
+-- 8. Ajouter is_guest dans workout_sessions
 --    (nageur hors groupe ajoute ponctuellement a l'emargement)
 -- ============================================================
 ALTER TABLE workout_sessions
@@ -73,7 +98,7 @@ ADD COLUMN is_guest BOOLEAN NOT NULL DEFAULT false;
 CREATE INDEX idx_workout_sessions_is_guest ON workout_sessions(is_guest);
 
 -- ============================================================
--- 8. RLS Policies pour group_coaches
+-- 9. RLS Policies pour group_coaches
 -- ============================================================
 ALTER TABLE group_coaches ENABLE ROW LEVEL SECURITY;
 
@@ -138,13 +163,9 @@ CREATE POLICY "group_coaches_delete"
   );
 
 -- ============================================================
--- 9. Mise a jour RLS policies pour training_slots
---    (coach_id supprime, verifier via group_coaches)
+-- 10. Nouvelles RLS policies pour training_slots
+--     (coach_id supprime, verifier via group_coaches)
 -- ============================================================
-
--- Supprimer anciennes policies si elles existent
-DROP POLICY IF EXISTS "training_slots_coach_all" ON training_slots;
-DROP POLICY IF EXISTS "Coaches can manage their training slots" ON training_slots;
 
 -- Nouvelle policy SELECT : coaches du groupe + nageurs du groupe
 CREATE POLICY "training_slots_select"
@@ -179,12 +200,9 @@ CREATE POLICY "training_slots_coach_manage"
   );
 
 -- ============================================================
--- 10. Mise a jour RLS policies pour groups
+-- 11. Nouvelles RLS policies pour groups
 --     (coach_id supprime, verifier via group_coaches)
 -- ============================================================
-
-DROP POLICY IF EXISTS "groups_coach_all" ON groups;
-DROP POLICY IF EXISTS "Coaches can manage their groups" ON groups;
 
 -- SELECT : membres du club peuvent voir les groupes
 CREATE POLICY "groups_select"
@@ -231,6 +249,45 @@ CREATE POLICY "groups_coach_delete"
   TO authenticated
   USING (
     id IN (
+      SELECT gc.group_id FROM group_coaches gc
+      WHERE gc.coach_id = auth.uid()
+    )
+  );
+
+-- ============================================================
+-- 12. Nouvelles RLS policies pour group_members
+--     (coach_id supprime, verifier via group_coaches)
+-- ============================================================
+
+-- SELECT : nageur peut voir ses propres groupes, coaches du groupe aussi
+CREATE POLICY "group_members_select"
+  ON group_members FOR SELECT
+  TO authenticated
+  USING (
+    user_id = auth.uid()
+    OR group_id IN (
+      SELECT gc.group_id FROM group_coaches gc
+      WHERE gc.coach_id = auth.uid()
+    )
+  );
+
+-- INSERT : coaches du groupe peuvent ajouter des membres
+CREATE POLICY "group_members_insert"
+  ON group_members FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    group_id IN (
+      SELECT gc.group_id FROM group_coaches gc
+      WHERE gc.coach_id = auth.uid()
+    )
+  );
+
+-- DELETE : coaches du groupe peuvent retirer des membres
+CREATE POLICY "group_members_delete"
+  ON group_members FOR DELETE
+  TO authenticated
+  USING (
+    group_id IN (
       SELECT gc.group_id FROM group_coaches gc
       WHERE gc.coach_id = auth.uid()
     )
