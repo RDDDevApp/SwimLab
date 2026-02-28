@@ -85,6 +85,24 @@ AS $$
   WHERE ts.group_id IN (SELECT group_id FROM group_coaches WHERE coach_id = p_user_id);
 $$;
 
+-- Checks if a user is a coach member of the club that owns a given group
+-- (bypasses RLS on groups and club_members)
+CREATE OR REPLACE FUNCTION is_coach_in_group_club(p_group_id UUID, p_user_id UUID)
+RETURNS BOOLEAN
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM groups g
+    JOIN club_members cm ON cm.club_id = g.club_id
+    WHERE g.id = p_group_id
+    AND cm.user_id = p_user_id
+    AND cm.role = 'coach'
+  );
+$$;
+
 -- ============================================================
 -- 2. Drop ALL policies that reference group_coaches or group_members
 -- ============================================================
@@ -137,13 +155,7 @@ CREATE POLICY "group_coaches_insert"
       coach_id = auth.uid()
       OR group_coaches.group_id IN (SELECT get_coach_group_ids(auth.uid()))
     )
-    AND EXISTS (
-      SELECT 1 FROM groups g
-      JOIN club_members cm ON cm.club_id = g.club_id
-      WHERE g.id = group_coaches.group_id
-      AND cm.user_id = COALESCE(group_coaches.coach_id, auth.uid())
-      AND cm.role = 'coach'
-    )
+    AND is_coach_in_group_club(group_coaches.group_id, COALESCE(group_coaches.coach_id, auth.uid()))
   );
 
 CREATE POLICY "group_coaches_delete"
