@@ -4,6 +4,29 @@ export const OCEAN_GRADIENT = {
   end: { x: 0, y: 1 },
 };
 
+export const HERO_GRADIENTS = {
+  coach: {
+    colors: ['#2563EB', '#06B6D4'] as const,
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 1 },
+  },
+  swimmer: {
+    colors: ['#4F46E5', '#3B82F6'] as const,
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 1 },
+  },
+  solo: {
+    colors: ['#10B981', '#0D9488'] as const,
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 1 },
+  },
+  challenge: {
+    colors: ['#6366F1', '#9333EA'] as const,
+    start: { x: 0, y: 0 },
+    end: { x: 0, y: 1 },
+  },
+};
+
 export const ACCENT_GRADIENTS = {
   cta: {
     colors: ['#0891B2', '#1d4ed8'] as const,
