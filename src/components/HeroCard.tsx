@@ -27,7 +27,7 @@ export default function HeroCard({
   return (
     <Animated.View entering={FadeInUp.duration(700).delay(300)}>
       <LinearGradient
-        colors={gradientColors as unknown as string[]}
+        colors={gradientColors as unknown as [string, string, ...string[]]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.container}
