@@ -48,6 +48,7 @@ export type CoachStackParamList = {
   WorkoutDetail: { workoutId: string };
   BlockLibrary: undefined;
   WorkoutHistory: undefined;
+  UIKit: undefined;
 };
 
 export type SwimmerStackParamList = {
@@ -64,6 +65,7 @@ export type SwimmerStackParamList = {
   };
   SwimmerHistory: undefined;
   JoinClub: undefined;
+  UIKit: undefined;
 };
 
 export type SwimmerTabParamList = {
