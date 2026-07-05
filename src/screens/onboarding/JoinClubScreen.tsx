@@ -41,7 +41,11 @@ export default function JoinClubScreen({ navigation, onSkip }: Props) {
   };
 
   const handleContinue = () => {
-    // clubId is already set in authStore, AppNavigator will re-render automatically
+    // clubId est deja mis a jour dans authStore ; on revient a l'ecran precedent
+    // (le dashboard se recharge au focus et bascule en mode club)
+    if (navigation?.canGoBack?.()) {
+      navigation.goBack();
+    }
   };
 
   if (joinedClubName) {
@@ -115,7 +119,13 @@ export default function JoinClubScreen({ navigation, onSkip }: Props) {
 
         <Button
           mode="text"
-          onPress={() => onSkip?.()}
+          onPress={() => {
+            if (onSkip) {
+              onSkip();
+            } else if (navigation?.canGoBack?.()) {
+              navigation.goBack();
+            }
+          }}
           style={styles.skipBtn}
         >
           Passer pour le moment

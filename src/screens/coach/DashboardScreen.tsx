@@ -1,8 +1,7 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, RefreshControl, Pressable } from 'react-native';
+import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { Text, Avatar, Chip, ActivityIndicator } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import GradientScreen from '../../components/GradientScreen';
 import AnimatedBackground from '../../components/AnimatedBackground';
 import HeroCard from '../../components/HeroCard';
@@ -25,6 +24,8 @@ interface NextSession {
   title: string;
   date: string;
   groupName: string;
+  assignmentId: string;
+  groupId: string;
 }
 
 export default function CoachDashboardScreen({ navigation }: { navigation: any }) {
@@ -89,6 +90,8 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
                 title,
                 date: assignment.scheduled_date,
                 groupName: slot?.groupName || '',
+                assignmentId: assignment.id,
+                groupId: slot?.group_id || '',
               });
             }
           }
@@ -124,8 +127,8 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
         <View style={styles.header}>
           <View style={{ flex: 1 }}>
             <View style={styles.brandPill}>
-              <Ionicons name="water-outline" size={14} color="#06B6D4" />
-              <Text style={styles.brandText}>SwimMaster Pro</Text>
+              <Ionicons name="water-outline" size={14} color="#0891B2" />
+              <Text style={styles.brandText}>SwimLab</Text>
             </View>
             <Text style={styles.greeting}>Bonjour, {profile?.first_name}</Text>
             <Text style={styles.subtitle}>
@@ -148,7 +151,16 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
             badge={{ icon: 'ellipse', text: 'Prochaine Seance' }}
             title={nextSession.title}
             subtitle={`${nextSession.date} · ${nextSession.groupName}`}
-            primaryAction={{ label: 'Lancer la seance', icon: 'play-outline', onPress: () => {} }}
+            primaryAction={{
+              label: 'Lancer la seance',
+              icon: 'play-outline',
+              onPress: () =>
+                navigation.navigate('Attendance', {
+                  assignmentId: nextSession.assignmentId,
+                  groupId: nextSession.groupId,
+                  workoutTitle: nextSession.title,
+                }),
+            }}
           />
         ) : (
           <HeroCard
@@ -156,7 +168,11 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
             badge={{ icon: 'calendar-outline', text: 'Planning' }}
             title="Aucune seance planifiee"
             subtitle="Planifiez votre prochaine seance d'entrainement."
-            primaryAction={{ label: 'Creer une seance', icon: 'add-outline', onPress: () => {} }}
+            primaryAction={{
+              label: 'Creer une seance',
+              icon: 'add-outline',
+              onPress: () => navigation.navigate('CreateWorkout'),
+            }}
           />
         )}
 
@@ -187,99 +203,14 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
             delay={700}
           />
           <QuickActionCard
-            title="Competitions"
-            subtitle="Evenements"
-            icon="trophy-outline"
+            title="Bibliotheque"
+            subtitle="Blocs reutilisables"
+            icon="library-outline"
             iconColor="#EAB308"
-            onPress={() => {}}
+            onPress={() => navigation.navigate('BlockLibrary')}
             delay={800}
           />
         </View>
-
-        {/* Activite Recente */}
-        <GlassCard elevated>
-          <Text style={styles.sectionTitle}>Activite Recente</Text>
-
-          <View style={styles.activityItem}>
-            <View style={[styles.activityIcon, { backgroundColor: 'rgba(16, 185, 129, 0.15)' }]}>
-              <Ionicons name="checkmark-circle-outline" size={20} color="#10B981" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.activityName}>Seance Vitesse validee</Text>
-              <Text style={styles.activityDetail}>Groupe Jeunes</Text>
-            </View>
-            <Text style={styles.activityTime}>Il y a 2h</Text>
-          </View>
-
-          <View style={styles.activityItem}>
-            <View style={[styles.activityIcon, { backgroundColor: 'rgba(59, 130, 246, 0.15)' }]}>
-              <Ionicons name="trending-up-outline" size={20} color="#3B82F6" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <View style={styles.activityNameRow}>
-                <Text style={styles.activityName}>Mise a jour des performances</Text>
-                <View style={styles.recordBadge}>
-                  <Text style={styles.recordBadgeText}>Record</Text>
-                </View>
-              </View>
-              <Text style={styles.activityDetail}>Lucas M.</Text>
-            </View>
-            <Text style={styles.activityTime}>Il y a 4h</Text>
-          </View>
-
-          <View style={styles.activityItem}>
-            <View style={[styles.activityIcon, { backgroundColor: 'rgba(239, 68, 68, 0.15)' }]}>
-              <Ionicons name="alert-circle-outline" size={20} color="#EF4444" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.activityName}>Absence signalee</Text>
-              <Text style={styles.activityDetail}>Sarah L.</Text>
-            </View>
-            <Text style={styles.activityTime}>Il y a 5h</Text>
-          </View>
-
-          <Pressable style={styles.seeAllButton} onPress={() => {}}>
-            <Text style={styles.seeAllText}>Voir tout</Text>
-            <Ionicons name="chevron-forward-outline" size={16} color="#2563EB" />
-          </Pressable>
-        </GlassCard>
-
-        {/* Defis du Mois */}
-        <LinearGradient
-          colors={HERO_GRADIENTS.challenge.colors as unknown as [string, string, ...string[]]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0, y: 1 }}
-          style={styles.challengeCard}
-        >
-          <View style={styles.challengeBlob} />
-          <Text style={styles.challengeTitle}>Defis du Mois</Text>
-
-          {/* Progress bars */}
-          <View style={styles.progressItem}>
-            <View style={styles.progressHeader}>
-              <Text style={styles.progressLabel}>Objectif Distance</Text>
-              <Text style={styles.progressValue}>85%</Text>
-            </View>
-            <View style={styles.progressBarBg}>
-              <View style={[styles.progressBarFill, { width: '85%', backgroundColor: '#fff' }]} />
-            </View>
-          </View>
-
-          <View style={styles.progressItem}>
-            <View style={styles.progressHeader}>
-              <Text style={styles.progressLabel}>Presence Groupe Elite</Text>
-              <Text style={styles.progressValue}>92%</Text>
-            </View>
-            <View style={styles.progressBarBg}>
-              <View style={[styles.progressBarFill, { width: '92%', backgroundColor: '#34D399' }]} />
-            </View>
-          </View>
-
-          <Pressable style={styles.challengeButton} onPress={() => {}}>
-            <Text style={styles.challengeButtonText}>Voir le classement</Text>
-            <Ionicons name="chevron-forward-outline" size={16} color="#fff" />
-          </Pressable>
-        </LinearGradient>
 
         {/* Club info card (moved to bottom) */}
         {club && (
@@ -328,7 +259,7 @@ const styles = StyleSheet.create({
   brandText: {
     fontSize: 12,
     fontWeight: '800',
-    color: '#06B6D4',
+    color: '#0891B2',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -351,136 +282,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
-  },
-  // Section
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1e293b',
-    marginBottom: 16,
-  },
-  // Activity items
-  activityItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginBottom: 14,
-  },
-  activityIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activityNameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  activityName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1e293b',
-  },
-  activityDetail: {
-    fontSize: 12,
-    color: '#64748b',
-    marginTop: 1,
-  },
-  activityTime: {
-    fontSize: 11,
-    color: '#94a3b8',
-  },
-  recordBadge: {
-    backgroundColor: 'rgba(245, 158, 11, 0.15)',
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  recordBadgeText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#F59E0B',
-  },
-  // See all
-  seeAllButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-    paddingVertical: 8,
-  },
-  seeAllText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#2563EB',
-  },
-  // Challenge card
-  challengeCard: {
-    borderRadius: 24,
-    padding: 24,
-    overflow: 'hidden',
-  },
-  challengeBlob: {
-    position: 'absolute',
-    right: -60,
-    top: -60,
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
-  },
-  challengeTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#fff',
-    marginBottom: 20,
-  },
-  progressItem: {
-    marginBottom: 16,
-  },
-  progressHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 6,
-  },
-  progressLabel: {
-    color: 'rgba(255, 255, 255, 0.80)',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  progressValue: {
-    color: '#fff',
-    fontSize: 13,
-    fontWeight: '800',
-  },
-  progressBarBg: {
-    height: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.20)',
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    height: '100%',
-    borderRadius: 4,
-  },
-  challengeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    borderRadius: 14,
-    paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.20)',
-    marginTop: 4,
-  },
-  challengeButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '700',
   },
   // Club card
   clubTitle: {

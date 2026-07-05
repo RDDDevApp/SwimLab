@@ -81,6 +81,37 @@ function computeAchievements(history: SwimmerHistoryEntry[]): Achievements {
   return { totalKm, totalSessions, currentStreak };
 }
 
+interface WeekChart {
+  data: number[];
+  totalKm: number;
+}
+
+/** Distances nagees par jour (lun-dim) de la semaine courante, en % du max pour le chart */
+function computeWeekChart(history: SwimmerHistoryEntry[]): WeekChart {
+  const now = new Date();
+  const monday = new Date(now);
+  const dayIdx = (now.getDay() + 6) % 7; // lundi = 0
+  monday.setDate(now.getDate() - dayIdx);
+  monday.setHours(0, 0, 0, 0);
+
+  const distances = [0, 0, 0, 0, 0, 0, 0];
+  for (const entry of history) {
+    if (!entry.attended || !entry.totalDistance) continue;
+    const d = new Date(entry.scheduledDate + 'T00:00:00');
+    const diff = Math.floor((d.getTime() - monday.getTime()) / 86400000);
+    if (diff >= 0 && diff < 7) {
+      distances[diff] += entry.totalDistance;
+    }
+  }
+
+  const max = Math.max(...distances);
+  const totalKm = distances.reduce((a, b) => a + b, 0) / 1000;
+  return {
+    data: max > 0 ? distances.map((d) => Math.round((d / max) * 100)) : distances,
+    totalKm,
+  };
+}
+
 /* ─── Solo Dashboard Content ─── */
 function SoloDashboardContent({ navigation, profile }: { navigation: any; profile: any }) {
   return (
@@ -90,12 +121,10 @@ function SoloDashboardContent({ navigation, profile }: { navigation: any; profil
         <View style={{ flex: 1 }}>
           <View style={styles.brandPill}>
             <Ionicons name="water-outline" size={14} color="#0D9488" />
-            <Text style={[styles.brandText, { color: '#0D9488' }]}>SwimMaster</Text>
+            <Text style={[styles.brandText, { color: '#0D9488' }]}>SwimLab</Text>
           </View>
           <Text style={styles.greeting}>Bonjour, {profile?.first_name}</Text>
-          <Text style={styles.subtitle}>
-            Pret a nager ? Ton objectif hebdomadaire est atteint a 65%.
-          </Text>
+          <Text style={styles.subtitle}>Rejoins un club pour acceder aux entrainements.</Text>
         </View>
         <Avatar.Text
           size={48}
@@ -104,102 +133,49 @@ function SoloDashboardContent({ navigation, profile }: { navigation: any; profil
         />
       </View>
 
-      {/* Hero Card - AI Recommendation */}
+      {/* Join club card */}
       <HeroCard
         gradientColors={HERO_GRADIENTS.solo.colors}
-        badge={{ icon: 'sparkles-outline', text: 'Suggestion IA' }}
-        title="Seance Pyramide - 2000m"
-        subtitle="Base sur ta derniere seance de vitesse, voici un programme adapte."
-        stats={[
-          { label: 'Duree estimee', value: '55 min' },
-          { label: 'Calories', value: '~650 kcal' },
-        ]}
-        primaryAction={{ label: 'Demarrer la seance', icon: 'play-outline', onPress: () => {} }}
-        secondaryAction={{ label: 'Personnaliser', icon: 'settings-outline', onPress: () => {} }}
+        badge={{ icon: 'people-outline', text: 'Mon Club' }}
+        title="Rejoins ton club"
+        subtitle="Entre le code d'invitation fourni par ton coach pour acceder a ton planning et tes seances."
+        primaryAction={{
+          label: 'Entrer un code',
+          icon: 'key-outline',
+          onPress: () => navigation.navigate('JoinClub'),
+        }}
       />
 
       {/* Quick Actions */}
       <View style={styles.quickActionsGrid}>
         <QuickActionCard
-          title="Nouvelle Seance"
-          subtitle="Creer un workout"
-          icon="timer-outline"
-          iconColor="#0D9488"
-          onPress={() => {}}
-          delay={500}
-        />
-        <QuickActionCard
-          title="Programmes"
-          subtitle="Plans d'entrainement"
-          icon="map-outline"
-          iconColor="#6366F1"
-          onPress={() => {}}
-          delay={600}
-        />
-        <QuickActionCard
           title="Statistiques"
           subtitle="Mes performances"
           icon="pulse-outline"
-          iconColor="#06B6D4"
+          iconColor="#0891B2"
           onPress={() => navigation.navigate('SwimmerTabs', { screen: 'Stats' })}
-          delay={700}
+          delay={500}
         />
         <QuickActionCard
-          title="Defis"
-          subtitle="Challenges actifs"
-          icon="flame-outline"
-          iconColor="#F97316"
-          onPress={() => {}}
-          delay={800}
+          title="Mon Profil"
+          subtitle="Infos et reglages"
+          icon="person-outline"
+          iconColor="#6366F1"
+          onPress={() => navigation.navigate('SwimmerTabs', { screen: 'Profile' })}
+          delay={600}
         />
       </View>
 
-      {/* Weekly Bar Chart */}
-      <WeeklyBarChart
-        data={[0, 45, 0, 60, 0, 80, 0]}
-        activeColor="#0D9488"
-        title="Ma Semaine"
-        label="Total : 8.2 km (Objectif: 12 km)"
-      />
-
-      {/* Records Card */}
-      <GlassCard elevated>
-        <Text style={styles.sectionTitle}>Mes Records</Text>
-
-        <View style={styles.recordItem}>
-          <View style={[styles.recordIcon, { backgroundColor: 'rgba(245, 158, 11, 0.15)' }]}>
-            <Ionicons name="trophy-outline" size={20} color="#F59E0B" />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.recordEvent}>100m Libre</Text>
-            <Text style={styles.recordDate}>28 Oct 2025</Text>
-          </View>
-          <Text style={styles.recordTime}>58.4s</Text>
+      {/* Solo mode teaser */}
+      <GlassCard>
+        <View style={styles.soloTeaserRow}>
+          <Ionicons name="rocket-outline" size={20} color="#0D9488" />
+          <Text style={styles.soloTeaserTitle}>Mode solo — bientot disponible</Text>
         </View>
-
-        <View style={styles.recordItem}>
-          <View style={[styles.recordIcon, { backgroundColor: 'rgba(99, 102, 241, 0.15)' }]}>
-            <Ionicons name="medal-outline" size={20} color="#6366F1" />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.recordEvent}>400m Libre</Text>
-            <Text style={styles.recordDate}>15 Sep 2025</Text>
-          </View>
-          <Text style={styles.recordTime}>4:42.0</Text>
-        </View>
-
-        {/* AI Tip */}
-        <View style={styles.aiTip}>
-          <Ionicons name="sparkles-outline" size={16} color="#6366F1" />
-          <Text style={styles.aiTipText}>
-            Ton 100m progresse de 2.3% ce mois-ci. Continue comme ca !
-          </Text>
-        </View>
-
-        <Pressable style={styles.seeAllButton} onPress={() => {}}>
-          <Text style={styles.seeAllText}>Voir tous mes temps</Text>
-          <Ionicons name="chevron-forward-outline" size={16} color="#0D9488" />
-        </Pressable>
+        <Text style={styles.soloTeaserText}>
+          Creation de seances personnelles, suggestions adaptees et suivi independant arrivent
+          prochainement. En attendant, rejoins un club avec un code d'invitation.
+        </Text>
       </GlassCard>
     </>
   );
@@ -215,6 +191,7 @@ function ClubDashboardContent({
   achievements,
   stats,
   pendingCount,
+  weekChart,
 }: {
   navigation: any;
   profile: any;
@@ -224,6 +201,7 @@ function ClubDashboardContent({
   achievements: Achievements;
   stats: { total: number; attended: number; averageRpe: number | null };
   pendingCount: number;
+  weekChart: WeekChart;
 }) {
   const nextWorkout = upcoming[0] || null;
 
@@ -233,8 +211,8 @@ function ClubDashboardContent({
       <View style={styles.header}>
         <View style={{ flex: 1 }}>
           <View style={styles.brandPill}>
-            <Ionicons name="water-outline" size={14} color="#06B6D4" />
-            <Text style={[styles.brandText, { color: '#06B6D4' }]}>SwimMaster Athlete</Text>
+            <Ionicons name="water-outline" size={14} color="#0891B2" />
+            <Text style={[styles.brandText, { color: '#0891B2' }]}>SwimLab</Text>
           </View>
           <Text style={styles.greeting}>Salut, {profile?.first_name} !</Text>
           <Text style={styles.subtitle}>
@@ -297,7 +275,6 @@ function ClubDashboardContent({
                 workoutTitle: nextWorkout.workoutTitle,
               }),
           }}
-          secondaryAction={{ label: 'Je serai present(e)', icon: 'checkmark-outline', onPress: () => {} }}
         />
       ) : (
         <HeroCard
@@ -324,68 +301,38 @@ function ClubDashboardContent({
           delay={500}
         />
         <QuickActionCard
-          title="Objectifs"
-          subtitle="Mes cibles"
-          icon="flag-outline"
-          iconColor="#F43F5E"
-          onPress={() => {}}
-          delay={600}
-        />
-        <QuickActionCard
           title="Planning"
           subtitle="Mon calendrier"
           icon="calendar-outline"
           iconColor="#3B82F6"
           onPress={() => navigation.navigate('SwimmerTabs', { screen: 'Calendar' })}
+          delay={600}
+        />
+        <QuickActionCard
+          title="Historique"
+          subtitle="Seances passees"
+          icon="time-outline"
+          iconColor="#F59E0B"
+          onPress={() => navigation.navigate('SwimmerHistory')}
           delay={700}
         />
         <QuickActionCard
-          title="Mes Records"
-          subtitle="Meilleurs temps"
-          icon="medal-outline"
-          iconColor="#F59E0B"
-          onPress={() => {}}
+          title="Mon Profil"
+          subtitle="Club et reglages"
+          icon="person-outline"
+          iconColor="#F43F5E"
+          onPress={() => navigation.navigate('SwimmerTabs', { screen: 'Profile' })}
           delay={800}
         />
       </View>
 
-      {/* Weekly Bar Chart */}
+      {/* Weekly Bar Chart - vraies distances de la semaine */}
       <WeeklyBarChart
-        data={[40, 70, 0, 85, 60, 90, 30]}
-        activeColor="#06B6D4"
+        data={weekChart.data}
+        activeColor="#0891B2"
         title="Ma Semaine"
-        label={`Volume total : ${achievements.totalKm >= 10 ? Math.round(achievements.totalKm) : achievements.totalKm.toFixed(1)} km`}
+        label={`Volume cette semaine : ${weekChart.totalKm >= 10 ? Math.round(weekChart.totalKm) : weekChart.totalKm.toFixed(1)} km`}
       />
-
-      {/* Derniers Retours */}
-      <GlassCard elevated>
-        <Text style={styles.sectionTitle}>Derniers Retours</Text>
-
-        <View style={styles.feedbackItem}>
-          <View style={[styles.feedbackAvatar, { backgroundColor: 'rgba(6, 182, 212, 0.15)' }]}>
-            <Text style={{ fontWeight: '700', color: '#06B6D4', fontSize: 14 }}>CM</Text>
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.feedbackName}>Coach Martin</Text>
-            <Text style={styles.feedbackComment}>Excellente seance, bonne technique !</Text>
-          </View>
-        </View>
-
-        <View style={styles.feedbackItem}>
-          <View style={[styles.feedbackAvatar, { backgroundColor: 'rgba(245, 158, 11, 0.15)' }]}>
-            <Ionicons name="trophy-outline" size={18} color="#F59E0B" />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.feedbackName}>Nouveau Record !</Text>
-            <Text style={styles.feedbackComment}>100m Libre - 58.4s (+2.1%)</Text>
-          </View>
-        </View>
-
-        <Pressable style={styles.seeAllButton} onPress={() => {}}>
-          <Text style={[styles.seeAllText, { color: '#4F46E5' }]}>Voir tout l'historique</Text>
-          <Ionicons name="chevron-forward-outline" size={16} color="#4F46E5" />
-        </Pressable>
-      </GlassCard>
 
       {/* History button */}
       {stats.total > 0 && (
@@ -409,6 +356,7 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
   const [club, setClub] = useState<Club | null>(null);
   const [stats, setStats] = useState({ total: 0, attended: 0, averageRpe: null as number | null });
   const [achievements, setAchievements] = useState<Achievements>({ totalKm: 0, totalSessions: 0, currentStreak: 0 });
+  const [weekChart, setWeekChart] = useState<WeekChart>({ data: [0, 0, 0, 0, 0, 0, 0], totalKm: 0 });
   const [pendingCount, setPendingCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -430,9 +378,10 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
       const swimmerStats = await workoutSessionService.getSwimmerStats(user.id);
       setStats(swimmerStats);
 
-      // Load history for achievements
+      // Load history for achievements + weekly chart
       const history = await workoutSessionService.getSwimmerHistory(user.id);
       setAchievements(computeAchievements(history));
+      setWeekChart(computeWeekChart(history));
 
       // Load pending feedback sessions
       const pending = await workoutSessionService.getPendingFeedback(user.id);
@@ -551,6 +500,7 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
             achievements={achievements}
             stats={stats}
             pendingCount={pendingCount}
+            weekChart={weekChart}
           />
         )}
       </ScrollView>
@@ -622,93 +572,22 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 12,
   },
-  // Section
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1e293b',
-    marginBottom: 16,
-  },
-  // Feedback items
-  feedbackItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginBottom: 14,
-  },
-  feedbackAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  feedbackName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1e293b',
-  },
-  feedbackComment: {
-    fontSize: 12,
-    color: '#64748b',
-    marginTop: 1,
-  },
-  // Records
-  recordItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginBottom: 14,
-  },
-  recordIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  recordEvent: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1e293b',
-  },
-  recordDate: {
-    fontSize: 12,
-    color: '#64748b',
-  },
-  recordTime: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#1e293b',
-  },
-  // AI tip
-  aiTip: {
+  // Solo teaser
+  soloTeaserRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(99, 102, 241, 0.08)',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
+    marginBottom: 8,
   },
-  aiTipText: {
-    flex: 1,
-    fontSize: 12,
-    color: '#6366F1',
-    fontWeight: '500',
+  soloTeaserTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1e293b',
   },
-  // See all button
-  seeAllButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-    paddingVertical: 8,
-  },
-  seeAllText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#0D9488',
+  soloTeaserText: {
+    fontSize: 13,
+    color: '#64748b',
+    lineHeight: 19,
   },
   // History
   historyButton: {

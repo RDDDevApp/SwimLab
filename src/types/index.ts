@@ -63,6 +63,7 @@ export type SwimmerStackParamList = {
     session: WorkoutSession | null;
   };
   SwimmerHistory: undefined;
+  JoinClub: undefined;
 };
 
 export type SwimmerTabParamList = {

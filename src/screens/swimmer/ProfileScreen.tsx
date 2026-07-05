@@ -1,24 +1,17 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
-import { Text, Card, Button, Avatar, List, TextInput, HelperText, Switch } from 'react-native-paper';
+import { Text, Card, Button, Avatar, List, Switch } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuthStore } from '../../stores/authStore';
 import { clubService, groupService, profileService } from '../../services';
-import { useSnackbarStore } from '../../stores/snackbarStore';
 import { Club } from '../../types';
 
-export default function SwimmerProfileScreen() {
-  const { profile, user, clubId, setClubId, signOut } = useAuthStore();
-  const showSnackbar = useSnackbarStore((s) => s.show);
+export default function SwimmerProfileScreen({ navigation }: { navigation: any }) {
+  const { profile, user, clubId, signOut } = useAuthStore();
   const [club, setClub] = useState<Club | null>(null);
   const [groupNames, setGroupNames] = useState<string[]>([]);
   const [refreshing, setRefreshing] = useState(false);
-
-  // Join club state
-  const [joinCode, setJoinCode] = useState('');
-  const [joinLoading, setJoinLoading] = useState(false);
-  const [joinError, setJoinError] = useState('');
 
   const loadInfo = useCallback(async () => {
     if (!user) return;
@@ -45,29 +38,6 @@ export default function SwimmerProfileScreen() {
       loadInfo();
     }, [loadInfo]),
   );
-
-  const handleJoinClub = async () => {
-    if (!joinCode.trim()) {
-      setJoinError("Le code d'invitation est requis");
-      return;
-    }
-    if (!user) return;
-
-    setJoinLoading(true);
-    setJoinError('');
-
-    try {
-      const { club: joinedClub } = await clubService.joinByCode(joinCode.trim().toLowerCase(), user.id, 'swimmer');
-      setClubId(joinedClub.id);
-      setClub(joinedClub);
-      setJoinCode('');
-      showSnackbar(`Vous avez rejoint ${joinedClub.name}`, 'success');
-    } catch (err: any) {
-      setJoinError(err.message || "Code invalide ou erreur de connexion");
-    } finally {
-      setJoinLoading(false);
-    }
-  };
 
   return (
     <GradientScreen>
@@ -130,28 +100,13 @@ export default function SwimmerProfileScreen() {
               <Text variant="bodyMedium" style={styles.joinSubtitle}>
                 Entrez le code d'invitation fourni par votre coach.
               </Text>
-              <TextInput
-                label="Code d'invitation"
-                placeholder="Ex: AB12CD34"
-                value={joinCode}
-                onChangeText={setJoinCode}
-                mode="outlined"
-                style={styles.joinInput}
-                autoCapitalize="none"
-              />
-              {joinError ? (
-                <HelperText type="error" visible>
-                  {joinError}
-                </HelperText>
-              ) : null}
               <Button
                 mode="contained"
-                onPress={handleJoinClub}
-                loading={joinLoading}
-                disabled={joinLoading}
+                onPress={() => navigation.navigate('JoinClub')}
                 style={styles.joinBtn}
+                icon="key-outline"
               >
-                Rejoindre le club
+                Entrer un code d'invitation
               </Button>
             </Card.Content>
           </Card>
@@ -274,11 +229,8 @@ const styles = StyleSheet.create({
     color: '#64748b',
     marginBottom: 12,
   },
-  joinInput: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
-  },
   joinBtn: {
-    marginTop: 12,
+    marginTop: 4,
   },
   logoutButton: {
     marginTop: 16,

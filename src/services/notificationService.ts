@@ -1,11 +1,16 @@
 import { Platform } from 'react-native';
 import { supabase } from '../config/supabase';
+import { FEATURES } from '../config/features';
 
+// Les push sont derriere FEATURES.push : tant que le flag est false
+// (expo-notifications non installe/configure), tout le service est un no-op explicite.
 let Notifications: any = null;
-try {
-  Notifications = require('expo-notifications');
-} catch {
-  // expo-notifications not installed yet
+if (FEATURES.push) {
+  try {
+    Notifications = require('expo-notifications');
+  } catch {
+    // expo-notifications not installed yet
+  }
 }
 
 export const notificationService = {
@@ -73,6 +78,7 @@ export const notificationService = {
     body: string,
     data?: Record<string, any>,
   ): Promise<void> {
+    if (!FEATURES.push) return;
     if (!tokens.length) return;
 
     const messages = tokens.map((token) => ({
