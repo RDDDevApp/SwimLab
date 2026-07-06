@@ -1,123 +1,53 @@
-import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
-import { Text, Avatar, Chip, ActivityIndicator } from 'react-native-paper';
+import React from 'react';
+import { View, StyleSheet, ScrollView, RefreshControl, Pressable } from 'react-native';
+import { Text, Avatar, Chip } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import GradientScreen from '../../components/GradientScreen';
 import AnimatedBackground from '../../components/AnimatedBackground';
 import HeroCard from '../../components/HeroCard';
 import QuickActionCard from '../../components/QuickActionCard';
 import GlassCard from '../../components/GlassCard';
-import { useFocusEffect } from '@react-navigation/native';
+import SectionHeader from '../../components/SectionHeader';
+import ProgressRing from '../../components/ProgressRing';
+import LoadingSkeleton from '../../components/LoadingSkeleton';
 import { useAuthStore } from '../../stores/authStore';
+import { useCoachDashboard, useRefreshOnFocus } from '../../hooks';
 import { HERO_GRADIENTS } from '../../config/gradients';
-import {
-  groupService,
-  workoutService,
-  clubService,
-  workoutAssignmentService,
-  trainingSlotService,
-} from '../../services';
-import { Club } from '../../types';
-import { toISODate } from '../../utils/dateHelpers';
+import { getRPEColor } from '../../config/theme';
+import { formatShortDate } from '../../utils/dateHelpers';
 
-interface NextSession {
-  title: string;
-  date: string;
-  groupName: string;
-  assignmentId: string;
-  groupId: string;
+function timeAgo(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const minutes = Math.floor(diffMs / 60000);
+  if (minutes < 60) return `Il y a ${Math.max(1, minutes)} min`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `Il y a ${hours}h`;
+  const days = Math.floor(hours / 24);
+  return `Il y a ${days}j`;
 }
 
 export default function CoachDashboardScreen({ navigation }: { navigation: any }) {
   const { profile, user, clubId } = useAuthStore();
-  const [groupCount, setGroupCount] = useState(0);
-  const [workoutCount, setWorkoutCount] = useState(0);
-  const [swimmerCount, setSwimmerCount] = useState(0);
-  const [club, setClub] = useState<Club | null>(null);
-  const [nextSession, setNextSession] = useState<NextSession | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const { data, isLoading, isRefetching, refetch } = useCoachDashboard(user?.id, clubId);
+  useRefreshOnFocus(refetch);
 
-  const loadStats = useCallback(async () => {
-    if (!user || !clubId) return;
-    setLoading(true);
-    try {
-      const [groups, workouts, clubData] = await Promise.all([
-        groupService.getByCoach(user.id),
-        workoutService.getByCoach(user.id),
-        clubService.getById(clubId),
-      ]);
-      setGroupCount(groups.length);
-      setWorkoutCount(workouts.length);
-      setClub(clubData);
+  if (isLoading || !data) {
+    return (
+      <GradientScreen>
+        <AnimatedBackground variant="cyan" />
+        <LoadingSkeleton variant="dashboard" />
+      </GradientScreen>
+    );
+  }
 
-      // Nombre de nageurs uniques + creneaux : requetes groupees (anti N+1)
-      const groupIds = groups.map((g) => g.id);
-      try {
-        const memberIds = await groupService.getMemberIdsByGroups(groupIds);
-        setSwimmerCount(memberIds.length);
-      } catch {}
-
-      // Load next session
-      try {
-        if (groups.length > 0) {
-          const groupNameById = new Map(groups.map((g) => [g.id, g.name]));
-          const slots = await trainingSlotService.getByGroups(groupIds);
-          const allSlots = slots.map((slot) => ({
-            ...slot,
-            groupName: groupNameById.get(slot.group_id) || '',
-          }));
-
-          if (allSlots.length > 0) {
-            const today = toISODate(new Date());
-            const nextWeek = toISODate(new Date(Date.now() + 7 * 86400000));
-            const slotIds = allSlots.map((s) => s.id);
-            const assignments = await workoutAssignmentService.getByDateRange(slotIds, today, nextWeek);
-
-            if (assignments.length > 0) {
-              const assignment = assignments[0];
-              const slot = allSlots.find((s) => s.id === assignment.training_slot_id);
-              let title = 'Seance';
-              try {
-                const workout = await workoutService.getById(assignment.workout_id);
-                title = workout.title;
-              } catch {}
-              setNextSession({
-                title,
-                date: assignment.scheduled_date,
-                groupName: slot?.groupName || '',
-                assignmentId: assignment.id,
-                groupId: slot?.group_id || '',
-              });
-            }
-          }
-        }
-      } catch {}
-    } catch (err) {
-      console.error('Error loading dashboard stats:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [user, clubId]);
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await loadStats();
-    setRefreshing(false);
-  }, [loadStats]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadStats();
-    }, [loadStats]),
-  );
+  const { nextSession, recentActivity, monthly, pendingFeedbackCount, club } = data;
 
   return (
     <GradientScreen>
       <AnimatedBackground variant="cyan" />
       <ScrollView
         contentContainerStyle={styles.content}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
       >
         {/* Header */}
         <View style={styles.header}>
@@ -139,14 +69,12 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
         </View>
 
         {/* Hero Card - Next Session */}
-        {loading ? (
-          <ActivityIndicator style={{ paddingVertical: 40 }} />
-        ) : nextSession ? (
+        {nextSession ? (
           <HeroCard
             gradientColors={HERO_GRADIENTS.coach.colors}
             badge={{ icon: 'ellipse', text: 'Prochaine Seance' }}
             title={nextSession.title}
-            subtitle={`${nextSession.date} · ${nextSession.groupName}`}
+            subtitle={`${formatShortDate(new Date(nextSession.date + 'T00:00:00'))} · ${nextSession.groupName}`}
             primaryAction={{
               label: 'Lancer la seance',
               icon: 'play-outline',
@@ -172,19 +100,34 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
           />
         )}
 
+        {/* Feedbacks en attente */}
+        {pendingFeedbackCount > 0 && (
+          <Pressable
+            style={styles.pendingBanner}
+            onPress={() => navigation.navigate('CoachTabs', { screen: 'Calendar' })}
+          >
+            <Ionicons name="chatbubble-ellipses-outline" size={18} color="#92400E" />
+            <Text style={styles.pendingText}>
+              {pendingFeedbackCount} feedback{pendingFeedbackCount > 1 ? 's' : ''} en attente
+              ce mois-ci
+            </Text>
+            <Ionicons name="chevron-forward-outline" size={16} color="#92400E" />
+          </Pressable>
+        )}
+
         {/* Quick Actions */}
         <View style={styles.quickActionsGrid}>
           <QuickActionCard
             title="Analyses"
             subtitle="Stats detaillees"
             icon="pulse-outline"
-            iconColor="#06B6D4"
+            iconColor="#0891B2"
             onPress={() => navigation.navigate('CoachStats')}
             delay={500}
           />
           <QuickActionCard
             title="Mes Groupes"
-            subtitle={`${groupCount} groupe${groupCount > 1 ? 's' : ''}`}
+            subtitle={`${data.groupCount} groupe${data.groupCount > 1 ? 's' : ''}`}
             icon="people-outline"
             iconColor="#6366F1"
             onPress={() => navigation.navigate('CoachTabs', { screen: 'Groups' })}
@@ -208,7 +151,77 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
           />
         </View>
 
-        {/* Club info card (moved to bottom) */}
+        {/* Activite Recente — vrais derniers feedbacks */}
+        {recentActivity.length > 0 && (
+          <GlassCard elevated>
+            <SectionHeader
+              title="Activite Recente"
+              onAction={() => navigation.navigate('WorkoutHistory')}
+            />
+            {recentActivity.slice(0, 5).map((entry) => (
+              <View key={entry.sessionId} style={styles.activityItem}>
+                <View
+                  style={[
+                    styles.activityIcon,
+                    { backgroundColor: 'rgba(8, 145, 178, 0.12)' },
+                  ]}
+                >
+                  <Ionicons name="chatbubble-outline" size={18} color="#0891B2" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.activityName} numberOfLines={1}>
+                    {entry.swimmerName} · {entry.workoutTitle}
+                  </Text>
+                  {entry.feedbackText ? (
+                    <Text style={styles.activityDetail} numberOfLines={1}>
+                      "{entry.feedbackText}"
+                    </Text>
+                  ) : (
+                    <Text style={styles.activityDetail}>Feedback envoye</Text>
+                  )}
+                </View>
+                {entry.rpeScore !== null && (
+                  <Chip
+                    compact
+                    style={[
+                      styles.rpeChip,
+                      { backgroundColor: getRPEColor(entry.rpeScore) },
+                    ]}
+                    textStyle={styles.rpeChipText}
+                  >
+                    {entry.rpeScore}
+                  </Chip>
+                )}
+                <Text style={styles.activityTime}>{timeAgo(entry.completedAt)}</Text>
+              </View>
+            ))}
+          </GlassCard>
+        )}
+
+        {/* Defis du Mois — calcules en direct sur les vraies donnees */}
+        {(monthly.attendancePct !== null || monthly.distancePct !== null) && (
+          <GlassCard elevated>
+            <SectionHeader title="Defis du Mois" />
+            <View style={styles.ringsRow}>
+              {monthly.attendancePct !== null && (
+                <ProgressRing
+                  progress={monthly.attendancePct}
+                  color="#059669"
+                  caption="Assiduite"
+                />
+              )}
+              {monthly.distancePct !== null && (
+                <ProgressRing
+                  progress={monthly.distancePct}
+                  color="#0891B2"
+                  caption={`${monthly.distanceSwumKm.toFixed(1)} / ${monthly.distancePlannedKm.toFixed(1)} km`}
+                />
+              )}
+            </View>
+          </GlassCard>
+        )}
+
+        {/* Club info card */}
         {club && (
           <GlassCard>
             <Text style={styles.clubTitle}>{club.name}</Text>
@@ -224,9 +237,7 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
                 {club.invitation_code_coach}
               </Chip>
             </View>
-            {club.description ? (
-              <Text style={styles.clubDesc}>{club.description}</Text>
-            ) : null}
+            {club.description ? <Text style={styles.clubDesc}>{club.description}</Text> : null}
           </GlassCard>
         )}
       </ScrollView>
@@ -273,11 +284,71 @@ const styles = StyleSheet.create({
   avatar: {
     backgroundColor: '#6366F1',
   },
+  // Pending feedback banner
+  pendingBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(254, 243, 199, 0.85)',
+    borderLeftWidth: 4,
+    borderLeftColor: '#F59E0B',
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  pendingText: {
+    flex: 1,
+    color: '#92400E',
+    fontWeight: '700',
+    fontSize: 13,
+  },
   // Quick actions
   quickActionsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
+  },
+  // Activity items
+  activityItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 12,
+  },
+  activityIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  activityName: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#1e293b',
+  },
+  activityDetail: {
+    fontSize: 12,
+    color: '#64748b',
+    marginTop: 1,
+  },
+  activityTime: {
+    fontSize: 10,
+    color: '#94a3b8',
+  },
+  rpeChip: {
+    height: 24,
+  },
+  rpeChipText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 11,
+  },
+  // Challenge rings
+  ringsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    paddingVertical: 8,
   },
   // Club card
   clubTitle: {

@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { View, StyleSheet, ScrollView, RefreshControl, Pressable, Dimensions } from 'react-native';
-import { Text, Avatar, ActivityIndicator, IconButton } from 'react-native-paper';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { View, StyleSheet, ScrollView, RefreshControl, Pressable } from 'react-native';
+import { Text, Avatar, ActivityIndicator, IconButton, Chip } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import GradientScreen from '../../components/GradientScreen';
 import AnimatedBackground from '../../components/AnimatedBackground';
@@ -8,29 +8,18 @@ import HeroCard from '../../components/HeroCard';
 import QuickActionCard from '../../components/QuickActionCard';
 import WeeklyBarChart from '../../components/WeeklyBarChart';
 import GlassCard from '../../components/GlassCard';
-import { useFocusEffect } from '@react-navigation/native';
+import SectionHeader from '../../components/SectionHeader';
+import LoadingSkeleton from '../../components/LoadingSkeleton';
 import { useAuthStore } from '../../stores/authStore';
 import { HERO_GRADIENTS } from '../../config/gradients';
-import {
-  groupService,
-  trainingSlotService,
-  workoutAssignmentService,
-  workoutSessionService,
-  workoutService,
-  clubService,
-} from '../../services';
+import { getRPEColor } from '../../config/theme';
+import { useSwimmerDashboard, useRefreshOnFocus } from '../../hooks';
+import type { SwimmerUpcomingWorkout } from '../../hooks';
 import type { SwimmerHistoryEntry } from '../../services';
-import { WorkoutAssignment, WorkoutSession, Club } from '../../types';
-import { toISODate, formatShortDate } from '../../utils/dateHelpers';
+import { Club } from '../../types';
+import { formatShortDate } from '../../utils/dateHelpers';
 
-interface UpcomingWorkout {
-  assignment: WorkoutAssignment;
-  workoutTitle: string;
-  workoutType: string;
-  totalDistance: number | null;
-  slotName: string;
-  session: WorkoutSession | null;
-}
+type UpcomingWorkout = SwimmerUpcomingWorkout;
 
 interface Achievements {
   totalKm: number;
@@ -192,6 +181,7 @@ function ClubDashboardContent({
   stats,
   pendingCount,
   weekChart,
+  lastFeedbacks,
 }: {
   navigation: any;
   profile: any;
@@ -202,6 +192,7 @@ function ClubDashboardContent({
   stats: { total: number; attended: number; averageRpe: number | null };
   pendingCount: number;
   weekChart: WeekChart;
+  lastFeedbacks: SwimmerHistoryEntry[];
 }) {
   const nextWorkout = upcoming[0] || null;
 
@@ -334,6 +325,45 @@ function ClubDashboardContent({
         label={`Volume cette semaine : ${weekChart.totalKm >= 10 ? Math.round(weekChart.totalKm) : weekChart.totalKm.toFixed(1)} km`}
       />
 
+      {/* Mes Derniers Retours — vrais feedbacks envoyes */}
+      {lastFeedbacks.length > 0 && (
+        <GlassCard elevated>
+          <SectionHeader
+            title="Mes Derniers Retours"
+            onAction={() => navigation.navigate('SwimmerHistory')}
+          />
+          {lastFeedbacks.map((entry) => (
+            <View key={entry.sessionId} style={styles.feedbackRow}>
+              <Chip
+                compact
+                style={[
+                  styles.feedbackRpeChip,
+                  { backgroundColor: getRPEColor(entry.rpeScore || 13) },
+                ]}
+                textStyle={styles.feedbackRpeText}
+              >
+                {entry.rpeScore}
+              </Chip>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.feedbackWorkout} numberOfLines={1}>
+                  {entry.workoutTitle}
+                </Text>
+                {entry.feedbackText ? (
+                  <Text style={styles.feedbackNote} numberOfLines={1}>
+                    "{entry.feedbackText}"
+                  </Text>
+                ) : null}
+              </View>
+              <Text style={styles.feedbackDate}>
+                {entry.scheduledDate
+                  ? formatShortDate(new Date(entry.scheduledDate + 'T00:00:00'))
+                  : ''}
+              </Text>
+            </View>
+          ))}
+        </GlassCard>
+      )}
+
       {/* History button */}
       {stats.total > 0 && (
         <Pressable
@@ -352,141 +382,55 @@ function ClubDashboardContent({
 /* ─── Main Component ─── */
 export default function SwimmerDashboardScreen({ navigation }: Props) {
   const { profile, user, clubId } = useAuthStore();
-  const [upcoming, setUpcoming] = useState<UpcomingWorkout[]>([]);
-  const [club, setClub] = useState<Club | null>(null);
-  const [stats, setStats] = useState({ total: 0, attended: 0, averageRpe: null as number | null });
-  const [achievements, setAchievements] = useState<Achievements>({ totalKm: 0, totalSessions: 0, currentStreak: 0 });
-  const [weekChart, setWeekChart] = useState<WeekChart>({ data: [0, 0, 0, 0, 0, 0, 0], totalKm: 0 });
-  const [pendingCount, setPendingCount] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const { data, isLoading, isRefetching, refetch } = useSwimmerDashboard(user?.id, clubId);
+  useRefreshOnFocus(refetch);
 
-  // Track if we've auto-prompted this focus cycle
+  // Auto-prompt feedback pour la plus ancienne session en attente
   const hasAutoPrompted = useRef(false);
-
-  const loadData = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
-    try {
-      // Load club info
-      if (clubId) {
-        const clubData = await clubService.getById(clubId);
-        setClub(clubData);
-      }
-
-      // Load swimmer stats
-      const swimmerStats = await workoutSessionService.getSwimmerStats(user.id);
-      setStats(swimmerStats);
-
-      // Load history for achievements + weekly chart
-      const history = await workoutSessionService.getSwimmerHistory(user.id);
-      setAchievements(computeAchievements(history));
-      setWeekChart(computeWeekChart(history));
-
-      // Load pending feedback sessions
-      const pending = await workoutSessionService.getPendingFeedback(user.id);
-      setPendingCount(pending.length);
-
-      // Auto-prompt feedback for the oldest pending session
-      if (pending.length > 0 && !hasAutoPrompted.current) {
-        hasAutoPrompted.current = true;
-        // Small delay so the dashboard renders first
-        setTimeout(() => {
-          navigation.navigate('Feedback', {
-            sessionId: pending[0].sessionId,
-            workoutTitle: pending[0].workoutTitle,
-          });
-        }, 600);
-      }
-
-      // Load upcoming workouts (only for club swimmers)
-      if (clubId) {
-        const groups = await groupService.getBySwimmer(user.id);
-        if (!groups.length) {
-          setUpcoming([]);
-          return;
-        }
-
-        const allSlots = [];
-        for (const group of groups) {
-          const slots = await trainingSlotService.getByGroup(group.id);
-          allSlots.push(...slots);
-        }
-        if (!allSlots.length) {
-          setUpcoming([]);
-          return;
-        }
-
-        const today = new Date();
-        const in14Days = new Date();
-        in14Days.setDate(today.getDate() + 14);
-        const slotIds = allSlots.map((s) => s.id);
-        const assignments = await workoutAssignmentService.getByDateRange(
-          slotIds,
-          toISODate(today),
-          toISODate(in14Days),
-        );
-
-        const sessions = await workoutSessionService.getBySwimmer(user.id);
-
-        const enriched: UpcomingWorkout[] = [];
-        for (const assignment of assignments) {
-          const slot = allSlots.find((s) => s.id === assignment.training_slot_id);
-          let workoutTitle = 'Seance';
-          let workoutType = 'other';
-          let totalDistance: number | null = null;
-
-          try {
-            const workout = await workoutService.getById(assignment.workout_id);
-            workoutTitle = workout.title;
-            workoutType = workout.type || 'other';
-            totalDistance = workout.total_distance;
-          } catch {}
-
-          const session =
-            sessions.find((s) => s.workout_assignment_id === assignment.id) || null;
-
-          enriched.push({
-            assignment,
-            workoutTitle,
-            workoutType,
-            totalDistance,
-            slotName: slot?.name || '',
-            session,
-          });
-        }
-
-        // Show max 3 upcoming
-        setUpcoming(enriched.slice(0, 3));
-      }
-    } catch (err) {
-      console.error('Error loading swimmer dashboard:', err);
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    const pending = data?.pending;
+    if (pending && pending.length > 0 && !hasAutoPrompted.current) {
+      hasAutoPrompted.current = true;
+      const timer = setTimeout(() => {
+        navigation.navigate('Feedback', {
+          sessionId: pending[0].sessionId,
+          workoutTitle: pending[0].workoutTitle,
+        });
+      }, 600);
+      return () => clearTimeout(timer);
     }
-  }, [user, clubId]);
+  }, [data?.pending, navigation]);
 
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    hasAutoPrompted.current = false;
-    await loadData();
-    setRefreshing(false);
-  }, [loadData]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadData();
-    }, [loadData]),
+  const achievements = useMemo(
+    () => computeAchievements(data?.history ?? []),
+    [data?.history],
+  );
+  const weekChart = useMemo(() => computeWeekChart(data?.history ?? []), [data?.history]);
+  const lastFeedbacks = useMemo(
+    () =>
+      (data?.history ?? [])
+        .filter((h) => h.attended && h.rpeScore !== null)
+        .slice(0, 3),
+    [data?.history],
   );
 
   const isSolo = !clubId;
+
+  if (isLoading && !data) {
+    return (
+      <GradientScreen>
+        <AnimatedBackground variant={isSolo ? 'teal' : 'cyan'} />
+        <LoadingSkeleton variant="dashboard" />
+      </GradientScreen>
+    );
+  }
 
   return (
     <GradientScreen>
       <AnimatedBackground variant={isSolo ? 'teal' : 'cyan'} />
       <ScrollView
         contentContainerStyle={styles.content}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
       >
         {isSolo ? (
           <SoloDashboardContent navigation={navigation} profile={profile} />
@@ -494,13 +438,14 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
           <ClubDashboardContent
             navigation={navigation}
             profile={profile}
-            club={club}
-            upcoming={upcoming}
-            loading={loading}
+            club={data?.club ?? null}
+            upcoming={data?.upcoming ?? []}
+            loading={isLoading}
             achievements={achievements}
-            stats={stats}
-            pendingCount={pendingCount}
+            stats={data?.stats ?? { total: 0, attended: 0, averageRpe: null }}
+            pendingCount={data?.pending.length ?? 0}
             weekChart={weekChart}
+            lastFeedbacks={lastFeedbacks}
           />
         )}
       </ScrollView>
@@ -571,6 +516,35 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
+  },
+  // Derniers retours
+  feedbackRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 12,
+  },
+  feedbackRpeChip: {
+    height: 26,
+  },
+  feedbackRpeText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  feedbackWorkout: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#1e293b',
+  },
+  feedbackNote: {
+    fontSize: 12,
+    color: '#64748b',
+    marginTop: 1,
+  },
+  feedbackDate: {
+    fontSize: 11,
+    color: '#94a3b8',
   },
   // Solo teaser
   soloTeaserRow: {

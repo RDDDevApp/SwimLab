@@ -26,6 +26,19 @@ export const workoutService = {
     return data;
   },
 
+  /** Plusieurs workouts par IDs en une requete (anti N+1) */
+  async getByIds(workoutIds: string[]): Promise<Workout[]> {
+    if (!workoutIds.length) return [];
+
+    const { data, error } = await supabase
+      .from('workouts')
+      .select('*')
+      .in('id', workoutIds);
+
+    if (error) throw error;
+    return data;
+  },
+
   /** Get all workouts for a club */
   async getByClub(clubId: string): Promise<Workout[]> {
     const { data, error } = await supabase

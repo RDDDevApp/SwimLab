@@ -85,6 +85,63 @@ export const workoutSessionService = {
     return data;
   },
 
+  /** Sessions de plusieurs assignments en une requete (anti N+1) */
+  async getByAssignments(assignmentIds: string[]): Promise<WorkoutSession[]> {
+    if (!assignmentIds.length) return [];
+
+    const { data, error } = await supabase
+      .from('workout_sessions')
+      .select('*')
+      .in('workout_assignment_id', assignmentIds);
+
+    if (error) throw error;
+    return data;
+  },
+
+  /** Activite recente des groupes d'un coach : derniers feedbacks recus.
+   *  1 requete via embeds (sessions -> profiles + assignments -> workouts/slots),
+   *  filtree par groupe via !inner join. */
+  async getRecentActivityByGroups(
+    groupIds: string[],
+    limit = 10,
+  ): Promise<
+    {
+      sessionId: string;
+      swimmerName: string;
+      rpeScore: number | null;
+      feedbackText: string | null;
+      workoutTitle: string;
+      scheduledDate: string;
+      completedAt: string;
+    }[]
+  > {
+    if (!groupIds.length) return [];
+
+    const { data, error } = await supabase
+      .from('workout_sessions')
+      .select(
+        'id, rpe_score, feedback_text, completed_at, profiles!swimmer_id(first_name, last_name), workout_assignments!inner(scheduled_date, workouts!workout_id(title), training_slots!inner(group_id))',
+      )
+      .in('workout_assignments.training_slots.group_id', groupIds)
+      .not('completed_at', 'is', null)
+      .order('completed_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+
+    return (data as any[]).map((s) => ({
+      sessionId: s.id,
+      swimmerName: s.profiles
+        ? `${s.profiles.first_name || ''} ${s.profiles.last_name || ''}`.trim()
+        : 'Nageur',
+      rpeScore: s.rpe_score,
+      feedbackText: s.feedback_text,
+      workoutTitle: s.workout_assignments?.workouts?.title || 'Seance',
+      scheduledDate: s.workout_assignments?.scheduled_date || '',
+      completedAt: s.completed_at,
+    }));
+  },
+
   /** Get all sessions for a workout assignment */
   async getByAssignment(assignmentId: string): Promise<WorkoutSession[]> {
     const { data, error } = await supabase
