@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Pressable, KeyboardAvoidingView, Platform } from 'react-native';
 import { Text, Button, TextInput, HelperText, IconButton } from 'react-native-paper';
+import * as Haptics from 'expo-haptics';
 import Slider from '../../components/RPESlider';
 import { workoutSessionService } from '../../services';
 import { useSnackbarStore } from '../../stores/snackbarStore';
@@ -10,6 +11,84 @@ interface Props {
   route: any;
 }
 
+/** Mini-echelle 1-5 optionnelle (fatigue, technique). Re-tap = deselection. */
+function MiniScale({
+  value,
+  onChange,
+  lowLabel,
+  highLabel,
+  color,
+}: {
+  value: number | null;
+  onChange: (v: number | null) => void;
+  lowLabel: string;
+  highLabel: string;
+  color: string;
+}) {
+  return (
+    <View>
+      <View style={miniStyles.row}>
+        {[1, 2, 3, 4, 5].map((n) => (
+          <Pressable
+            key={n}
+            style={[
+              miniStyles.dot,
+              value !== null && n <= value && { backgroundColor: color, borderColor: color },
+            ]}
+            onPress={() => onChange(value === n ? null : n)}
+          >
+            <Text
+              style={[
+                miniStyles.dotText,
+                value !== null && n <= value && miniStyles.dotTextActive,
+              ]}
+            >
+              {n}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+      <View style={miniStyles.labels}>
+        <Text style={miniStyles.labelText}>{lowLabel}</Text>
+        <Text style={miniStyles.labelText}>{highLabel}</Text>
+      </View>
+    </View>
+  );
+}
+
+const miniStyles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  dot: {
+    flex: 1,
+    height: 40,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: 'rgba(148, 163, 184, 0.4)',
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dotText: {
+    fontWeight: '700',
+    color: '#64748b',
+  },
+  dotTextActive: {
+    color: '#fff',
+  },
+  labels: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 4,
+  },
+  labelText: {
+    fontSize: 11,
+    color: '#94a3b8',
+  },
+});
+
 export default function FeedbackScreen({ navigation, route }: Props) {
   const { sessionId, workoutTitle, editMode, existingRpe, existingComment } = route.params;
   const isEdit = editMode === true;
@@ -17,6 +96,8 @@ export default function FeedbackScreen({ navigation, route }: Props) {
   const showSnackbar = useSnackbarStore((s) => s.show);
   const [rpe, setRpe] = useState(existingRpe ?? 13);
   const [comment, setComment] = useState(existingComment ?? '');
+  const [fatigue, setFatigue] = useState<number | null>(null);
+  const [technique, setTechnique] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -24,19 +105,21 @@ export default function FeedbackScreen({ navigation, route }: Props) {
     setLoading(true);
     setError('');
     try {
+      const payload = {
+        rpe_score: rpe,
+        feedback_text: comment.trim() || undefined,
+        fatigue_score: fatigue,
+        technique_score: technique,
+      };
       if (isEdit) {
-        await workoutSessionService.updateFeedback(sessionId, {
-          rpe_score: rpe,
-          feedback_text: comment.trim() || undefined,
-        });
+        await workoutSessionService.updateFeedback(sessionId, payload);
         showSnackbar('Feedback modifie !', 'success');
       } else {
-        await workoutSessionService.submitFeedback(sessionId, {
-          rpe_score: rpe,
-          feedback_text: comment.trim() || undefined,
-        });
+        await workoutSessionService.submitFeedback(sessionId, payload);
         showSnackbar('Merci pour ton feedback !', 'success');
       }
+      // Micro-celebration : haptic de succes
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
       navigation.goBack();
     } catch (err: any) {
       setError(err.message || 'Erreur lors de l\'envoi');
@@ -89,6 +172,28 @@ export default function FeedbackScreen({ navigation, route }: Props) {
             </Text>
 
             <Slider value={rpe} onChange={setRpe} />
+
+            <Text variant="titleMedium" style={[styles.sectionTitle, { marginTop: 20 }]}>
+              Fatigue musculaire (optionnel)
+            </Text>
+            <MiniScale
+              value={fatigue}
+              onChange={setFatigue}
+              lowLabel="Frais"
+              highLabel="Epuise"
+              color="#D97706"
+            />
+
+            <Text variant="titleMedium" style={[styles.sectionTitle, { marginTop: 20 }]}>
+              Sensation technique (optionnel)
+            </Text>
+            <MiniScale
+              value={technique}
+              onChange={setTechnique}
+              lowLabel="Difficile"
+              highLabel="Excellente"
+              color="#7C3AED"
+            />
 
             <Text variant="titleMedium" style={[styles.sectionTitle, { marginTop: 20 }]}>
               Commentaire (optionnel)

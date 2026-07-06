@@ -1,6 +1,17 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl, Pressable } from 'react-native';
-import { Text, Avatar, ActivityIndicator, IconButton, Chip } from 'react-native-paper';
+import {
+  Text,
+  Avatar,
+  ActivityIndicator,
+  IconButton,
+  Chip,
+  Portal,
+  Dialog,
+  TextInput,
+  Button,
+} from 'react-native-paper';
+import { useQueryClient } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
 import GradientScreen from '../../components/GradientScreen';
 import AnimatedBackground from '../../components/AnimatedBackground';
@@ -16,6 +27,8 @@ import { getRPEColor } from '../../config/theme';
 import { useSwimmerDashboard, useRefreshOnFocus } from '../../hooks';
 import type { SwimmerUpcomingWorkout } from '../../hooks';
 import type { SwimmerHistoryEntry } from '../../services';
+import { presenceService, SessionPresence } from '../../services/presenceService';
+import { useSnackbarStore } from '../../stores/snackbarStore';
 import { Club } from '../../types';
 import { formatShortDate } from '../../utils/dateHelpers';
 
@@ -182,6 +195,9 @@ function ClubDashboardContent({
   pendingCount,
   weekChart,
   lastFeedbacks,
+  nextPresence,
+  onDeclarePresent,
+  onDeclareAbsent,
 }: {
   navigation: any;
   profile: any;
@@ -193,8 +209,20 @@ function ClubDashboardContent({
   pendingCount: number;
   weekChart: WeekChart;
   lastFeedbacks: SwimmerHistoryEntry[];
+  nextPresence: SessionPresence | null;
+  onDeclarePresent: () => void;
+  onDeclareAbsent: () => void;
 }) {
   const nextWorkout = upcoming[0] || null;
+
+  // Etat de la declaration de presence pour la prochaine seance
+  const presenceAction = nextWorkout
+    ? nextPresence?.status === 'absent'
+      ? { label: 'Absence signalee — annuler', icon: 'refresh-outline' as const, onPress: onDeclarePresent }
+      : nextPresence?.status === 'present'
+        ? { label: 'Prevenir une absence', icon: 'close-circle-outline' as const, onPress: onDeclareAbsent }
+        : { label: 'Je serai present(e)', icon: 'checkmark-outline' as const, onPress: onDeclarePresent }
+    : null;
 
   return (
     <>
@@ -266,6 +294,7 @@ function ClubDashboardContent({
                 workoutTitle: nextWorkout.workoutTitle,
               }),
           }}
+          secondaryAction={presenceAction ?? undefined}
         />
       ) : (
         <HeroCard
@@ -384,6 +413,37 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
   const { profile, user, clubId } = useAuthStore();
   const { data, isLoading, isRefetching, refetch } = useSwimmerDashboard(user?.id, clubId);
   useRefreshOnFocus(refetch);
+  const queryClient = useQueryClient();
+  const showSnackbar = useSnackbarStore((s) => s.show);
+
+  // Declaration de presence pour la prochaine seance
+  const [absenceDialogVisible, setAbsenceDialogVisible] = useState(false);
+  const [absenceReason, setAbsenceReason] = useState('');
+
+  const declarePresence = async (status: 'present' | 'absent', reason?: string) => {
+    const assignmentId = data?.upcoming[0]?.assignment.id;
+    if (!user || !assignmentId) return;
+    try {
+      await presenceService.declare(assignmentId, user.id, status, reason);
+      showSnackbar(
+        status === 'present' ? 'Presence confirmee !' : 'Absence signalee au coach',
+        'success',
+      );
+      queryClient.invalidateQueries({ queryKey: ['swimmer', 'dashboard'] });
+    } catch (err: any) {
+      showSnackbar(err.message || 'Erreur lors de la declaration', 'error');
+    }
+  };
+
+  const handleDeclareAbsent = () => {
+    setAbsenceReason('');
+    setAbsenceDialogVisible(true);
+  };
+
+  const confirmAbsence = async () => {
+    setAbsenceDialogVisible(false);
+    await declarePresence('absent', absenceReason);
+  };
 
   // Auto-prompt feedback pour la plus ancienne session en attente
   const hasAutoPrompted = useRef(false);
@@ -446,9 +506,37 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
             pendingCount={data?.pending.length ?? 0}
             weekChart={weekChart}
             lastFeedbacks={lastFeedbacks}
+            nextPresence={data?.nextPresence ?? null}
+            onDeclarePresent={() => declarePresence('present')}
+            onDeclareAbsent={handleDeclareAbsent}
           />
         )}
       </ScrollView>
+
+      {/* Dialog raison d'absence */}
+      <Portal>
+        <Dialog
+          visible={absenceDialogVisible}
+          onDismiss={() => setAbsenceDialogVisible(false)}
+        >
+          <Dialog.Title>Prevenir une absence</Dialog.Title>
+          <Dialog.Content>
+            <TextInput
+              label="Raison (optionnel)"
+              placeholder="Ex: malade, examen, deplacement..."
+              value={absenceReason}
+              onChangeText={setAbsenceReason}
+              mode="outlined"
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setAbsenceDialogVisible(false)}>Annuler</Button>
+            <Button mode="contained" onPress={confirmAbsence}>
+              Signaler
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </GradientScreen>
   );
 }

@@ -11,7 +11,29 @@ type SessionInsert = {
 type FeedbackData = {
   rpe_score: number;
   feedback_text?: string;
+  /** Fatigue musculaire 1-5 (optionnel, migration 013) */
+  fatigue_score?: number | null;
+  /** Sensation technique 1-5 (optionnel, migration 013) */
+  technique_score?: number | null;
 };
+
+/** Payload d'update feedback ; retire les champs v2 si la migration 013 n'est pas appliquee */
+function buildFeedbackPayload(feedback: FeedbackData, includeV2: boolean) {
+  const payload: Record<string, unknown> = {
+    rpe_score: feedback.rpe_score,
+    feedback_text: feedback.feedback_text ?? null,
+    completed_at: new Date().toISOString(),
+  };
+  if (includeV2) {
+    if (feedback.fatigue_score !== undefined) payload.fatigue_score = feedback.fatigue_score;
+    if (feedback.technique_score !== undefined) payload.technique_score = feedback.technique_score;
+  }
+  return payload;
+}
+
+function isMissingColumnError(err: any): boolean {
+  return typeof err?.message === 'string' && err.message.includes('column');
+}
 
 export interface SessionWithProfile extends WorkoutSession {
   swimmer_name?: string;
@@ -185,7 +207,7 @@ export const workoutSessionService = {
     return data;
   },
 
-  /** Submit feedback (swimmer submits RPE + text) */
+  /** Submit feedback (swimmer submits RPE + text + auto-evaluations v2) */
   async submitFeedback(
     sessionId: string,
     feedback: FeedbackData,
@@ -196,16 +218,25 @@ export const workoutSessionService = {
 
     const { data, error } = await supabase
       .from('workout_sessions')
-      .update({
-        rpe_score: feedback.rpe_score,
-        feedback_text: feedback.feedback_text ?? null,
-        completed_at: new Date().toISOString(),
-      })
+      .update(buildFeedbackPayload(feedback, true) as any)
       .eq('id', sessionId)
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      // Migration 013 non appliquee : reessayer sans les champs v2
+      if (isMissingColumnError(error)) {
+        const { data: retryData, error: retryError } = await supabase
+          .from('workout_sessions')
+          .update(buildFeedbackPayload(feedback, false) as any)
+          .eq('id', sessionId)
+          .select()
+          .single();
+        if (retryError) throw retryError;
+        return retryData;
+      }
+      throw error;
+    }
     return data;
   },
 
@@ -238,16 +269,24 @@ export const workoutSessionService = {
 
     const { data, error } = await supabase
       .from('workout_sessions')
-      .update({
-        rpe_score: feedback.rpe_score,
-        feedback_text: feedback.feedback_text ?? null,
-        completed_at: new Date().toISOString(),
-      })
+      .update(buildFeedbackPayload(feedback, true) as any)
       .eq('id', sessionId)
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      if (isMissingColumnError(error)) {
+        const { data: retryData, error: retryError } = await supabase
+          .from('workout_sessions')
+          .update(buildFeedbackPayload(feedback, false) as any)
+          .eq('id', sessionId)
+          .select()
+          .single();
+        if (retryError) throw retryError;
+        return retryData;
+      }
+      throw error;
+    }
     return data;
   },
 

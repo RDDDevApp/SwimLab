@@ -8,6 +8,7 @@ import {
   workoutSessionService,
 } from '../services';
 import type { SwimmerHistoryEntry } from '../services';
+import { presenceService, SessionPresence } from '../services/presenceService';
 import { Club, Group, WorkoutAssignment, WorkoutSession } from '../types';
 import { toISODate } from '../utils/dateHelpers';
 
@@ -178,6 +179,8 @@ export interface SwimmerDashboardData {
   history: SwimmerHistoryEntry[];
   pending: { sessionId: string; workoutTitle: string; scheduledDate: string }[];
   upcoming: SwimmerUpcomingWorkout[];
+  /** Declaration de presence du nageur pour la prochaine seance (migration 014) */
+  nextPresence: SessionPresence | null;
 }
 
 async function fetchSwimmerDashboard(
@@ -228,7 +231,18 @@ async function fetchSwimmerDashboard(
     }
   }
 
-  return { club, stats, history, pending, upcoming };
+  // Presence declaree pour la prochaine seance (renvoie [] si migration 014 absente)
+  let nextPresence: SessionPresence | null = null;
+  if (upcoming.length > 0) {
+    try {
+      const declarations = await presenceService.getBySwimmer(swimmerId, [
+        upcoming[0].assignment.id,
+      ]);
+      nextPresence = declarations[0] || null;
+    } catch {}
+  }
+
+  return { club, stats, history, pending, upcoming, nextPresence };
 }
 
 export function useSwimmerDashboard(swimmerId: string | undefined, clubId: string | null) {

@@ -11,6 +11,7 @@ import {
   notificationService,
   profileService,
 } from '../../services';
+import { presenceService, SessionPresence } from '../../services/presenceService';
 import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
 
@@ -27,6 +28,7 @@ export default function AttendanceScreen({ navigation, route }: Props) {
   const [swimmers, setSwimmers] = useState<Profile[]>([]);
   const [guestSwimmers, setGuestSwimmers] = useState<Profile[]>([]);
   const [attendedIds, setAttendedIds] = useState<Set<string>>(new Set());
+  const [presenceMap, setPresenceMap] = useState<Record<string, SessionPresence>>({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -51,8 +53,21 @@ export default function AttendanceScreen({ navigation, route }: Props) {
       ]);
       setSwimmers(members);
       setCoaches(groupCoaches);
-      // All checked by default
-      setAttendedIds(new Set(members.map((m) => m.id)));
+
+      // Pre-remplissage depuis les presences declarees (migration 014) :
+      // tout le monde coche par defaut, sauf les absences signalees
+      let declared: SessionPresence[] = [];
+      try {
+        declared = await presenceService.getByAssignment(assignmentId);
+      } catch {}
+      const map: Record<string, SessionPresence> = {};
+      for (const p of declared) map[p.swimmer_id] = p;
+      setPresenceMap(map);
+
+      const absentIds = new Set(
+        declared.filter((p) => p.status === 'absent').map((p) => p.swimmer_id),
+      );
+      setAttendedIds(new Set(members.map((m) => m.id).filter((id) => !absentIds.has(id))));
       // Pre-select current user as coach if they are a coach of the group
       if (user && groupCoaches.some((c) => c.id === user.id)) {
         setSelectedCoachId(user.id);
@@ -230,6 +245,18 @@ export default function AttendanceScreen({ navigation, route }: Props) {
                 <Text variant="bodyLarge" style={styles.swimmerName}>
                   {item.first_name} {item.last_name}
                 </Text>
+                {presenceMap[item.id]?.status === 'absent' && (
+                  <Chip compact style={styles.declaredAbsentChip} textStyle={styles.declaredAbsentText}>
+                    {presenceMap[item.id].reason
+                      ? `Absent · ${presenceMap[item.id].reason}`
+                      : 'Absence signalee'}
+                  </Chip>
+                )}
+                {presenceMap[item.id]?.status === 'present' && (
+                  <Chip compact style={styles.declaredPresentChip} textStyle={styles.declaredPresentText}>
+                    Confirme
+                  </Chip>
+                )}
                 {isGuest && (
                   <Chip compact style={styles.guestChip} onClose={() => removeGuest(item.id)}>
                     Invite
@@ -383,6 +410,20 @@ const styles = StyleSheet.create({
   },
   guestChip: {
     backgroundColor: '#FEF3C7',
+  },
+  declaredAbsentChip: {
+    backgroundColor: '#FEE2E2',
+  },
+  declaredAbsentText: {
+    color: '#991B1B',
+    fontSize: 11,
+  },
+  declaredPresentChip: {
+    backgroundColor: '#D1FAE5',
+  },
+  declaredPresentText: {
+    color: '#065F46',
+    fontSize: 11,
   },
   footer: {
     padding: 16,
