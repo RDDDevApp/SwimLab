@@ -9,6 +9,10 @@ import FeedbackScreen from '../screens/swimmer/FeedbackScreen';
 import WorkoutDetailScreen from '../screens/swimmer/WorkoutDetailScreen';
 import SwimmerHistoryScreen from '../screens/swimmer/SwimmerHistoryScreen';
 import SessionDetailModal from '../screens/swimmer/SessionDetailModal';
+import JoinClubScreen from '../screens/onboarding/JoinClubScreen';
+import CreateWorkoutScreen from '../screens/coach/CreateWorkoutScreen';
+import GenerateWorkoutScreen from '../screens/shared/GenerateWorkoutScreen';
+import UIKitScreen from '../screens/dev/UIKitScreen';
 import GlassTabBar from '../components/GlassTabBar';
 import { SwimmerTabParamList, SwimmerStackParamList } from '../types';
 
@@ -58,6 +62,10 @@ export default function SwimmerNavigator() {
         }}
       />
       <Stack.Screen name="SwimmerHistory" component={SwimmerHistoryScreen} />
+      <Stack.Screen name="JoinClub" component={JoinClubScreen} />
+      <Stack.Screen name="CreateWorkout" component={CreateWorkoutScreen} />
+      <Stack.Screen name="GenerateWorkout" component={GenerateWorkoutScreen} />
+      {__DEV__ && <Stack.Screen name="UIKit" component={UIKitScreen} />}
     </Stack.Navigator>
   );
 }

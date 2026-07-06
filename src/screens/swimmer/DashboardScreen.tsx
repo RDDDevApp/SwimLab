@@ -1,6 +1,17 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { View, StyleSheet, ScrollView, RefreshControl, Pressable, Dimensions } from 'react-native';
-import { Text, Avatar, ActivityIndicator, IconButton } from 'react-native-paper';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { View, StyleSheet, ScrollView, RefreshControl, Pressable } from 'react-native';
+import {
+  Text,
+  Avatar,
+  ActivityIndicator,
+  IconButton,
+  Chip,
+  Portal,
+  Dialog,
+  TextInput,
+  Button,
+} from 'react-native-paper';
+import { useQueryClient } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
 import GradientScreen from '../../components/GradientScreen';
 import AnimatedBackground from '../../components/AnimatedBackground';
@@ -8,29 +19,32 @@ import HeroCard from '../../components/HeroCard';
 import QuickActionCard from '../../components/QuickActionCard';
 import WeeklyBarChart from '../../components/WeeklyBarChart';
 import GlassCard from '../../components/GlassCard';
-import { useFocusEffect } from '@react-navigation/native';
+import SectionHeader from '../../components/SectionHeader';
+import LoadingSkeleton from '../../components/LoadingSkeleton';
 import { useAuthStore } from '../../stores/authStore';
 import { HERO_GRADIENTS } from '../../config/gradients';
+import { getRPEColor } from '../../config/theme';
+import XPBar from '../../components/XPBar';
+import StreakFlame from '../../components/StreakFlame';
+import RPESlider from '../../components/RPESlider';
 import {
-  groupService,
-  trainingSlotService,
-  workoutAssignmentService,
-  workoutSessionService,
-  workoutService,
-  clubService,
-} from '../../services';
+  useSwimmerDashboard,
+  useRefreshOnFocus,
+  useGamification,
+  useSoloDashboard,
+  usePlanSoloSession,
+  useCompleteSoloSession,
+  useDeleteSoloSession,
+} from '../../hooks';
+import type { SwimmerUpcomingWorkout } from '../../hooks';
+import type { GamificationStats } from '../../services/gamificationService';
 import type { SwimmerHistoryEntry } from '../../services';
-import { WorkoutAssignment, WorkoutSession, Club } from '../../types';
-import { toISODate, formatShortDate } from '../../utils/dateHelpers';
+import { presenceService, SessionPresence } from '../../services/presenceService';
+import { useSnackbarStore } from '../../stores/snackbarStore';
+import { Club } from '../../types';
+import { formatShortDate, toISODate } from '../../utils/dateHelpers';
 
-interface UpcomingWorkout {
-  assignment: WorkoutAssignment;
-  workoutTitle: string;
-  workoutType: string;
-  totalDistance: number | null;
-  slotName: string;
-  session: WorkoutSession | null;
-}
+type UpcomingWorkout = SwimmerUpcomingWorkout;
 
 interface Achievements {
   totalKm: number;
@@ -81,8 +95,104 @@ function computeAchievements(history: SwimmerHistoryEntry[]): Achievements {
   return { totalKm, totalSessions, currentStreak };
 }
 
+interface WeekChart {
+  data: number[];
+  totalKm: number;
+}
+
+/** Distances nagees par jour (lun-dim) de la semaine courante, en % du max pour le chart */
+function computeWeekChart(history: SwimmerHistoryEntry[]): WeekChart {
+  const now = new Date();
+  const monday = new Date(now);
+  const dayIdx = (now.getDay() + 6) % 7; // lundi = 0
+  monday.setDate(now.getDate() - dayIdx);
+  monday.setHours(0, 0, 0, 0);
+
+  const distances = [0, 0, 0, 0, 0, 0, 0];
+  for (const entry of history) {
+    if (!entry.attended || !entry.totalDistance) continue;
+    const d = new Date(entry.scheduledDate + 'T00:00:00');
+    const diff = Math.floor((d.getTime() - monday.getTime()) / 86400000);
+    if (diff >= 0 && diff < 7) {
+      distances[diff] += entry.totalDistance;
+    }
+  }
+
+  const max = Math.max(...distances);
+  const totalKm = distances.reduce((a, b) => a + b, 0) / 1000;
+  return {
+    data: max > 0 ? distances.map((d) => Math.round((d / max) * 100)) : distances,
+    totalKm,
+  };
+}
+
 /* ─── Solo Dashboard Content ─── */
-function SoloDashboardContent({ navigation, profile }: { navigation: any; profile: any }) {
+function SoloDashboardContent({
+  navigation,
+  profile,
+  user,
+  gamification,
+}: {
+  navigation: any;
+  profile: any;
+  user: any;
+  gamification: GamificationStats;
+}) {
+  const showSnackbar = useSnackbarStore((s) => s.show);
+  const { data } = useSoloDashboard(user?.id);
+  const planMutation = usePlanSoloSession(user?.id);
+  const completeMutation = useCompleteSoloSession();
+  const deleteMutation = useDeleteSoloSession();
+
+  // Dialog planification (chips de dates rapides)
+  const [planTarget, setPlanTarget] = useState<string | null>(null); // workoutId
+  // Dialog completion (RPE + commentaire)
+  const [completeTarget, setCompleteTarget] = useState<string | null>(null); // sessionId
+  const [rpe, setRpe] = useState(13);
+  const [comment, setComment] = useState('');
+
+  const workouts = data?.workouts ?? [];
+  const upcoming = data?.upcoming ?? [];
+  const nextSession = upcoming[0] || null;
+
+  const quickDates = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(Date.now() + i * 86400000);
+    return {
+      iso: toISODate(d),
+      label: i === 0 ? "Aujourd'hui" : i === 1 ? 'Demain' : formatShortDate(d),
+    };
+  });
+
+  const handlePlan = async (date: string) => {
+    if (!planTarget) return;
+    try {
+      await planMutation.mutateAsync({ workoutId: planTarget, date });
+      showSnackbar('Seance planifiee !', 'success');
+    } catch (err: any) {
+      showSnackbar(err.message || 'Erreur', 'error');
+    } finally {
+      setPlanTarget(null);
+    }
+  };
+
+  const handleComplete = async () => {
+    if (!completeTarget) return;
+    try {
+      await completeMutation.mutateAsync({
+        sessionId: completeTarget,
+        rpe,
+        comment: comment.trim() || undefined,
+      });
+      showSnackbar('Bien joue ! Seance validee +70 XP', 'success');
+    } catch (err: any) {
+      showSnackbar(err.message || 'Erreur', 'error');
+    } finally {
+      setCompleteTarget(null);
+      setRpe(13);
+      setComment('');
+    }
+  };
+
   return (
     <>
       {/* Header */}
@@ -90,11 +200,13 @@ function SoloDashboardContent({ navigation, profile }: { navigation: any; profil
         <View style={{ flex: 1 }}>
           <View style={styles.brandPill}>
             <Ionicons name="water-outline" size={14} color="#0D9488" />
-            <Text style={[styles.brandText, { color: '#0D9488' }]}>SwimMaster</Text>
+            <Text style={[styles.brandText, { color: '#0D9488' }]}>SwimLab</Text>
           </View>
           <Text style={styles.greeting}>Bonjour, {profile?.first_name}</Text>
           <Text style={styles.subtitle}>
-            Pret a nager ? Ton objectif hebdomadaire est atteint a 65%.
+            {nextSession
+              ? 'Ta prochaine seance t\'attend.'
+              : 'Cree ta seance et va nager !'}
           </Text>
         </View>
         <Avatar.Text
@@ -104,103 +216,225 @@ function SoloDashboardContent({ navigation, profile }: { navigation: any; profil
         />
       </View>
 
-      {/* Hero Card - AI Recommendation */}
-      <HeroCard
-        gradientColors={HERO_GRADIENTS.solo.colors}
-        badge={{ icon: 'sparkles-outline', text: 'Suggestion IA' }}
-        title="Seance Pyramide - 2000m"
-        subtitle="Base sur ta derniere seance de vitesse, voici un programme adapte."
-        stats={[
-          { label: 'Duree estimee', value: '55 min' },
-          { label: 'Calories', value: '~650 kcal' },
-        ]}
-        primaryAction={{ label: 'Demarrer la seance', icon: 'play-outline', onPress: () => {} }}
-        secondaryAction={{ label: 'Personnaliser', icon: 'settings-outline', onPress: () => {} }}
-      />
+      {/* Progression solo */}
+      {gamification.totalSessions > 0 && (
+        <GlassCard>
+          <View style={styles.gamifRow}>
+            <View style={{ flex: 1 }}>
+              <XPBar
+                currentXP={gamification.levelInfo.currentXP}
+                nextLevelXP={gamification.levelInfo.nextLevelXP}
+                level={gamification.levelInfo.level}
+              />
+            </View>
+            <StreakFlame count={gamification.streakWeeks} label="sem." />
+          </View>
+        </GlassCard>
+      )}
+
+      {/* Hero : prochaine seance planifiee ou CTA creation */}
+      {nextSession ? (
+        <HeroCard
+          gradientColors={HERO_GRADIENTS.solo.colors}
+          badge={{
+            icon: 'time-outline',
+            text: formatShortDate(new Date(nextSession.scheduled_date + 'T00:00:00')),
+          }}
+          title={nextSession.workoutTitle}
+          subtitle="Seance personnelle planifiee"
+          stats={
+            nextSession.totalDistance
+              ? [{ label: 'Volume', value: `${nextSession.totalDistance}m` }]
+              : undefined
+          }
+          primaryAction={{
+            label: "C'est fait !",
+            icon: 'checkmark-outline',
+            onPress: () => setCompleteTarget(nextSession.id),
+          }}
+          secondaryAction={{
+            label: 'Voir le programme',
+            icon: 'reader-outline',
+            onPress: () =>
+              navigation.navigate('WorkoutDetail', {
+                workoutId: nextSession.workout_id,
+                workoutTitle: nextSession.workoutTitle,
+              }),
+          }}
+        />
+      ) : (
+        <HeroCard
+          gradientColors={HERO_GRADIENTS.solo.colors}
+          badge={{ icon: 'rocket-outline', text: 'Mode Solo' }}
+          title="Cree ta premiere seance"
+          subtitle="Construis-la toi-meme ou laisse le coach IA la generer pour toi."
+          primaryAction={{
+            label: 'Coach IA',
+            icon: 'sparkles-outline',
+            onPress: () => navigation.navigate('GenerateWorkout'),
+          }}
+          secondaryAction={{
+            label: 'Creer moi-meme',
+            icon: 'construct-outline',
+            onPress: () => navigation.navigate('CreateWorkout'),
+          }}
+        />
+      )}
 
       {/* Quick Actions */}
       <View style={styles.quickActionsGrid}>
         <QuickActionCard
           title="Nouvelle Seance"
-          subtitle="Creer un workout"
-          icon="timer-outline"
+          subtitle="Editeur manuel"
+          icon="construct-outline"
           iconColor="#0D9488"
-          onPress={() => {}}
+          onPress={() => navigation.navigate('CreateWorkout')}
           delay={500}
         />
         <QuickActionCard
-          title="Programmes"
-          subtitle="Plans d'entrainement"
-          icon="map-outline"
-          iconColor="#6366F1"
-          onPress={() => {}}
+          title="Coach IA"
+          subtitle="Generer une seance"
+          icon="sparkles-outline"
+          iconColor="#7C3AED"
+          onPress={() => navigation.navigate('GenerateWorkout')}
           delay={600}
         />
         <QuickActionCard
           title="Statistiques"
           subtitle="Mes performances"
           icon="pulse-outline"
-          iconColor="#06B6D4"
+          iconColor="#0891B2"
           onPress={() => navigation.navigate('SwimmerTabs', { screen: 'Stats' })}
           delay={700}
         />
         <QuickActionCard
-          title="Defis"
-          subtitle="Challenges actifs"
-          icon="flame-outline"
-          iconColor="#F97316"
-          onPress={() => {}}
+          title="Historique"
+          subtitle="Seances passees"
+          icon="time-outline"
+          iconColor="#F59E0B"
+          onPress={() => navigation.navigate('SwimmerHistory')}
           delay={800}
         />
       </View>
 
-      {/* Weekly Bar Chart */}
-      <WeeklyBarChart
-        data={[0, 45, 0, 60, 0, 80, 0]}
-        activeColor="#0D9488"
-        title="Ma Semaine"
-        label="Total : 8.2 km (Objectif: 12 km)"
-      />
+      {/* Seances planifiees */}
+      {upcoming.length > 0 && (
+        <GlassCard elevated>
+          <SectionHeader title="Seances planifiees" />
+          {upcoming.map((session) => (
+            <View key={session.id} style={styles.soloSessionRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.soloSessionTitle} numberOfLines={1}>
+                  {session.workoutTitle}
+                </Text>
+                <Text style={styles.soloSessionDate}>
+                  {formatShortDate(new Date(session.scheduled_date + 'T00:00:00'))}
+                  {session.totalDistance ? ` · ${session.totalDistance}m` : ''}
+                </Text>
+              </View>
+              <Button
+                compact
+                mode="contained-tonal"
+                onPress={() => setCompleteTarget(session.id)}
+              >
+                Fait !
+              </Button>
+              <IconButton
+                icon="delete-outline"
+                size={18}
+                onPress={() => deleteMutation.mutate(session.id)}
+                style={{ margin: 0 }}
+              />
+            </View>
+          ))}
+        </GlassCard>
+      )}
 
-      {/* Records Card */}
+      {/* Mes seances (bibliotheque perso) */}
       <GlassCard elevated>
-        <Text style={styles.sectionTitle}>Mes Records</Text>
-
-        <View style={styles.recordItem}>
-          <View style={[styles.recordIcon, { backgroundColor: 'rgba(245, 158, 11, 0.15)' }]}>
-            <Ionicons name="trophy-outline" size={20} color="#F59E0B" />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.recordEvent}>100m Libre</Text>
-            <Text style={styles.recordDate}>28 Oct 2025</Text>
-          </View>
-          <Text style={styles.recordTime}>58.4s</Text>
-        </View>
-
-        <View style={styles.recordItem}>
-          <View style={[styles.recordIcon, { backgroundColor: 'rgba(99, 102, 241, 0.15)' }]}>
-            <Ionicons name="medal-outline" size={20} color="#6366F1" />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.recordEvent}>400m Libre</Text>
-            <Text style={styles.recordDate}>15 Sep 2025</Text>
-          </View>
-          <Text style={styles.recordTime}>4:42.0</Text>
-        </View>
-
-        {/* AI Tip */}
-        <View style={styles.aiTip}>
-          <Ionicons name="sparkles-outline" size={16} color="#6366F1" />
-          <Text style={styles.aiTipText}>
-            Ton 100m progresse de 2.3% ce mois-ci. Continue comme ca !
+        <SectionHeader title="Mes seances" />
+        {workouts.length === 0 ? (
+          <Text style={styles.soloEmptyText}>
+            Aucune seance pour l'instant — cree-en une ou genere-la avec le coach IA.
           </Text>
-        </View>
-
-        <Pressable style={styles.seeAllButton} onPress={() => {}}>
-          <Text style={styles.seeAllText}>Voir tous mes temps</Text>
-          <Ionicons name="chevron-forward-outline" size={16} color="#0D9488" />
-        </Pressable>
+        ) : (
+          workouts.map((w) => (
+            <View key={w.id} style={styles.soloSessionRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.soloSessionTitle} numberOfLines={1}>
+                  {w.title}
+                </Text>
+                {w.total_distance ? (
+                  <Text style={styles.soloSessionDate}>{w.total_distance}m</Text>
+                ) : null}
+              </View>
+              <Button compact mode="outlined" onPress={() => setPlanTarget(w.id)}>
+                Planifier
+              </Button>
+              <IconButton
+                icon="pencil-outline"
+                size={18}
+                onPress={() => navigation.navigate('CreateWorkout', { workout: w })}
+                style={{ margin: 0 }}
+              />
+            </View>
+          ))
+        )}
       </GlassCard>
+
+      {/* Rejoindre un club (discret, en bas) */}
+      <Pressable style={styles.historyButton} onPress={() => navigation.navigate('JoinClub')}>
+        <Ionicons name="people-outline" size={18} color="#64748b" />
+        <Text style={styles.historyButtonText}>J'ai un code club — rejoindre mon club</Text>
+        <Ionicons name="chevron-forward-outline" size={16} color="#94a3b8" />
+      </Pressable>
+
+      {/* Dialog planification */}
+      <Portal>
+        <Dialog visible={planTarget !== null} onDismiss={() => setPlanTarget(null)}>
+          <Dialog.Title>Planifier la seance</Dialog.Title>
+          <Dialog.Content>
+            <View style={styles.dateChipsRow}>
+              {quickDates.map((d) => (
+                <Button
+                  key={d.iso}
+                  compact
+                  mode="outlined"
+                  style={styles.dateChip}
+                  onPress={() => handlePlan(d.iso)}
+                >
+                  {d.label}
+                </Button>
+              ))}
+            </View>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setPlanTarget(null)}>Annuler</Button>
+          </Dialog.Actions>
+        </Dialog>
+
+        {/* Dialog completion (auto-emargement + feedback) */}
+        <Dialog visible={completeTarget !== null} onDismiss={() => setCompleteTarget(null)}>
+          <Dialog.Title>Seance terminee !</Dialog.Title>
+          <Dialog.Content>
+            <Text style={styles.soloSessionDate}>Effort percu (RPE)</Text>
+            <RPESlider value={rpe} onChange={setRpe} />
+            <TextInput
+              label="Commentaire (optionnel)"
+              value={comment}
+              onChangeText={setComment}
+              mode="outlined"
+              style={{ marginTop: 12 }}
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setCompleteTarget(null)}>Annuler</Button>
+            <Button mode="contained" onPress={handleComplete} loading={completeMutation.isPending}>
+              Valider
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </>
   );
 }
@@ -215,6 +449,12 @@ function ClubDashboardContent({
   achievements,
   stats,
   pendingCount,
+  weekChart,
+  lastFeedbacks,
+  nextPresence,
+  onDeclarePresent,
+  onDeclareAbsent,
+  gamification,
 }: {
   navigation: any;
   profile: any;
@@ -224,8 +464,23 @@ function ClubDashboardContent({
   achievements: Achievements;
   stats: { total: number; attended: number; averageRpe: number | null };
   pendingCount: number;
+  weekChart: WeekChart;
+  lastFeedbacks: SwimmerHistoryEntry[];
+  nextPresence: SessionPresence | null;
+  onDeclarePresent: () => void;
+  onDeclareAbsent: () => void;
+  gamification: GamificationStats;
 }) {
   const nextWorkout = upcoming[0] || null;
+
+  // Etat de la declaration de presence pour la prochaine seance
+  const presenceAction = nextWorkout
+    ? nextPresence?.status === 'absent'
+      ? { label: 'Absence signalee — annuler', icon: 'refresh-outline' as const, onPress: onDeclarePresent }
+      : nextPresence?.status === 'present'
+        ? { label: 'Prevenir une absence', icon: 'close-circle-outline' as const, onPress: onDeclareAbsent }
+        : { label: 'Je serai present(e)', icon: 'checkmark-outline' as const, onPress: onDeclarePresent }
+    : null;
 
   return (
     <>
@@ -233,8 +488,8 @@ function ClubDashboardContent({
       <View style={styles.header}>
         <View style={{ flex: 1 }}>
           <View style={styles.brandPill}>
-            <Ionicons name="water-outline" size={14} color="#06B6D4" />
-            <Text style={[styles.brandText, { color: '#06B6D4' }]}>SwimMaster Athlete</Text>
+            <Ionicons name="water-outline" size={14} color="#0891B2" />
+            <Text style={[styles.brandText, { color: '#0891B2' }]}>SwimLab</Text>
           </View>
           <Text style={styles.greeting}>Salut, {profile?.first_name} !</Text>
           <Text style={styles.subtitle}>
@@ -247,6 +502,22 @@ function ClubDashboardContent({
           style={styles.avatar}
         />
       </View>
+
+      {/* Progression : niveau, XP, streak */}
+      {gamification.totalSessions > 0 && (
+        <GlassCard>
+          <View style={styles.gamifRow}>
+            <View style={{ flex: 1 }}>
+              <XPBar
+                currentXP={gamification.levelInfo.currentXP}
+                nextLevelXP={gamification.levelInfo.nextLevelXP}
+                level={gamification.levelInfo.level}
+              />
+            </View>
+            <StreakFlame count={gamification.streakWeeks} label="sem." />
+          </View>
+        </GlassCard>
+      )}
 
       {/* Pending feedback banner */}
       {pendingCount > 0 && (
@@ -297,7 +568,7 @@ function ClubDashboardContent({
                 workoutTitle: nextWorkout.workoutTitle,
               }),
           }}
-          secondaryAction={{ label: 'Je serai present(e)', icon: 'checkmark-outline', onPress: () => {} }}
+          secondaryAction={presenceAction ?? undefined}
         />
       ) : (
         <HeroCard
@@ -324,68 +595,77 @@ function ClubDashboardContent({
           delay={500}
         />
         <QuickActionCard
-          title="Objectifs"
-          subtitle="Mes cibles"
-          icon="flag-outline"
-          iconColor="#F43F5E"
-          onPress={() => {}}
-          delay={600}
-        />
-        <QuickActionCard
           title="Planning"
           subtitle="Mon calendrier"
           icon="calendar-outline"
           iconColor="#3B82F6"
           onPress={() => navigation.navigate('SwimmerTabs', { screen: 'Calendar' })}
+          delay={600}
+        />
+        <QuickActionCard
+          title="Historique"
+          subtitle="Seances passees"
+          icon="time-outline"
+          iconColor="#F59E0B"
+          onPress={() => navigation.navigate('SwimmerHistory')}
           delay={700}
         />
         <QuickActionCard
-          title="Mes Records"
-          subtitle="Meilleurs temps"
-          icon="medal-outline"
-          iconColor="#F59E0B"
-          onPress={() => {}}
+          title="Mon Profil"
+          subtitle="Club et reglages"
+          icon="person-outline"
+          iconColor="#F43F5E"
+          onPress={() => navigation.navigate('SwimmerTabs', { screen: 'Profile' })}
           delay={800}
         />
       </View>
 
-      {/* Weekly Bar Chart */}
+      {/* Weekly Bar Chart - vraies distances de la semaine */}
       <WeeklyBarChart
-        data={[40, 70, 0, 85, 60, 90, 30]}
-        activeColor="#06B6D4"
+        data={weekChart.data}
+        activeColor="#0891B2"
         title="Ma Semaine"
-        label={`Volume total : ${achievements.totalKm >= 10 ? Math.round(achievements.totalKm) : achievements.totalKm.toFixed(1)} km`}
+        label={`Volume cette semaine : ${weekChart.totalKm >= 10 ? Math.round(weekChart.totalKm) : weekChart.totalKm.toFixed(1)} km`}
       />
 
-      {/* Derniers Retours */}
-      <GlassCard elevated>
-        <Text style={styles.sectionTitle}>Derniers Retours</Text>
-
-        <View style={styles.feedbackItem}>
-          <View style={[styles.feedbackAvatar, { backgroundColor: 'rgba(6, 182, 212, 0.15)' }]}>
-            <Text style={{ fontWeight: '700', color: '#06B6D4', fontSize: 14 }}>CM</Text>
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.feedbackName}>Coach Martin</Text>
-            <Text style={styles.feedbackComment}>Excellente seance, bonne technique !</Text>
-          </View>
-        </View>
-
-        <View style={styles.feedbackItem}>
-          <View style={[styles.feedbackAvatar, { backgroundColor: 'rgba(245, 158, 11, 0.15)' }]}>
-            <Ionicons name="trophy-outline" size={18} color="#F59E0B" />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.feedbackName}>Nouveau Record !</Text>
-            <Text style={styles.feedbackComment}>100m Libre - 58.4s (+2.1%)</Text>
-          </View>
-        </View>
-
-        <Pressable style={styles.seeAllButton} onPress={() => {}}>
-          <Text style={[styles.seeAllText, { color: '#4F46E5' }]}>Voir tout l'historique</Text>
-          <Ionicons name="chevron-forward-outline" size={16} color="#4F46E5" />
-        </Pressable>
-      </GlassCard>
+      {/* Mes Derniers Retours — vrais feedbacks envoyes */}
+      {lastFeedbacks.length > 0 && (
+        <GlassCard elevated>
+          <SectionHeader
+            title="Mes Derniers Retours"
+            onAction={() => navigation.navigate('SwimmerHistory')}
+          />
+          {lastFeedbacks.map((entry) => (
+            <View key={entry.sessionId} style={styles.feedbackRow}>
+              <Chip
+                compact
+                style={[
+                  styles.feedbackRpeChip,
+                  { backgroundColor: getRPEColor(entry.rpeScore || 13) },
+                ]}
+                textStyle={styles.feedbackRpeText}
+              >
+                {entry.rpeScore}
+              </Chip>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.feedbackWorkout} numberOfLines={1}>
+                  {entry.workoutTitle}
+                </Text>
+                {entry.feedbackText ? (
+                  <Text style={styles.feedbackNote} numberOfLines={1}>
+                    "{entry.feedbackText}"
+                  </Text>
+                ) : null}
+              </View>
+              <Text style={styles.feedbackDate}>
+                {entry.scheduledDate
+                  ? formatShortDate(new Date(entry.scheduledDate + 'T00:00:00'))
+                  : ''}
+              </Text>
+            </View>
+          ))}
+        </GlassCard>
+      )}
 
       {/* History button */}
       {stats.total > 0 && (
@@ -405,155 +685,140 @@ function ClubDashboardContent({
 /* ─── Main Component ─── */
 export default function SwimmerDashboardScreen({ navigation }: Props) {
   const { profile, user, clubId } = useAuthStore();
-  const [upcoming, setUpcoming] = useState<UpcomingWorkout[]>([]);
-  const [club, setClub] = useState<Club | null>(null);
-  const [stats, setStats] = useState({ total: 0, attended: 0, averageRpe: null as number | null });
-  const [achievements, setAchievements] = useState<Achievements>({ totalKm: 0, totalSessions: 0, currentStreak: 0 });
-  const [pendingCount, setPendingCount] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const { data, isLoading, isRefetching, refetch } = useSwimmerDashboard(user?.id, clubId);
+  useRefreshOnFocus(refetch);
+  const queryClient = useQueryClient();
+  const showSnackbar = useSnackbarStore((s) => s.show);
+  // Les seances solo comptent aussi dans l'XP (fusionnees dans l'historique)
+  const gamification = useGamification(user?.id);
 
-  // Track if we've auto-prompted this focus cycle
-  const hasAutoPrompted = useRef(false);
+  // Declaration de presence pour la prochaine seance
+  const [absenceDialogVisible, setAbsenceDialogVisible] = useState(false);
+  const [absenceReason, setAbsenceReason] = useState('');
 
-  const loadData = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
+  const declarePresence = async (status: 'present' | 'absent', reason?: string) => {
+    const assignmentId = data?.upcoming[0]?.assignment.id;
+    if (!user || !assignmentId) return;
     try {
-      // Load club info
-      if (clubId) {
-        const clubData = await clubService.getById(clubId);
-        setClub(clubData);
-      }
-
-      // Load swimmer stats
-      const swimmerStats = await workoutSessionService.getSwimmerStats(user.id);
-      setStats(swimmerStats);
-
-      // Load history for achievements
-      const history = await workoutSessionService.getSwimmerHistory(user.id);
-      setAchievements(computeAchievements(history));
-
-      // Load pending feedback sessions
-      const pending = await workoutSessionService.getPendingFeedback(user.id);
-      setPendingCount(pending.length);
-
-      // Auto-prompt feedback for the oldest pending session
-      if (pending.length > 0 && !hasAutoPrompted.current) {
-        hasAutoPrompted.current = true;
-        // Small delay so the dashboard renders first
-        setTimeout(() => {
-          navigation.navigate('Feedback', {
-            sessionId: pending[0].sessionId,
-            workoutTitle: pending[0].workoutTitle,
-          });
-        }, 600);
-      }
-
-      // Load upcoming workouts (only for club swimmers)
-      if (clubId) {
-        const groups = await groupService.getBySwimmer(user.id);
-        if (!groups.length) {
-          setUpcoming([]);
-          return;
-        }
-
-        const allSlots = [];
-        for (const group of groups) {
-          const slots = await trainingSlotService.getByGroup(group.id);
-          allSlots.push(...slots);
-        }
-        if (!allSlots.length) {
-          setUpcoming([]);
-          return;
-        }
-
-        const today = new Date();
-        const in14Days = new Date();
-        in14Days.setDate(today.getDate() + 14);
-        const slotIds = allSlots.map((s) => s.id);
-        const assignments = await workoutAssignmentService.getByDateRange(
-          slotIds,
-          toISODate(today),
-          toISODate(in14Days),
-        );
-
-        const sessions = await workoutSessionService.getBySwimmer(user.id);
-
-        const enriched: UpcomingWorkout[] = [];
-        for (const assignment of assignments) {
-          const slot = allSlots.find((s) => s.id === assignment.training_slot_id);
-          let workoutTitle = 'Seance';
-          let workoutType = 'other';
-          let totalDistance: number | null = null;
-
-          try {
-            const workout = await workoutService.getById(assignment.workout_id);
-            workoutTitle = workout.title;
-            workoutType = workout.type || 'other';
-            totalDistance = workout.total_distance;
-          } catch {}
-
-          const session =
-            sessions.find((s) => s.workout_assignment_id === assignment.id) || null;
-
-          enriched.push({
-            assignment,
-            workoutTitle,
-            workoutType,
-            totalDistance,
-            slotName: slot?.name || '',
-            session,
-          });
-        }
-
-        // Show max 3 upcoming
-        setUpcoming(enriched.slice(0, 3));
-      }
-    } catch (err) {
-      console.error('Error loading swimmer dashboard:', err);
-    } finally {
-      setLoading(false);
+      await presenceService.declare(assignmentId, user.id, status, reason);
+      showSnackbar(
+        status === 'present' ? 'Presence confirmee !' : 'Absence signalee au coach',
+        'success',
+      );
+      queryClient.invalidateQueries({ queryKey: ['swimmer', 'dashboard'] });
+    } catch (err: any) {
+      showSnackbar(err.message || 'Erreur lors de la declaration', 'error');
     }
-  }, [user, clubId]);
+  };
 
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    hasAutoPrompted.current = false;
-    await loadData();
-    setRefreshing(false);
-  }, [loadData]);
+  const handleDeclareAbsent = () => {
+    setAbsenceReason('');
+    setAbsenceDialogVisible(true);
+  };
 
-  useFocusEffect(
-    useCallback(() => {
-      loadData();
-    }, [loadData]),
+  const confirmAbsence = async () => {
+    setAbsenceDialogVisible(false);
+    await declarePresence('absent', absenceReason);
+  };
+
+  // Auto-prompt feedback pour la plus ancienne session en attente
+  const hasAutoPrompted = useRef(false);
+  useEffect(() => {
+    const pending = data?.pending;
+    if (pending && pending.length > 0 && !hasAutoPrompted.current) {
+      hasAutoPrompted.current = true;
+      const timer = setTimeout(() => {
+        navigation.navigate('Feedback', {
+          sessionId: pending[0].sessionId,
+          workoutTitle: pending[0].workoutTitle,
+        });
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [data?.pending, navigation]);
+
+  const achievements = useMemo(
+    () => computeAchievements(data?.history ?? []),
+    [data?.history],
+  );
+  const weekChart = useMemo(() => computeWeekChart(data?.history ?? []), [data?.history]);
+  const lastFeedbacks = useMemo(
+    () =>
+      (data?.history ?? [])
+        .filter((h) => h.attended && h.rpeScore !== null)
+        .slice(0, 3),
+    [data?.history],
   );
 
   const isSolo = !clubId;
+
+  if (isLoading && !data) {
+    return (
+      <GradientScreen>
+        <AnimatedBackground variant={isSolo ? 'teal' : 'cyan'} />
+        <LoadingSkeleton variant="dashboard" />
+      </GradientScreen>
+    );
+  }
 
   return (
     <GradientScreen>
       <AnimatedBackground variant={isSolo ? 'teal' : 'cyan'} />
       <ScrollView
         contentContainerStyle={styles.content}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
       >
         {isSolo ? (
-          <SoloDashboardContent navigation={navigation} profile={profile} />
+          <SoloDashboardContent
+            navigation={navigation}
+            profile={profile}
+            user={user}
+            gamification={gamification}
+          />
         ) : (
           <ClubDashboardContent
             navigation={navigation}
             profile={profile}
-            club={club}
-            upcoming={upcoming}
-            loading={loading}
+            club={data?.club ?? null}
+            upcoming={data?.upcoming ?? []}
+            loading={isLoading}
             achievements={achievements}
-            stats={stats}
-            pendingCount={pendingCount}
+            stats={data?.stats ?? { total: 0, attended: 0, averageRpe: null }}
+            pendingCount={data?.pending.length ?? 0}
+            weekChart={weekChart}
+            lastFeedbacks={lastFeedbacks}
+            nextPresence={data?.nextPresence ?? null}
+            onDeclarePresent={() => declarePresence('present')}
+            onDeclareAbsent={handleDeclareAbsent}
+            gamification={gamification}
           />
         )}
       </ScrollView>
+
+      {/* Dialog raison d'absence */}
+      <Portal>
+        <Dialog
+          visible={absenceDialogVisible}
+          onDismiss={() => setAbsenceDialogVisible(false)}
+        >
+          <Dialog.Title>Prevenir une absence</Dialog.Title>
+          <Dialog.Content>
+            <TextInput
+              label="Raison (optionnel)"
+              placeholder="Ex: malade, examen, deplacement..."
+              value={absenceReason}
+              onChangeText={setAbsenceReason}
+              mode="outlined"
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setAbsenceDialogVisible(false)}>Annuler</Button>
+            <Button mode="contained" onPress={confirmAbsence}>
+              Signaler
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </GradientScreen>
   );
 }
@@ -622,93 +887,70 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 12,
   },
-  // Section
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1e293b',
-    marginBottom: 16,
-  },
-  // Feedback items
-  feedbackItem: {
+  // Gamification
+  gamifRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginBottom: 14,
+    gap: 16,
   },
-  feedbackAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  // Derniers retours
+  feedbackRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 10,
+    marginBottom: 12,
   },
-  feedbackName: {
-    fontSize: 14,
+  feedbackRpeChip: {
+    height: 26,
+  },
+  feedbackRpeText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  feedbackWorkout: {
+    fontSize: 13,
     fontWeight: '600',
     color: '#1e293b',
   },
-  feedbackComment: {
+  feedbackNote: {
     fontSize: 12,
     color: '#64748b',
     marginTop: 1,
   },
-  // Records
-  recordItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginBottom: 14,
+  feedbackDate: {
+    fontSize: 11,
+    color: '#94a3b8',
   },
-  recordIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  recordEvent: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1e293b',
-  },
-  recordDate: {
-    fontSize: 12,
-    color: '#64748b',
-  },
-  recordTime: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#1e293b',
-  },
-  // AI tip
-  aiTip: {
+  // Solo
+  soloSessionRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(99, 102, 241, 0.08)',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
+    marginBottom: 10,
   },
-  aiTipText: {
-    flex: 1,
-    fontSize: 12,
-    color: '#6366F1',
-    fontWeight: '500',
-  },
-  // See all button
-  seeAllButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-    paddingVertical: 8,
-  },
-  seeAllText: {
+  soloSessionTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#0D9488',
+    color: '#1e293b',
+  },
+  soloSessionDate: {
+    fontSize: 12,
+    color: '#64748b',
+    marginTop: 1,
+  },
+  soloEmptyText: {
+    fontSize: 13,
+    color: '#64748b',
+    fontStyle: 'italic',
+  },
+  dateChipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  dateChip: {
+    marginBottom: 4,
   },
   // History
   historyButton: {

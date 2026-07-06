@@ -34,7 +34,7 @@ export type CoachStackParamList = {
   GroupDetail: { groupId: string };
   Slots: { groupId?: string } | undefined;
   CreateSlot: { groupId?: string; slot?: any } | undefined;
-  CreateWorkout: { workout?: any; clubId?: string } | undefined;
+  CreateWorkout: { workout?: any; clubId?: string; prefill?: { title: string; description: string; content: any } } | undefined;
   AssignWorkout: { slotId: string; slotName: string; date: string };
   Attendance: { assignmentId: string; groupId: string; workoutTitle?: string };
   WorkoutStats: { assignmentId: string; workoutTitle?: string };
@@ -48,6 +48,8 @@ export type CoachStackParamList = {
   WorkoutDetail: { workoutId: string };
   BlockLibrary: undefined;
   WorkoutHistory: undefined;
+  GenerateWorkout: undefined;
+  UIKit: undefined;
 };
 
 export type SwimmerStackParamList = {
@@ -63,6 +65,10 @@ export type SwimmerStackParamList = {
     session: WorkoutSession | null;
   };
   SwimmerHistory: undefined;
+  JoinClub: undefined;
+  CreateWorkout: { workout?: any; prefill?: { title: string; description: string; content: any } } | undefined;
+  GenerateWorkout: undefined;
+  UIKit: undefined;
 };
 
 export type SwimmerTabParamList = {

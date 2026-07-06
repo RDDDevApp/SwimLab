@@ -35,6 +35,8 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
   const { user, clubId: storeClubId } = useAuthStore();
   const showSnackbar = useSnackbarStore((s) => s.show);
   const editingWorkout = route?.params?.workout;
+  // Pre-remplissage (generation IA) : { title, description, content }
+  const prefill = route?.params?.prefill;
 
   const defaultBlocks: WorkoutBlock[] = [
     { id: generateId(), type: 'warmup', name: 'Echauffement', sub_blocks: [] },
@@ -42,13 +44,16 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
     { id: generateId(), type: 'cooldown', name: 'Recuperation', sub_blocks: [] },
   ];
 
-  const [title, setTitle] = useState(editingWorkout?.title || '');
+  const [title, setTitle] = useState(editingWorkout?.title || prefill?.title || '');
   const [description, setDescription] = useState(
-    editingWorkout?.description || '',
+    editingWorkout?.description || prefill?.description || '',
   );
   const [blocks, setBlocks] = useState<WorkoutBlock[]>(() => {
     if (editingWorkout?.content) {
       return migrateWorkoutContent(editingWorkout.content).blocks;
+    }
+    if (prefill?.content) {
+      return migrateWorkoutContent(prefill.content).blocks;
     }
     return defaultBlocks;
   });
@@ -124,6 +129,10 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
   };
 
   const handleOpenImport = (blockIndex: number) => {
+    if (!clubId) {
+      showSnackbar('Bibliotheque de blocs indisponible en mode solo', 'info');
+      return;
+    }
     setImportTargetIndex(blockIndex);
   };
 
@@ -282,7 +291,7 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
 
       <BlockPickerModal
         visible={importTargetIndex !== null}
-        clubId={clubId}
+        clubId={clubId || ''}
         onDismiss={() => setImportTargetIndex(null)}
         onSelect={handleImportBlock}
       />

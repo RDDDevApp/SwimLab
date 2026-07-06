@@ -13,6 +13,8 @@ import {
 } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 import { getWeekDates, formatWeekRange, toISODate, formatShortDate, isToday, getDayOfWeek, formatTime } from '../../utils/dateHelpers';
+import { WORKOUT_TYPE_COLORS } from '../../config/tokens';
+import AnimatedCountdown from '../../components/AnimatedCountdown';
 
 interface EnrichedAssignment {
   assignment: WorkoutAssignment;
@@ -50,11 +52,8 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
         return;
       }
 
-      const allSlots: TrainingSlot[] = [];
-      for (const group of groups) {
-        const groupSlots = await trainingSlotService.getByGroup(group.id);
-        allSlots.push(...groupSlots);
-      }
+      // Creneaux de tous les groupes en 1 requete (anti N+1)
+      const allSlots = await trainingSlotService.getByGroups(groups.map((g) => g.id));
       setSlots(allSlots);
 
       if (!allSlots.length) {
@@ -96,20 +95,19 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
         console.error('Session fetch error:', sessErr);
       }
 
+      // Workouts en batch (anti N+1)
+      const workoutIds = [...new Set(assignments.map((a) => a.workout_id))];
+      let workoutById = new Map<string, { title: string; type: string | null; total_distance: number | null }>();
+      try {
+        const workouts = await workoutService.getByIds(workoutIds);
+        workoutById = new Map(workouts.map((w) => [w.id, w]));
+      } catch {}
+
       const enriched: EnrichedAssignment[] = [];
       for (const assignment of assignments) {
         const slot = allSlots.find((s) => s.id === assignment.training_slot_id);
         if (!slot) continue;
-        let workoutTitle = 'Seance';
-        let workoutType = 'other';
-        let totalDistance: number | null = null;
-
-        try {
-          const workout = await workoutService.getById(assignment.workout_id);
-          workoutTitle = workout.title;
-          workoutType = workout.type || 'other';
-          totalDistance = workout.total_distance;
-        } catch {}
+        const workout = workoutById.get(assignment.workout_id);
 
         const session = sessions.find(
           (s) => s.workout_assignment_id === assignment.id,
@@ -117,9 +115,9 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
 
         enriched.push({
           assignment,
-          workoutTitle,
-          workoutType,
-          totalDistance,
+          workoutTitle: workout?.title || 'Seance',
+          workoutType: workout?.type || 'other',
+          totalDistance: workout?.total_distance ?? null,
           slotName: slot.name,
           slot,
           session,
@@ -243,6 +241,14 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
 
                   if (item) {
                     const dot = getStatusDot(item);
+                    const typeCfg =
+                      WORKOUT_TYPE_COLORS[item.workoutType] || WORKOUT_TYPE_COLORS.other;
+                    const isUpcomingToday = today && dot.label === 'A venir';
+                    const sessionStart = isUpcomingToday
+                      ? new Date(
+                          `${item.assignment.scheduled_date}T${item.slot.start_time || '00:00'}`,
+                        )
+                      : null;
                     return (
                       <Pressable
                         key={slot.id}
@@ -276,6 +282,11 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
                           {item.workoutTitle}
                         </Text>
                         <View style={styles.chipRow}>
+                          <View style={[styles.typeChip, { backgroundColor: typeCfg.bg }]}>
+                            <Text style={[styles.typeChipText, { color: typeCfg.color }]}>
+                              {typeCfg.label}
+                            </Text>
+                          </View>
                           {item.totalDistance ? (
                             <View style={styles.typeChip}>
                               <Text style={styles.typeChipText}>
@@ -283,6 +294,11 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
                               </Text>
                             </View>
                           ) : null}
+                          {sessionStart && (
+                            <View style={[styles.typeChip, styles.countdownChip]}>
+                              <AnimatedCountdown target={sessionStart} color="#ec4899" />
+                            </View>
+                          )}
                         </View>
                       </Pressable>
                     );
@@ -453,5 +469,8 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#0891b2',
     fontWeight: '500',
+  },
+  countdownChip: {
+    backgroundColor: 'rgba(219, 39, 119, 0.10)',
   },
 });

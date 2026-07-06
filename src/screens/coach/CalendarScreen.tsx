@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { Text, IconButton, SegmentedButtons } from 'react-native-paper';
+import { Text, IconButton } from 'react-native-paper';
+import SegmentedToggle from '../../components/SegmentedToggle';
 import GradientScreen from '../../components/GradientScreen';
 import { useFocusEffect } from '@react-navigation/native';
 import { TrainingSlot, WorkoutAssignment } from '../../types';
@@ -59,14 +60,15 @@ export default function CalendarScreen({ navigation }: Props) {
         );
         setAssignments(rangeAssignments);
 
+        // Titres des workouts en 1 requete (anti N+1)
         const uniqueWorkoutIds = [...new Set(rangeAssignments.map((a) => a.workout_id))];
         const titles: Record<string, string> = {};
-        for (const wId of uniqueWorkoutIds) {
-          try {
-            const workout = await workoutService.getById(wId);
-            titles[wId] = workout.title;
-          } catch {}
-        }
+        try {
+          const workouts = await workoutService.getByIds(uniqueWorkoutIds);
+          for (const w of workouts) {
+            titles[w.id] = w.title;
+          }
+        } catch {}
         setWorkoutTitles(titles);
 
         const markedIds = rangeAssignments
@@ -138,16 +140,13 @@ export default function CalendarScreen({ navigation }: Props) {
           <Text variant="headlineMedium" style={styles.title}>
             Calendrier
           </Text>
-          <SegmentedButtons
-            value={viewMode}
-            onValueChange={(v) => setViewMode(v as ViewMode)}
-            density="small"
-            style={styles.segmented}
-            buttons={[
-              { value: 'week', label: 'Sem', style: styles.segBtn },
-              { value: 'month', label: 'Mois', style: styles.segBtn },
-            ]}
-          />
+          <View style={styles.segmented}>
+            <SegmentedToggle
+              options={['Semaine', 'Mois']}
+              selectedIndex={viewMode === 'week' ? 0 : 1}
+              onChange={(i) => setViewMode(i === 0 ? 'week' : 'month')}
+            />
+          </View>
         </View>
         <View style={styles.weekNav}>
           <IconButton icon="chevron-left" onPress={goToPrev} />
@@ -230,10 +229,7 @@ const styles = StyleSheet.create({
     color: '#1e293b',
   },
   segmented: {
-    maxWidth: 160,
-  },
-  segBtn: {
-    minWidth: 60,
+    width: 170,
   },
   weekNav: {
     flexDirection: 'row',

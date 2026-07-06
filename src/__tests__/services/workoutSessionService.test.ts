@@ -47,6 +47,39 @@ describe('workoutSessionService', () => {
     });
   });
 
+  describe('updateFeedback (fenetre 24h)', () => {
+    it('should allow editing feedback submitted less than 24h ago', async () => {
+      const twoHoursAgo = new Date(Date.now() - 2 * 3600000).toISOString();
+      const readBuilder = createMockQueryBuilder({
+        data: { completed_at: twoHoursAgo },
+        error: null,
+      });
+      const updateBuilder = createMockQueryBuilder({
+        data: { id: 's1', rpe_score: 15 },
+        error: null,
+      });
+      mockFrom.mockReturnValueOnce(readBuilder).mockReturnValueOnce(updateBuilder);
+
+      const result = await workoutSessionService.updateFeedback('s1', { rpe_score: 15 });
+
+      expect(result.rpe_score).toBe(15);
+      expect(updateBuilder.update).toHaveBeenCalled();
+    });
+
+    it('should reject editing feedback submitted more than 24h ago', async () => {
+      const twoDaysAgo = new Date(Date.now() - 48 * 3600000).toISOString();
+      const readBuilder = createMockQueryBuilder({
+        data: { completed_at: twoDaysAgo },
+        error: null,
+      });
+      mockFrom.mockReturnValue(readBuilder);
+
+      await expect(
+        workoutSessionService.updateFeedback('s1', { rpe_score: 15 }),
+      ).rejects.toThrow('La modification du feedback est limitee a 24h apres envoi');
+    });
+  });
+
   describe('bulkCreateAttendance', () => {
     it('should create sessions for all swimmers with correct attended status', async () => {
       const sessions = [

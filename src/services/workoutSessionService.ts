@@ -11,7 +11,29 @@ type SessionInsert = {
 type FeedbackData = {
   rpe_score: number;
   feedback_text?: string;
+  /** Fatigue musculaire 1-5 (optionnel, migration 013) */
+  fatigue_score?: number | null;
+  /** Sensation technique 1-5 (optionnel, migration 013) */
+  technique_score?: number | null;
 };
+
+/** Payload d'update feedback ; retire les champs v2 si la migration 013 n'est pas appliquee */
+function buildFeedbackPayload(feedback: FeedbackData, includeV2: boolean) {
+  const payload: Record<string, unknown> = {
+    rpe_score: feedback.rpe_score,
+    feedback_text: feedback.feedback_text ?? null,
+    completed_at: new Date().toISOString(),
+  };
+  if (includeV2) {
+    if (feedback.fatigue_score !== undefined) payload.fatigue_score = feedback.fatigue_score;
+    if (feedback.technique_score !== undefined) payload.technique_score = feedback.technique_score;
+  }
+  return payload;
+}
+
+function isMissingColumnError(err: any): boolean {
+  return typeof err?.message === 'string' && err.message.includes('column');
+}
 
 export interface SessionWithProfile extends WorkoutSession {
   swimmer_name?: string;
@@ -85,6 +107,94 @@ export const workoutSessionService = {
     return data;
   },
 
+  /** Sessions de plusieurs assignments en une requete (anti N+1) */
+  async getByAssignments(assignmentIds: string[]): Promise<WorkoutSession[]> {
+    if (!assignmentIds.length) return [];
+
+    const { data, error } = await supabase
+      .from('workout_sessions')
+      .select('*')
+      .in('workout_assignment_id', assignmentIds);
+
+    if (error) throw error;
+    return data;
+  },
+
+  /** Activite recente des groupes d'un coach : derniers feedbacks recus.
+   *  1 requete via embeds (sessions -> profiles + assignments -> workouts/slots),
+   *  filtree par groupe via !inner join. */
+  async getRecentActivityByGroups(
+    groupIds: string[],
+    limit = 10,
+  ): Promise<
+    {
+      sessionId: string;
+      swimmerName: string;
+      rpeScore: number | null;
+      feedbackText: string | null;
+      workoutTitle: string;
+      scheduledDate: string;
+      completedAt: string;
+    }[]
+  > {
+    if (!groupIds.length) return [];
+
+    const { data, error } = await supabase
+      .from('workout_sessions')
+      .select(
+        'id, rpe_score, feedback_text, completed_at, profiles!swimmer_id(first_name, last_name), workout_assignments!inner(scheduled_date, workouts!workout_id(title), training_slots!inner(group_id))',
+      )
+      .in('workout_assignments.training_slots.group_id', groupIds)
+      .not('completed_at', 'is', null)
+      .order('completed_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+
+    return (data as any[]).map((s) => ({
+      sessionId: s.id,
+      swimmerName: s.profiles
+        ? `${s.profiles.first_name || ''} ${s.profiles.last_name || ''}`.trim()
+        : 'Nageur',
+      rpeScore: s.rpe_score,
+      feedbackText: s.feedback_text,
+      workoutTitle: s.workout_assignments?.workouts?.title || 'Seance',
+      scheduledDate: s.workout_assignments?.scheduled_date || '',
+      completedAt: s.completed_at,
+    }));
+  },
+
+  /** Feedbacks RPE des groupes d'un coach sur une fenetre glissante
+   *  (pour les alertes de surcharge). 1 requete via embeds + !inner. */
+  async getRpeWindowByGroups(
+    groupIds: string[],
+    sinceDate: string,
+  ): Promise<
+    { swimmerId: string; swimmerName: string; rpeScore: number; scheduledDate: string }[]
+  > {
+    if (!groupIds.length) return [];
+
+    const { data, error } = await supabase
+      .from('workout_sessions')
+      .select(
+        'swimmer_id, rpe_score, profiles!swimmer_id(first_name, last_name), workout_assignments!inner(scheduled_date, training_slots!inner(group_id))',
+      )
+      .in('workout_assignments.training_slots.group_id', groupIds)
+      .gte('workout_assignments.scheduled_date', sinceDate)
+      .not('rpe_score', 'is', null);
+
+    if (error) throw error;
+
+    return (data as any[]).map((s) => ({
+      swimmerId: s.swimmer_id,
+      swimmerName: s.profiles
+        ? `${s.profiles.first_name || ''} ${s.profiles.last_name || ''}`.trim()
+        : 'Nageur',
+      rpeScore: s.rpe_score,
+      scheduledDate: s.workout_assignments?.scheduled_date || '',
+    }));
+  },
+
   /** Get all sessions for a workout assignment */
   async getByAssignment(assignmentId: string): Promise<WorkoutSession[]> {
     const { data, error } = await supabase
@@ -94,6 +204,26 @@ export const workoutSessionService = {
 
     if (error) throw error;
     return data;
+  },
+
+  /** Sessions d'un assignment avec le nom du nageur (embed profiles, 1 requete) */
+  async getByAssignmentWithNames(assignmentId: string): Promise<SessionWithProfile[]> {
+    const { data, error } = await supabase
+      .from('workout_sessions')
+      .select('*, profiles!swimmer_id(first_name, last_name)')
+      .eq('workout_assignment_id', assignmentId);
+
+    if (error) throw error;
+
+    return (data as any[]).map((s) => {
+      const { profiles, ...session } = s;
+      return {
+        ...session,
+        swimmer_name: profiles
+          ? `${profiles.first_name || ''} ${profiles.last_name || ''}`.trim()
+          : undefined,
+      };
+    });
   },
 
   /** Get all sessions for a swimmer */
@@ -108,7 +238,7 @@ export const workoutSessionService = {
     return data;
   },
 
-  /** Submit feedback (swimmer submits RPE + text) */
+  /** Submit feedback (swimmer submits RPE + text + auto-evaluations v2) */
   async submitFeedback(
     sessionId: string,
     feedback: FeedbackData,
@@ -119,16 +249,25 @@ export const workoutSessionService = {
 
     const { data, error } = await supabase
       .from('workout_sessions')
-      .update({
-        rpe_score: feedback.rpe_score,
-        feedback_text: feedback.feedback_text ?? null,
-        completed_at: new Date().toISOString(),
-      })
+      .update(buildFeedbackPayload(feedback, true) as any)
       .eq('id', sessionId)
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      // Migration 013 non appliquee : reessayer sans les champs v2
+      if (isMissingColumnError(error)) {
+        const { data: retryData, error: retryError } = await supabase
+          .from('workout_sessions')
+          .update(buildFeedbackPayload(feedback, false) as any)
+          .eq('id', sessionId)
+          .select()
+          .single();
+        if (retryError) throw retryError;
+        return retryData;
+      }
+      throw error;
+    }
     return data;
   },
 
@@ -161,16 +300,24 @@ export const workoutSessionService = {
 
     const { data, error } = await supabase
       .from('workout_sessions')
-      .update({
-        rpe_score: feedback.rpe_score,
-        feedback_text: feedback.feedback_text ?? null,
-        completed_at: new Date().toISOString(),
-      })
+      .update(buildFeedbackPayload(feedback, true) as any)
       .eq('id', sessionId)
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      if (isMissingColumnError(error)) {
+        const { data: retryData, error: retryError } = await supabase
+          .from('workout_sessions')
+          .update(buildFeedbackPayload(feedback, false) as any)
+          .eq('id', sessionId)
+          .select()
+          .single();
+        if (retryError) throw retryError;
+        return retryData;
+      }
+      throw error;
+    }
     return data;
   },
 
@@ -236,49 +383,28 @@ export const workoutSessionService = {
     };
   },
 
-  /** Get pending feedback sessions (attended but no feedback yet) with workout info */
+  /** Get pending feedback sessions (attended but no feedback yet) with workout info.
+   *  1 seule requete via embeds PostgREST (sessions -> assignments -> workouts). */
   async getPendingFeedback(
     swimmerId: string,
   ): Promise<{ sessionId: string; workoutTitle: string; scheduledDate: string }[]> {
-    const { data: sessions, error: sessErr } = await supabase
+    const { data, error } = await supabase
       .from('workout_sessions')
-      .select('id, workout_assignment_id')
+      .select(
+        'id, workout_assignments!workout_assignment_id(scheduled_date, workouts!workout_id(title))',
+      )
       .eq('swimmer_id', swimmerId)
       .eq('attended', true)
       .is('completed_at', null)
       .order('created_at', { ascending: true });
 
-    if (sessErr) throw sessErr;
-    if (!sessions || !sessions.length) return [];
+    if (error) throw error;
 
-    const assignmentIds = sessions.map((s) => s.workout_assignment_id);
-    const { data: assignments, error: assErr } = await supabase
-      .from('workout_assignments')
-      .select('id, scheduled_date, workout_id')
-      .in('id', assignmentIds);
-
-    if (assErr) throw assErr;
-
-    const workoutIds = [...new Set((assignments || []).map((a) => a.workout_id))];
-    const { data: workouts, error: wErr } = await supabase
-      .from('workouts')
-      .select('id, title')
-      .in('id', workoutIds);
-
-    if (wErr) throw wErr;
-
-    const assignmentMap = new Map((assignments || []).map((a) => [a.id, a]));
-    const workoutMap = new Map((workouts || []).map((w) => [w.id, w]));
-
-    return sessions.map((s) => {
-      const a = assignmentMap.get(s.workout_assignment_id);
-      const w = a ? workoutMap.get(a.workout_id) : null;
-      return {
-        sessionId: s.id,
-        workoutTitle: w?.title || 'Seance',
-        scheduledDate: a?.scheduled_date || '',
-      };
-    });
+    return (data as any[]).map((s) => ({
+      sessionId: s.id,
+      workoutTitle: s.workout_assignments?.workouts?.title || 'Seance',
+      scheduledDate: s.workout_assignments?.scheduled_date || '',
+    }));
   },
 
   /** Get swimmer attendance stats */
@@ -306,56 +432,25 @@ export const workoutSessionService = {
     };
   },
 
-  /** Get swimmer full history with workout details (for stats & history screens) */
+  /** Get swimmer full history with workout details (for stats & history screens).
+   *  Sessions club (1 requete embeds) + seances solo completees (migration 016),
+   *  fusionnees et triees par date. */
   async getSwimmerHistory(
     swimmerId: string,
   ): Promise<SwimmerHistoryEntry[]> {
-    // Step 1: Get all sessions for swimmer
-    const { data: sessions, error: sessErr } = await supabase
+    const { data, error } = await supabase
       .from('workout_sessions')
-      .select('*')
+      .select(
+        '*, workout_assignments!workout_assignment_id(id, scheduled_date, workout_id, workouts!workout_id(id, title, type, total_distance))',
+      )
       .eq('swimmer_id', swimmerId)
       .order('created_at', { ascending: false });
 
-    if (sessErr) throw sessErr;
-    if (!sessions.length) return [];
+    if (error) throw error;
 
-    // Step 2: Get assignment details with workout info
-    const assignmentIds = [
-      ...new Set(sessions.map((s) => s.workout_assignment_id)),
-    ];
-
-    const { data: assignments, error: assErr } = await supabase
-      .from('workout_assignments')
-      .select('id, scheduled_date, workout_id')
-      .in('id', assignmentIds);
-
-    if (assErr) throw assErr;
-
-    // Step 3: Get workout details
-    const workoutIds = [
-      ...new Set((assignments || []).map((a) => a.workout_id)),
-    ];
-
-    const { data: workouts, error: wErr } = await supabase
-      .from('workouts')
-      .select('id, title, type, total_distance')
-      .in('id', workoutIds);
-
-    if (wErr) throw wErr;
-
-    // Step 4: Build lookup maps
-    const assignmentMap = new Map(
-      (assignments || []).map((a) => [a.id, a]),
-    );
-    const workoutMap = new Map(
-      (workouts || []).map((w) => [w.id, w]),
-    );
-
-    // Step 5: Enrich sessions
-    return sessions.map((s) => {
-      const a = assignmentMap.get(s.workout_assignment_id);
-      const w = a ? workoutMap.get(a.workout_id) : null;
+    const clubEntries: SwimmerHistoryEntry[] = (data as any[]).map((s) => {
+      const a = s.workout_assignments;
+      const w = a?.workouts;
       return {
         sessionId: s.id,
         assignmentId: s.workout_assignment_id,
@@ -369,5 +464,28 @@ export const workoutSessionService = {
         totalDistance: w?.total_distance || null,
       };
     });
+
+    // Seances solo completees (renvoie [] si la table n'existe pas)
+    let soloEntries: SwimmerHistoryEntry[] = [];
+    try {
+      const { soloService } = await import('./soloService');
+      const soloHistory = await soloService.getHistory(swimmerId);
+      soloEntries = soloHistory.map((s) => ({
+        sessionId: `solo-${s.id}`,
+        assignmentId: '',
+        scheduledDate: s.scheduled_date,
+        attended: true,
+        rpeScore: s.rpe_score,
+        feedbackText: s.feedback_text,
+        workoutId: s.workout_id,
+        workoutTitle: s.workoutTitle,
+        workoutType: 'other',
+        totalDistance: s.totalDistance,
+      }));
+    } catch {}
+
+    return [...clubEntries, ...soloEntries].sort((a, b) =>
+      b.scheduledDate.localeCompare(a.scheduledDate),
+    );
   },
 };

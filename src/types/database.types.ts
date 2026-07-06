@@ -225,7 +225,7 @@ export type Database = {
       workouts: {
         Row: {
           id: string;
-          club_id: string;
+          club_id: string | null;
           coach_id: string;
           title: string;
           type: string | null;
@@ -239,7 +239,7 @@ export type Database = {
         };
         Insert: {
           id?: string;
-          club_id: string;
+          club_id: string | null;
           coach_id: string;
           title: string;
           type?: string | null;

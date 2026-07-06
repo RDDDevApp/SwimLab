@@ -214,6 +214,16 @@ export default function WorkoutsScreen({ navigation }: Props) {
           >
             Historique
           </Button>
+          <Button
+            mode="outlined"
+            icon="creation"
+            onPress={() => navigation.navigate('GenerateWorkout')}
+            compact
+            style={styles.headerBtn}
+            textColor="#7C3AED"
+          >
+            IA
+          </Button>
         </View>
       </View>
 

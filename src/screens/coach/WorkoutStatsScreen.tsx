@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, Card, Chip, Button, ProgressBar } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
-import { WorkoutSession } from '../../types';
-import { workoutSessionService } from '../../services';
+import { useAssignmentSessions, useRefreshOnFocus } from '../../hooks';
 import { getRPEColor, RPE_LABELS } from '../../config/theme';
 
 interface Props {
@@ -11,31 +10,11 @@ interface Props {
   route: any;
 }
 
-interface SessionWithName extends WorkoutSession {
-  swimmer_name?: string;
-}
-
 export default function WorkoutStatsScreen({ navigation, route }: Props) {
   const { assignmentId, workoutTitle } = route.params;
 
-  const [sessions, setSessions] = useState<SessionWithName[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadStats();
-  }, []);
-
-  const loadStats = async () => {
-    setLoading(true);
-    try {
-      const data = await workoutSessionService.getByAssignment(assignmentId);
-      setSessions(data);
-    } catch (err) {
-      console.error('Error loading stats:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: sessions = [], refetch } = useAssignmentSessions(assignmentId);
+  useRefreshOnFocus(refetch);
 
   const attendedSessions = sessions.filter((s) => s.attended);
   const absentSessions = sessions.filter((s) => !s.attended);
@@ -158,7 +137,7 @@ export default function WorkoutStatsScreen({ navigation, route }: Props) {
                 <Card.Content>
                   <View style={styles.feedbackHeader}>
                     <Text variant="titleSmall" style={styles.swimmerName}>
-                      Nageur
+                      {session.swimmer_name || 'Nageur'}
                     </Text>
                     <View style={styles.feedbackBadges}>
                       {(session.rpe_score || 0) > 17 && (
@@ -199,7 +178,7 @@ export default function WorkoutStatsScreen({ navigation, route }: Props) {
               <Card key={session.id} style={styles.pendingCard}>
                 <Card.Content style={styles.pendingRow}>
                   <Text variant="bodyMedium" style={styles.pendingName}>
-                    Nageur
+                    {session.swimmer_name || 'Nageur'}
                   </Text>
                   <Chip compact style={styles.pendingChip}>
                     En attente
@@ -213,7 +192,7 @@ export default function WorkoutStatsScreen({ navigation, route }: Props) {
               <Card key={session.id} style={styles.absentCard}>
                 <Card.Content style={styles.pendingRow}>
                   <Text variant="bodyMedium" style={styles.absentName}>
-                    Nageur
+                    {session.swimmer_name || 'Nageur'}
                   </Text>
                   <Chip compact style={styles.absentChip}>
                     Absent

@@ -130,6 +130,19 @@ export const groupService = {
     if (error) throw error;
   },
 
+  /** IDs uniques des nageurs de plusieurs groupes en une seule requete (anti N+1) */
+  async getMemberIdsByGroups(groupIds: string[]): Promise<string[]> {
+    if (!groupIds.length) return [];
+
+    const { data, error } = await supabase
+      .from('group_members')
+      .select('user_id')
+      .in('group_id', groupIds);
+
+    if (error) throw error;
+    return [...new Set((data || []).map((m) => m.user_id))];
+  },
+
   /** Get all members of a group with their profiles */
   async getMembers(groupId: string): Promise<Profile[]> {
     const { data: memberships, error: memberError } = await supabase
