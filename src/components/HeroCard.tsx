@@ -4,6 +4,7 @@ import { Text } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInUp } from 'react-native-reanimated';
+import { shadow } from '../config/tokens';
 
 interface HeroCardProps {
   gradientColors: readonly string[];
@@ -90,11 +91,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 24,
     overflow: 'hidden',
-    shadowColor: '#1e3a5f',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 20,
-    elevation: 8,
+    ...shadow(0.2, 20, 8, 8, '30, 58, 95'),
   },
   blob: {
     position: 'absolute',
@@ -176,11 +173,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingVertical: 14,
     paddingHorizontal: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    ...shadow(0.1, 8, 4, 4, '0, 0, 0'),
   },
   primaryButtonText: {
     fontSize: 15,

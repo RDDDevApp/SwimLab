@@ -10,6 +10,7 @@ import { AppNavigator } from './src/navigation';
 import { lightTheme } from './src/config/theme';
 import { queryClient, setupFocusManager } from './src/config/queryClient';
 import GlobalSnackbar from './src/components/GlobalSnackbar';
+import BackendStatusBanner from './src/components/BackendStatusBanner';
 
 export default function App() {
   useEffect(() => setupFocusManager(), []);
@@ -20,6 +21,7 @@ export default function App() {
         <SafeAreaProvider>
           <PaperProvider theme={lightTheme}>
             <NavigationContainer>
+              <BackendStatusBanner />
               <AppNavigator />
               <GlobalSnackbar />
               <StatusBar style="auto" />

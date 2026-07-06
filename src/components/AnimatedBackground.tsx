@@ -70,7 +70,7 @@ export default function AnimatedBackground({ variant = 'cyan' }: Props) {
   }));
 
   return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+    <View style={[StyleSheet.absoluteFill, { pointerEvents: 'none' }]}>
       <Animated.View
         style={[
           styles.orb,

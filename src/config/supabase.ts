@@ -7,6 +7,9 @@ import { Database } from '../types/database.types';
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
 
+/** URL du projet, exposee pour le health check (BackendStatusBanner) */
+export const SUPABASE_URL = supabaseUrl;
+
 const ExpoSecureStoreAdapter = {
   getItem: (key: string) => {
     if (Platform.OS === 'web') {

@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 /**
  * Design tokens SwimLab — Design System 2.0
  *
@@ -73,3 +75,28 @@ export const TEXT_COLORS = {
   secondary: '#64748b',
   muted: '#94a3b8',
 } as const;
+
+/**
+ * Ombre cross-platform : `boxShadow` sur web (les props shadow* y sont
+ * depreciees par react-native-web), shadow* + elevation sur natif.
+ */
+export function shadow(
+  opacity: number,
+  radius: number,
+  offsetY = 4,
+  elevation = 3,
+  color = '30, 41, 59', // slate-800 en RGB
+) {
+  if (Platform.OS === 'web') {
+    return {
+      boxShadow: `0px ${offsetY}px ${radius}px rgba(${color}, ${opacity})`,
+    } as const;
+  }
+  return {
+    shadowColor: `rgb(${color})`,
+    shadowOffset: { width: 0, height: offsetY },
+    shadowOpacity: opacity,
+    shadowRadius: radius,
+    elevation,
+  } as const;
+}

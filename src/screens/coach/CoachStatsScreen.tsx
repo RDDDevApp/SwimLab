@@ -7,6 +7,7 @@ import GradientScreen from '../../components/GradientScreen';
 import { useFocusEffect } from '@react-navigation/native';
 import { BarChart, LineChart } from 'react-native-chart-kit';
 import { useAuthStore } from '../../stores/authStore';
+import { shadow } from '../../config/tokens';
 import {
   groupService,
   workoutService,
@@ -536,11 +537,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     overflow: 'hidden',
-    shadowColor: '#1e293b',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    elevation: 3,
+    ...shadow(0.05, 12, 4, 3),
   },
   statCardInner: {
     flexDirection: 'row',
@@ -609,11 +606,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 12,
     overflow: 'hidden',
-    shadowColor: '#1e293b',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    elevation: 3,
+    ...shadow(0.05, 12, 4, 3),
   },
   chartCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.40)',
@@ -621,11 +614,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 16,
     padding: 16,
-    shadowColor: '#1e293b',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    elevation: 3,
+    ...shadow(0.05, 12, 4, 3),
   },
   chartTitle: {
     fontSize: 16,
@@ -640,11 +629,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     overflow: 'hidden',
-    shadowColor: '#0891b2',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 6,
+    ...shadow(0.3, 16, 8, 6, '8, 145, 178'),
   },
   insightBlobDecor: {
     position: 'absolute',

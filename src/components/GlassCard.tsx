@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ViewStyle, Pressable, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { GLASS, RADIUS } from '../config/tokens';
+import { GLASS, RADIUS, shadow } from '../config/tokens';
 
 interface Props {
   children: React.ReactNode;
@@ -60,17 +60,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: RADIUS.lg,
     padding: 16,
-    shadowColor: '#1e293b',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 16,
-    elevation: 3,
+    ...shadow(0.05, 16, 4, 3),
   },
   elevated: {
     backgroundColor: GLASS.elevated.backgroundColor,
     borderColor: GLASS.elevated.borderColor,
     borderRadius: RADIUS.xl,
-    shadowOpacity: 0.1,
+    ...shadow(0.1, 16, 4, 3),
   },
   blurCard: {
     // Le BlurView absolu doit etre clippe par le rayon de la carte
