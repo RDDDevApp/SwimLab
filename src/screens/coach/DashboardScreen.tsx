@@ -51,26 +51,22 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
       setWorkoutCount(workouts.length);
       setClub(clubData);
 
-      // Count unique swimmers across all groups
-      const swimmerIds = new Set<string>();
-      for (const group of groups) {
-        try {
-          const members = await groupService.getMembers(group.id);
-          members.forEach((m) => swimmerIds.add(m.id));
-        } catch {}
-      }
-      setSwimmerCount(swimmerIds.size);
+      // Nombre de nageurs uniques + creneaux : requetes groupees (anti N+1)
+      const groupIds = groups.map((g) => g.id);
+      try {
+        const memberIds = await groupService.getMemberIdsByGroups(groupIds);
+        setSwimmerCount(memberIds.length);
+      } catch {}
 
       // Load next session
       try {
         if (groups.length > 0) {
-          const allSlots = [];
-          for (const group of groups) {
-            const slots = await trainingSlotService.getByGroup(group.id);
-            for (const slot of slots) {
-              allSlots.push({ ...slot, groupName: group.name });
-            }
-          }
+          const groupNameById = new Map(groups.map((g) => [g.id, g.name]));
+          const slots = await trainingSlotService.getByGroups(groupIds);
+          const allSlots = slots.map((slot) => ({
+            ...slot,
+            groupName: groupNameById.get(slot.group_id) || '',
+          }));
 
           if (allSlots.length > 0) {
             const today = toISODate(new Date());

@@ -1,12 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, Card, Chip, Button } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
-import { useFocusEffect } from '@react-navigation/native';
-import { workoutSessionService } from '../../services';
-import type { SwimmerHistoryEntry } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
+import { useSwimmerHistory, useRefreshOnFocus } from '../../hooks';
 import EmptyState from '../../components/EmptyState';
+import LoadingSkeleton from '../../components/LoadingSkeleton';
 
 function formatDate(dateStr: string): string {
   if (!dateStr) return '';
@@ -30,29 +29,26 @@ interface Props {
 
 export default function SwimmerHistoryScreen({ navigation }: Props) {
   const { user } = useAuthStore();
-  const [history, setHistory] = useState<SwimmerHistoryEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: history = [], isLoading, isRefetching, refetch } = useSwimmerHistory(user?.id);
+  useRefreshOnFocus(refetch);
 
-  const loadData = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
-    try {
-      const data = await workoutSessionService.getSwimmerHistory(user.id);
-      setHistory(data);
-    } catch (err) {
-      console.error('Error loading swimmer history:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
+  if (isLoading) {
+    return (
+      <GradientScreen>
+        <View style={styles.header}>
+          <Button icon="arrow-left" onPress={() => navigation.goBack()}>
+            Retour
+          </Button>
+          <Text variant="titleLarge" style={styles.title}>
+            Mon historique
+          </Text>
+        </View>
+        <LoadingSkeleton variant="list" />
+      </GradientScreen>
+    );
+  }
 
-  useFocusEffect(
-    useCallback(() => {
-      loadData();
-    }, [loadData]),
-  );
-
-  if (!loading && history.length === 0) {
+  if (history.length === 0) {
     return (
       <GradientScreen>
         <View style={styles.header}>
@@ -90,8 +86,8 @@ export default function SwimmerHistoryScreen({ navigation }: Props) {
         data={history}
         keyExtractor={(item) => item.sessionId}
         contentContainerStyle={styles.list}
-        refreshing={loading}
-        onRefresh={loadData}
+        refreshing={isRefetching}
+        onRefresh={refetch}
         renderItem={({ item }) => (
           <Card
             style={[

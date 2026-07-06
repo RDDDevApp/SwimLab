@@ -96,6 +96,26 @@ export const workoutSessionService = {
     return data;
   },
 
+  /** Sessions d'un assignment avec le nom du nageur (embed profiles, 1 requete) */
+  async getByAssignmentWithNames(assignmentId: string): Promise<SessionWithProfile[]> {
+    const { data, error } = await supabase
+      .from('workout_sessions')
+      .select('*, profiles!swimmer_id(first_name, last_name)')
+      .eq('workout_assignment_id', assignmentId);
+
+    if (error) throw error;
+
+    return (data as any[]).map((s) => {
+      const { profiles, ...session } = s;
+      return {
+        ...session,
+        swimmer_name: profiles
+          ? `${profiles.first_name || ''} ${profiles.last_name || ''}`.trim()
+          : undefined,
+      };
+    });
+  },
+
   /** Get all sessions for a swimmer */
   async getBySwimmer(swimmerId: string): Promise<WorkoutSession[]> {
     const { data, error } = await supabase
@@ -236,49 +256,28 @@ export const workoutSessionService = {
     };
   },
 
-  /** Get pending feedback sessions (attended but no feedback yet) with workout info */
+  /** Get pending feedback sessions (attended but no feedback yet) with workout info.
+   *  1 seule requete via embeds PostgREST (sessions -> assignments -> workouts). */
   async getPendingFeedback(
     swimmerId: string,
   ): Promise<{ sessionId: string; workoutTitle: string; scheduledDate: string }[]> {
-    const { data: sessions, error: sessErr } = await supabase
+    const { data, error } = await supabase
       .from('workout_sessions')
-      .select('id, workout_assignment_id')
+      .select(
+        'id, workout_assignments!workout_assignment_id(scheduled_date, workouts!workout_id(title))',
+      )
       .eq('swimmer_id', swimmerId)
       .eq('attended', true)
       .is('completed_at', null)
       .order('created_at', { ascending: true });
 
-    if (sessErr) throw sessErr;
-    if (!sessions || !sessions.length) return [];
+    if (error) throw error;
 
-    const assignmentIds = sessions.map((s) => s.workout_assignment_id);
-    const { data: assignments, error: assErr } = await supabase
-      .from('workout_assignments')
-      .select('id, scheduled_date, workout_id')
-      .in('id', assignmentIds);
-
-    if (assErr) throw assErr;
-
-    const workoutIds = [...new Set((assignments || []).map((a) => a.workout_id))];
-    const { data: workouts, error: wErr } = await supabase
-      .from('workouts')
-      .select('id, title')
-      .in('id', workoutIds);
-
-    if (wErr) throw wErr;
-
-    const assignmentMap = new Map((assignments || []).map((a) => [a.id, a]));
-    const workoutMap = new Map((workouts || []).map((w) => [w.id, w]));
-
-    return sessions.map((s) => {
-      const a = assignmentMap.get(s.workout_assignment_id);
-      const w = a ? workoutMap.get(a.workout_id) : null;
-      return {
-        sessionId: s.id,
-        workoutTitle: w?.title || 'Seance',
-        scheduledDate: a?.scheduled_date || '',
-      };
-    });
+    return (data as any[]).map((s) => ({
+      sessionId: s.id,
+      workoutTitle: s.workout_assignments?.workouts?.title || 'Seance',
+      scheduledDate: s.workout_assignments?.scheduled_date || '',
+    }));
   },
 
   /** Get swimmer attendance stats */
@@ -306,56 +305,24 @@ export const workoutSessionService = {
     };
   },
 
-  /** Get swimmer full history with workout details (for stats & history screens) */
+  /** Get swimmer full history with workout details (for stats & history screens).
+   *  1 seule requete via embeds PostgREST (sessions -> assignments -> workouts). */
   async getSwimmerHistory(
     swimmerId: string,
   ): Promise<SwimmerHistoryEntry[]> {
-    // Step 1: Get all sessions for swimmer
-    const { data: sessions, error: sessErr } = await supabase
+    const { data, error } = await supabase
       .from('workout_sessions')
-      .select('*')
+      .select(
+        '*, workout_assignments!workout_assignment_id(id, scheduled_date, workout_id, workouts!workout_id(id, title, type, total_distance))',
+      )
       .eq('swimmer_id', swimmerId)
       .order('created_at', { ascending: false });
 
-    if (sessErr) throw sessErr;
-    if (!sessions.length) return [];
+    if (error) throw error;
 
-    // Step 2: Get assignment details with workout info
-    const assignmentIds = [
-      ...new Set(sessions.map((s) => s.workout_assignment_id)),
-    ];
-
-    const { data: assignments, error: assErr } = await supabase
-      .from('workout_assignments')
-      .select('id, scheduled_date, workout_id')
-      .in('id', assignmentIds);
-
-    if (assErr) throw assErr;
-
-    // Step 3: Get workout details
-    const workoutIds = [
-      ...new Set((assignments || []).map((a) => a.workout_id)),
-    ];
-
-    const { data: workouts, error: wErr } = await supabase
-      .from('workouts')
-      .select('id, title, type, total_distance')
-      .in('id', workoutIds);
-
-    if (wErr) throw wErr;
-
-    // Step 4: Build lookup maps
-    const assignmentMap = new Map(
-      (assignments || []).map((a) => [a.id, a]),
-    );
-    const workoutMap = new Map(
-      (workouts || []).map((w) => [w.id, w]),
-    );
-
-    // Step 5: Enrich sessions
-    return sessions.map((s) => {
-      const a = assignmentMap.get(s.workout_assignment_id);
-      const w = a ? workoutMap.get(a.workout_id) : null;
+    return (data as any[]).map((s) => {
+      const a = s.workout_assignments;
+      const w = a?.workouts;
       return {
         sessionId: s.id,
         assignmentId: s.workout_assignment_id,

@@ -53,6 +53,22 @@ export const trainingSlotService = {
     return data;
   },
 
+  /** Creneaux actifs de plusieurs groupes en une seule requete (anti N+1) */
+  async getByGroups(groupIds: string[]): Promise<TrainingSlot[]> {
+    if (!groupIds.length) return [];
+
+    const { data, error } = await supabase
+      .from('training_slots')
+      .select('*')
+      .in('group_id', groupIds)
+      .eq('is_active', true)
+      .order('day_of_week')
+      .order('start_time');
+
+    if (error) throw error;
+    return data;
+  },
+
   /** Get all slots for a coach (via group_coaches junction table) */
   async getByCoach(coachId: string): Promise<TrainingSlot[]> {
     const groupIds = await groupCoachService.getGroupIds(coachId);
