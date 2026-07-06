@@ -9,6 +9,7 @@ export {
 } from './useSwimmerData';
 export { useClub, useGroups, useWorkouts } from './useCoachData';
 export { useGamification } from './useGamification';
+export { useRpeAlerts, type RpeAlert } from './useRpeAlerts';
 export {
   useCoachDashboard,
   useSwimmerDashboard,

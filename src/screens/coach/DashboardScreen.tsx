@@ -11,7 +11,7 @@ import SectionHeader from '../../components/SectionHeader';
 import ProgressRing from '../../components/ProgressRing';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import { useAuthStore } from '../../stores/authStore';
-import { useCoachDashboard, useRefreshOnFocus } from '../../hooks';
+import { useCoachDashboard, useRefreshOnFocus, useRpeAlerts } from '../../hooks';
 import { HERO_GRADIENTS } from '../../config/gradients';
 import { getRPEColor } from '../../config/theme';
 import { formatShortDate } from '../../utils/dateHelpers';
@@ -29,6 +29,7 @@ function timeAgo(iso: string): string {
 export default function CoachDashboardScreen({ navigation }: { navigation: any }) {
   const { profile, user, clubId } = useAuthStore();
   const { data, isLoading, isRefetching, refetch } = useCoachDashboard(user?.id, clubId);
+  const { data: rpeAlerts = [] } = useRpeAlerts(user?.id);
   useRefreshOnFocus(refetch);
 
   if (isLoading || !data) {
@@ -98,6 +99,28 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
               onPress: () => navigation.navigate('CreateWorkout'),
             }}
           />
+        )}
+
+        {/* Alertes surcharge RPE */}
+        {rpeAlerts.length > 0 && (
+          <GlassCard style={styles.alertCard}>
+            <View style={styles.alertHeader}>
+              <Ionicons name="warning-outline" size={18} color="#B45309" />
+              <Text style={styles.alertTitle}>Charge inhabituelle detectee</Text>
+            </View>
+            {rpeAlerts.slice(0, 3).map((alert) => (
+              <View key={alert.swimmerId} style={styles.alertRow}>
+                <Text style={styles.alertName}>{alert.swimmerName}</Text>
+                <Chip compact style={styles.alertChip} textStyle={styles.alertChipText}>
+                  RPE {alert.avg7d} (+{alert.delta} vs habitude)
+                </Chip>
+              </View>
+            ))}
+            <Text style={styles.alertHint}>
+              RPE moyen 7 jours nettement au-dessus de la baseline 28 jours — pensez a
+              alleger ou verifier la recuperation.
+            </Text>
+          </GlassCard>
         )}
 
         {/* Feedbacks en attente */}
@@ -283,6 +306,49 @@ const styles = StyleSheet.create({
   },
   avatar: {
     backgroundColor: '#6366F1',
+  },
+  // Alerte RPE
+  alertCard: {
+    backgroundColor: 'rgba(254, 243, 199, 0.75)',
+    borderColor: 'rgba(217, 119, 6, 0.30)',
+  },
+  alertHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 10,
+  },
+  alertTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#92400E',
+  },
+  alertRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  alertName: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#1e293b',
+  },
+  alertChip: {
+    backgroundColor: 'rgba(217, 119, 6, 0.15)',
+    height: 26,
+  },
+  alertChipText: {
+    color: '#92400E',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  alertHint: {
+    fontSize: 11,
+    color: '#92400E',
+    opacity: 0.8,
+    marginTop: 4,
+    lineHeight: 15,
   },
   // Pending feedback banner
   pendingBanner: {

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { useAuthStore } from '../stores/authStore';
-import { clubService } from '../services';
+import { clubService, notificationService } from '../services';
 import AuthNavigator from './AuthNavigator';
 import CoachNavigator from './CoachNavigator';
 import SwimmerNavigator from './SwimmerNavigator';
@@ -17,7 +17,15 @@ export default function AppNavigator() {
 
   useEffect(() => {
     initialize();
+    notificationService.setupNotificationHandler();
   }, []);
+
+  // Enregistrement du token push apres connexion (no-op si FEATURES.push off)
+  useEffect(() => {
+    if (user) {
+      notificationService.registerForPushNotifications(user.id).catch(() => {});
+    }
+  }, [user?.id]);
 
   // Check if user has a club when profile loads
   useEffect(() => {

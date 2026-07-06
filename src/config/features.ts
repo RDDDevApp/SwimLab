@@ -1,10 +1,11 @@
 /**
  * Feature flags SwimLab.
  *
- * push : les notifications push sont desactivees tant que `expo-notifications`
- * n'est pas installe et configure (Sprint notifications). notificationService
- * devient un no-op explicite quand ce flag est a false.
+ * push : notifications push via expo-notifications + Expo Push API.
+ * L'enregistrement du token se fait au login (AppNavigator) ; l'envoi
+ * passe par l'Edge Function supabase/functions/send-push (rappels
+ * planifies) et par notificationService (envois directs post-emargement).
  */
 export const FEATURES = {
-  push: false,
+  push: true,
 } as const;

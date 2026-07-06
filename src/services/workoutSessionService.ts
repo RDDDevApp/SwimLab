@@ -164,6 +164,37 @@ export const workoutSessionService = {
     }));
   },
 
+  /** Feedbacks RPE des groupes d'un coach sur une fenetre glissante
+   *  (pour les alertes de surcharge). 1 requete via embeds + !inner. */
+  async getRpeWindowByGroups(
+    groupIds: string[],
+    sinceDate: string,
+  ): Promise<
+    { swimmerId: string; swimmerName: string; rpeScore: number; scheduledDate: string }[]
+  > {
+    if (!groupIds.length) return [];
+
+    const { data, error } = await supabase
+      .from('workout_sessions')
+      .select(
+        'swimmer_id, rpe_score, profiles!swimmer_id(first_name, last_name), workout_assignments!inner(scheduled_date, training_slots!inner(group_id))',
+      )
+      .in('workout_assignments.training_slots.group_id', groupIds)
+      .gte('workout_assignments.scheduled_date', sinceDate)
+      .not('rpe_score', 'is', null);
+
+    if (error) throw error;
+
+    return (data as any[]).map((s) => ({
+      swimmerId: s.swimmer_id,
+      swimmerName: s.profiles
+        ? `${s.profiles.first_name || ''} ${s.profiles.last_name || ''}`.trim()
+        : 'Nageur',
+      rpeScore: s.rpe_score,
+      scheduledDate: s.workout_assignments?.scheduled_date || '',
+    }));
+  },
+
   /** Get all sessions for a workout assignment */
   async getByAssignment(assignmentId: string): Promise<WorkoutSession[]> {
     const { data, error } = await supabase
