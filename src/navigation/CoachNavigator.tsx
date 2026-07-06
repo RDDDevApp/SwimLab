@@ -19,6 +19,7 @@ import WorkoutDetailScreen from '../screens/coach/WorkoutDetailScreen';
 import BlockLibraryScreen from '../screens/coach/BlockLibraryScreen';
 import WorkoutHistoryScreen from '../screens/coach/WorkoutHistoryScreen';
 import SessionDetailModal from '../screens/coach/SessionDetailModal';
+import GenerateWorkoutScreen from '../screens/shared/GenerateWorkoutScreen';
 import UIKitScreen from '../screens/dev/UIKitScreen';
 import GlassTabBar from '../components/GlassTabBar';
 import { CoachTabParamList, CoachStackParamList } from '../types';
@@ -73,6 +74,7 @@ export default function CoachNavigator() {
       <Stack.Screen name="WorkoutDetail" component={WorkoutDetailScreen} />
       <Stack.Screen name="BlockLibrary" component={BlockLibraryScreen} />
       <Stack.Screen name="WorkoutHistory" component={WorkoutHistoryScreen} />
+      <Stack.Screen name="GenerateWorkout" component={GenerateWorkoutScreen} />
       {__DEV__ && <Stack.Screen name="UIKit" component={UIKitScreen} />}
     </Stack.Navigator>
   );

@@ -26,14 +26,23 @@ import { HERO_GRADIENTS } from '../../config/gradients';
 import { getRPEColor } from '../../config/theme';
 import XPBar from '../../components/XPBar';
 import StreakFlame from '../../components/StreakFlame';
-import { useSwimmerDashboard, useRefreshOnFocus, useGamification } from '../../hooks';
+import RPESlider from '../../components/RPESlider';
+import {
+  useSwimmerDashboard,
+  useRefreshOnFocus,
+  useGamification,
+  useSoloDashboard,
+  usePlanSoloSession,
+  useCompleteSoloSession,
+  useDeleteSoloSession,
+} from '../../hooks';
 import type { SwimmerUpcomingWorkout } from '../../hooks';
 import type { GamificationStats } from '../../services/gamificationService';
 import type { SwimmerHistoryEntry } from '../../services';
 import { presenceService, SessionPresence } from '../../services/presenceService';
 import { useSnackbarStore } from '../../stores/snackbarStore';
 import { Club } from '../../types';
-import { formatShortDate } from '../../utils/dateHelpers';
+import { formatShortDate, toISODate } from '../../utils/dateHelpers';
 
 type UpcomingWorkout = SwimmerUpcomingWorkout;
 
@@ -118,7 +127,72 @@ function computeWeekChart(history: SwimmerHistoryEntry[]): WeekChart {
 }
 
 /* ─── Solo Dashboard Content ─── */
-function SoloDashboardContent({ navigation, profile }: { navigation: any; profile: any }) {
+function SoloDashboardContent({
+  navigation,
+  profile,
+  user,
+  gamification,
+}: {
+  navigation: any;
+  profile: any;
+  user: any;
+  gamification: GamificationStats;
+}) {
+  const showSnackbar = useSnackbarStore((s) => s.show);
+  const { data } = useSoloDashboard(user?.id);
+  const planMutation = usePlanSoloSession(user?.id);
+  const completeMutation = useCompleteSoloSession();
+  const deleteMutation = useDeleteSoloSession();
+
+  // Dialog planification (chips de dates rapides)
+  const [planTarget, setPlanTarget] = useState<string | null>(null); // workoutId
+  // Dialog completion (RPE + commentaire)
+  const [completeTarget, setCompleteTarget] = useState<string | null>(null); // sessionId
+  const [rpe, setRpe] = useState(13);
+  const [comment, setComment] = useState('');
+
+  const workouts = data?.workouts ?? [];
+  const upcoming = data?.upcoming ?? [];
+  const nextSession = upcoming[0] || null;
+
+  const quickDates = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(Date.now() + i * 86400000);
+    return {
+      iso: toISODate(d),
+      label: i === 0 ? "Aujourd'hui" : i === 1 ? 'Demain' : formatShortDate(d),
+    };
+  });
+
+  const handlePlan = async (date: string) => {
+    if (!planTarget) return;
+    try {
+      await planMutation.mutateAsync({ workoutId: planTarget, date });
+      showSnackbar('Seance planifiee !', 'success');
+    } catch (err: any) {
+      showSnackbar(err.message || 'Erreur', 'error');
+    } finally {
+      setPlanTarget(null);
+    }
+  };
+
+  const handleComplete = async () => {
+    if (!completeTarget) return;
+    try {
+      await completeMutation.mutateAsync({
+        sessionId: completeTarget,
+        rpe,
+        comment: comment.trim() || undefined,
+      });
+      showSnackbar('Bien joue ! Seance validee +70 XP', 'success');
+    } catch (err: any) {
+      showSnackbar(err.message || 'Erreur', 'error');
+    } finally {
+      setCompleteTarget(null);
+      setRpe(13);
+      setComment('');
+    }
+  };
+
   return (
     <>
       {/* Header */}
@@ -129,7 +203,11 @@ function SoloDashboardContent({ navigation, profile }: { navigation: any; profil
             <Text style={[styles.brandText, { color: '#0D9488' }]}>SwimLab</Text>
           </View>
           <Text style={styles.greeting}>Bonjour, {profile?.first_name}</Text>
-          <Text style={styles.subtitle}>Rejoins un club pour acceder aux entrainements.</Text>
+          <Text style={styles.subtitle}>
+            {nextSession
+              ? 'Ta prochaine seance t\'attend.'
+              : 'Cree ta seance et va nager !'}
+          </Text>
         </View>
         <Avatar.Text
           size={48}
@@ -138,50 +216,225 @@ function SoloDashboardContent({ navigation, profile }: { navigation: any; profil
         />
       </View>
 
-      {/* Join club card */}
-      <HeroCard
-        gradientColors={HERO_GRADIENTS.solo.colors}
-        badge={{ icon: 'people-outline', text: 'Mon Club' }}
-        title="Rejoins ton club"
-        subtitle="Entre le code d'invitation fourni par ton coach pour acceder a ton planning et tes seances."
-        primaryAction={{
-          label: 'Entrer un code',
-          icon: 'key-outline',
-          onPress: () => navigation.navigate('JoinClub'),
-        }}
-      />
+      {/* Progression solo */}
+      {gamification.totalSessions > 0 && (
+        <GlassCard>
+          <View style={styles.gamifRow}>
+            <View style={{ flex: 1 }}>
+              <XPBar
+                currentXP={gamification.levelInfo.currentXP}
+                nextLevelXP={gamification.levelInfo.nextLevelXP}
+                level={gamification.levelInfo.level}
+              />
+            </View>
+            <StreakFlame count={gamification.streakWeeks} label="sem." />
+          </View>
+        </GlassCard>
+      )}
+
+      {/* Hero : prochaine seance planifiee ou CTA creation */}
+      {nextSession ? (
+        <HeroCard
+          gradientColors={HERO_GRADIENTS.solo.colors}
+          badge={{
+            icon: 'time-outline',
+            text: formatShortDate(new Date(nextSession.scheduled_date + 'T00:00:00')),
+          }}
+          title={nextSession.workoutTitle}
+          subtitle="Seance personnelle planifiee"
+          stats={
+            nextSession.totalDistance
+              ? [{ label: 'Volume', value: `${nextSession.totalDistance}m` }]
+              : undefined
+          }
+          primaryAction={{
+            label: "C'est fait !",
+            icon: 'checkmark-outline',
+            onPress: () => setCompleteTarget(nextSession.id),
+          }}
+          secondaryAction={{
+            label: 'Voir le programme',
+            icon: 'reader-outline',
+            onPress: () =>
+              navigation.navigate('WorkoutDetail', {
+                workoutId: nextSession.workout_id,
+                workoutTitle: nextSession.workoutTitle,
+              }),
+          }}
+        />
+      ) : (
+        <HeroCard
+          gradientColors={HERO_GRADIENTS.solo.colors}
+          badge={{ icon: 'rocket-outline', text: 'Mode Solo' }}
+          title="Cree ta premiere seance"
+          subtitle="Construis-la toi-meme ou laisse le coach IA la generer pour toi."
+          primaryAction={{
+            label: 'Coach IA',
+            icon: 'sparkles-outline',
+            onPress: () => navigation.navigate('GenerateWorkout'),
+          }}
+          secondaryAction={{
+            label: 'Creer moi-meme',
+            icon: 'construct-outline',
+            onPress: () => navigation.navigate('CreateWorkout'),
+          }}
+        />
+      )}
 
       {/* Quick Actions */}
       <View style={styles.quickActionsGrid}>
+        <QuickActionCard
+          title="Nouvelle Seance"
+          subtitle="Editeur manuel"
+          icon="construct-outline"
+          iconColor="#0D9488"
+          onPress={() => navigation.navigate('CreateWorkout')}
+          delay={500}
+        />
+        <QuickActionCard
+          title="Coach IA"
+          subtitle="Generer une seance"
+          icon="sparkles-outline"
+          iconColor="#7C3AED"
+          onPress={() => navigation.navigate('GenerateWorkout')}
+          delay={600}
+        />
         <QuickActionCard
           title="Statistiques"
           subtitle="Mes performances"
           icon="pulse-outline"
           iconColor="#0891B2"
           onPress={() => navigation.navigate('SwimmerTabs', { screen: 'Stats' })}
-          delay={500}
+          delay={700}
         />
         <QuickActionCard
-          title="Mon Profil"
-          subtitle="Infos et reglages"
-          icon="person-outline"
-          iconColor="#6366F1"
-          onPress={() => navigation.navigate('SwimmerTabs', { screen: 'Profile' })}
-          delay={600}
+          title="Historique"
+          subtitle="Seances passees"
+          icon="time-outline"
+          iconColor="#F59E0B"
+          onPress={() => navigation.navigate('SwimmerHistory')}
+          delay={800}
         />
       </View>
 
-      {/* Solo mode teaser */}
-      <GlassCard>
-        <View style={styles.soloTeaserRow}>
-          <Ionicons name="rocket-outline" size={20} color="#0D9488" />
-          <Text style={styles.soloTeaserTitle}>Mode solo — bientot disponible</Text>
-        </View>
-        <Text style={styles.soloTeaserText}>
-          Creation de seances personnelles, suggestions adaptees et suivi independant arrivent
-          prochainement. En attendant, rejoins un club avec un code d'invitation.
-        </Text>
+      {/* Seances planifiees */}
+      {upcoming.length > 0 && (
+        <GlassCard elevated>
+          <SectionHeader title="Seances planifiees" />
+          {upcoming.map((session) => (
+            <View key={session.id} style={styles.soloSessionRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.soloSessionTitle} numberOfLines={1}>
+                  {session.workoutTitle}
+                </Text>
+                <Text style={styles.soloSessionDate}>
+                  {formatShortDate(new Date(session.scheduled_date + 'T00:00:00'))}
+                  {session.totalDistance ? ` · ${session.totalDistance}m` : ''}
+                </Text>
+              </View>
+              <Button
+                compact
+                mode="contained-tonal"
+                onPress={() => setCompleteTarget(session.id)}
+              >
+                Fait !
+              </Button>
+              <IconButton
+                icon="delete-outline"
+                size={18}
+                onPress={() => deleteMutation.mutate(session.id)}
+                style={{ margin: 0 }}
+              />
+            </View>
+          ))}
+        </GlassCard>
+      )}
+
+      {/* Mes seances (bibliotheque perso) */}
+      <GlassCard elevated>
+        <SectionHeader title="Mes seances" />
+        {workouts.length === 0 ? (
+          <Text style={styles.soloEmptyText}>
+            Aucune seance pour l'instant — cree-en une ou genere-la avec le coach IA.
+          </Text>
+        ) : (
+          workouts.map((w) => (
+            <View key={w.id} style={styles.soloSessionRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.soloSessionTitle} numberOfLines={1}>
+                  {w.title}
+                </Text>
+                {w.total_distance ? (
+                  <Text style={styles.soloSessionDate}>{w.total_distance}m</Text>
+                ) : null}
+              </View>
+              <Button compact mode="outlined" onPress={() => setPlanTarget(w.id)}>
+                Planifier
+              </Button>
+              <IconButton
+                icon="pencil-outline"
+                size={18}
+                onPress={() => navigation.navigate('CreateWorkout', { workout: w })}
+                style={{ margin: 0 }}
+              />
+            </View>
+          ))
+        )}
       </GlassCard>
+
+      {/* Rejoindre un club (discret, en bas) */}
+      <Pressable style={styles.historyButton} onPress={() => navigation.navigate('JoinClub')}>
+        <Ionicons name="people-outline" size={18} color="#64748b" />
+        <Text style={styles.historyButtonText}>J'ai un code club — rejoindre mon club</Text>
+        <Ionicons name="chevron-forward-outline" size={16} color="#94a3b8" />
+      </Pressable>
+
+      {/* Dialog planification */}
+      <Portal>
+        <Dialog visible={planTarget !== null} onDismiss={() => setPlanTarget(null)}>
+          <Dialog.Title>Planifier la seance</Dialog.Title>
+          <Dialog.Content>
+            <View style={styles.dateChipsRow}>
+              {quickDates.map((d) => (
+                <Button
+                  key={d.iso}
+                  compact
+                  mode="outlined"
+                  style={styles.dateChip}
+                  onPress={() => handlePlan(d.iso)}
+                >
+                  {d.label}
+                </Button>
+              ))}
+            </View>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setPlanTarget(null)}>Annuler</Button>
+          </Dialog.Actions>
+        </Dialog>
+
+        {/* Dialog completion (auto-emargement + feedback) */}
+        <Dialog visible={completeTarget !== null} onDismiss={() => setCompleteTarget(null)}>
+          <Dialog.Title>Seance terminee !</Dialog.Title>
+          <Dialog.Content>
+            <Text style={styles.soloSessionDate}>Effort percu (RPE)</Text>
+            <RPESlider value={rpe} onChange={setRpe} />
+            <TextInput
+              label="Commentaire (optionnel)"
+              value={comment}
+              onChangeText={setComment}
+              mode="outlined"
+              style={{ marginTop: 12 }}
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setCompleteTarget(null)}>Annuler</Button>
+            <Button mode="contained" onPress={handleComplete} loading={completeMutation.isPending}>
+              Valider
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </>
   );
 }
@@ -436,7 +689,8 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
   useRefreshOnFocus(refetch);
   const queryClient = useQueryClient();
   const showSnackbar = useSnackbarStore((s) => s.show);
-  const gamification = useGamification(clubId ? user?.id : undefined);
+  // Les seances solo comptent aussi dans l'XP (fusionnees dans l'historique)
+  const gamification = useGamification(user?.id);
 
   // Declaration de presence pour la prochaine seance
   const [absenceDialogVisible, setAbsenceDialogVisible] = useState(false);
@@ -515,7 +769,12 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
       >
         {isSolo ? (
-          <SoloDashboardContent navigation={navigation} profile={profile} />
+          <SoloDashboardContent
+            navigation={navigation}
+            profile={profile}
+            user={user}
+            gamification={gamification}
+          />
         ) : (
           <ClubDashboardContent
             navigation={navigation}
@@ -663,22 +922,35 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#94a3b8',
   },
-  // Solo teaser
-  soloTeaserRow: {
+  // Solo
+  soloSessionRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 8,
+    marginBottom: 10,
   },
-  soloTeaserTitle: {
-    fontSize: 15,
-    fontWeight: '700',
+  soloSessionTitle: {
+    fontSize: 14,
+    fontWeight: '600',
     color: '#1e293b',
   },
-  soloTeaserText: {
+  soloSessionDate: {
+    fontSize: 12,
+    color: '#64748b',
+    marginTop: 1,
+  },
+  soloEmptyText: {
     fontSize: 13,
     color: '#64748b',
-    lineHeight: 19,
+    fontStyle: 'italic',
+  },
+  dateChipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  dateChip: {
+    marginBottom: 4,
   },
   // History
   historyButton: {

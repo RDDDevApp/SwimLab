@@ -433,7 +433,8 @@ export const workoutSessionService = {
   },
 
   /** Get swimmer full history with workout details (for stats & history screens).
-   *  1 seule requete via embeds PostgREST (sessions -> assignments -> workouts). */
+   *  Sessions club (1 requete embeds) + seances solo completees (migration 016),
+   *  fusionnees et triees par date. */
   async getSwimmerHistory(
     swimmerId: string,
   ): Promise<SwimmerHistoryEntry[]> {
@@ -447,7 +448,7 @@ export const workoutSessionService = {
 
     if (error) throw error;
 
-    return (data as any[]).map((s) => {
+    const clubEntries: SwimmerHistoryEntry[] = (data as any[]).map((s) => {
       const a = s.workout_assignments;
       const w = a?.workouts;
       return {
@@ -463,5 +464,28 @@ export const workoutSessionService = {
         totalDistance: w?.total_distance || null,
       };
     });
+
+    // Seances solo completees (renvoie [] si la table n'existe pas)
+    let soloEntries: SwimmerHistoryEntry[] = [];
+    try {
+      const { soloService } = await import('./soloService');
+      const soloHistory = await soloService.getHistory(swimmerId);
+      soloEntries = soloHistory.map((s) => ({
+        sessionId: `solo-${s.id}`,
+        assignmentId: '',
+        scheduledDate: s.scheduled_date,
+        attended: true,
+        rpeScore: s.rpe_score,
+        feedbackText: s.feedback_text,
+        workoutId: s.workout_id,
+        workoutTitle: s.workoutTitle,
+        workoutType: 'other',
+        totalDistance: s.totalDistance,
+      }));
+    } catch {}
+
+    return [...clubEntries, ...soloEntries].sort((a, b) =>
+      b.scheduledDate.localeCompare(a.scheduledDate),
+    );
   },
 };
