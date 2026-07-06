@@ -116,7 +116,7 @@ export default function FeedbackScreen({ navigation, route }: Props) {
         showSnackbar('Feedback modifie !', 'success');
       } else {
         await workoutSessionService.submitFeedback(sessionId, payload);
-        showSnackbar('Merci pour ton feedback !', 'success');
+        showSnackbar('Merci pour ton feedback ! +20 XP', 'success');
       }
       // Micro-celebration : haptic de succes
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});

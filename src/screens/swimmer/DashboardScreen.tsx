@@ -24,8 +24,11 @@ import LoadingSkeleton from '../../components/LoadingSkeleton';
 import { useAuthStore } from '../../stores/authStore';
 import { HERO_GRADIENTS } from '../../config/gradients';
 import { getRPEColor } from '../../config/theme';
-import { useSwimmerDashboard, useRefreshOnFocus } from '../../hooks';
+import XPBar from '../../components/XPBar';
+import StreakFlame from '../../components/StreakFlame';
+import { useSwimmerDashboard, useRefreshOnFocus, useGamification } from '../../hooks';
 import type { SwimmerUpcomingWorkout } from '../../hooks';
+import type { GamificationStats } from '../../services/gamificationService';
 import type { SwimmerHistoryEntry } from '../../services';
 import { presenceService, SessionPresence } from '../../services/presenceService';
 import { useSnackbarStore } from '../../stores/snackbarStore';
@@ -198,6 +201,7 @@ function ClubDashboardContent({
   nextPresence,
   onDeclarePresent,
   onDeclareAbsent,
+  gamification,
 }: {
   navigation: any;
   profile: any;
@@ -212,6 +216,7 @@ function ClubDashboardContent({
   nextPresence: SessionPresence | null;
   onDeclarePresent: () => void;
   onDeclareAbsent: () => void;
+  gamification: GamificationStats;
 }) {
   const nextWorkout = upcoming[0] || null;
 
@@ -244,6 +249,22 @@ function ClubDashboardContent({
           style={styles.avatar}
         />
       </View>
+
+      {/* Progression : niveau, XP, streak */}
+      {gamification.totalSessions > 0 && (
+        <GlassCard>
+          <View style={styles.gamifRow}>
+            <View style={{ flex: 1 }}>
+              <XPBar
+                currentXP={gamification.levelInfo.currentXP}
+                nextLevelXP={gamification.levelInfo.nextLevelXP}
+                level={gamification.levelInfo.level}
+              />
+            </View>
+            <StreakFlame count={gamification.streakWeeks} label="sem." />
+          </View>
+        </GlassCard>
+      )}
 
       {/* Pending feedback banner */}
       {pendingCount > 0 && (
@@ -415,6 +436,7 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
   useRefreshOnFocus(refetch);
   const queryClient = useQueryClient();
   const showSnackbar = useSnackbarStore((s) => s.show);
+  const gamification = useGamification(clubId ? user?.id : undefined);
 
   // Declaration de presence pour la prochaine seance
   const [absenceDialogVisible, setAbsenceDialogVisible] = useState(false);
@@ -509,6 +531,7 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
             nextPresence={data?.nextPresence ?? null}
             onDeclarePresent={() => declarePresence('present')}
             onDeclareAbsent={handleDeclareAbsent}
+            gamification={gamification}
           />
         )}
       </ScrollView>
@@ -604,6 +627,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
+  },
+  // Gamification
+  gamifRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
   },
   // Derniers retours
   feedbackRow: {

@@ -1,10 +1,17 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
-import { Text, Card, Button, Avatar, List, Switch } from 'react-native-paper';
+import { Text, Card, Button, Avatar, List, Switch, IconButton, Portal, Dialog } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
+import BadgeChip from '../../components/BadgeChip';
+import XPBar from '../../components/XPBar';
+import StreakFlame from '../../components/StreakFlame';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuthStore } from '../../stores/authStore';
+import { useGamification } from '../../hooks';
 import { clubService, groupService, profileService } from '../../services';
+import { computeEarnedBadges } from '../../services/gamificationService';
+import { BADGE_CATALOG } from '../../config/badges';
+import { XP_RULES } from '../../config/gamification';
 import { Club } from '../../types';
 
 export default function SwimmerProfileScreen({ navigation }: { navigation: any }) {
@@ -12,6 +19,10 @@ export default function SwimmerProfileScreen({ navigation }: { navigation: any }
   const [club, setClub] = useState<Club | null>(null);
   const [groupNames, setGroupNames] = useState<string[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [xpInfoVisible, setXpInfoVisible] = useState(false);
+
+  const gamification = useGamification(user?.id);
+  const earnedIds = new Set(computeEarnedBadges(gamification).map((b) => b.id));
 
   const loadInfo = useCallback(async () => {
     if (!user) return;
@@ -128,6 +139,50 @@ export default function SwimmerProfileScreen({ navigation }: { navigation: any }
           </Card>
         )}
 
+        {/* Progression & badges */}
+        {gamification.totalSessions > 0 && (
+          <Card style={styles.card}>
+            <Card.Content>
+              <View style={styles.badgesHeader}>
+                <Text variant="titleMedium" style={{ color: '#1e293b' }}>
+                  Ma progression
+                </Text>
+                <IconButton
+                  icon="information-outline"
+                  size={18}
+                  onPress={() => setXpInfoVisible(true)}
+                  style={{ margin: 0 }}
+                />
+              </View>
+              <View style={styles.gamifRow}>
+                <View style={{ flex: 1 }}>
+                  <XPBar
+                    currentXP={gamification.levelInfo.currentXP}
+                    nextLevelXP={gamification.levelInfo.nextLevelXP}
+                    level={gamification.levelInfo.level}
+                  />
+                </View>
+                <StreakFlame count={gamification.streakWeeks} label="sem." />
+              </View>
+
+              <Text variant="titleMedium" style={styles.badgesTitle}>
+                Mes badges
+              </Text>
+              <View style={styles.badgesGrid}>
+                {BADGE_CATALOG.map((badge) => (
+                  <BadgeChip
+                    key={badge.id}
+                    name={badge.name}
+                    tier={badge.tier}
+                    icon={badge.icon as any}
+                    locked={!earnedIds.has(badge.id)}
+                  />
+                ))}
+              </View>
+            </Card.Content>
+          </Card>
+        )}
+
         <Card style={styles.card}>
           <Card.Content>
             <Text variant="titleMedium" style={{ color: '#1e293b' }}>Notifications</Text>
@@ -182,6 +237,28 @@ export default function SwimmerProfileScreen({ navigation }: { navigation: any }
           Se deconnecter
         </Button>
       </ScrollView>
+
+      {/* Explication du systeme XP */}
+      <Portal>
+        <Dialog visible={xpInfoVisible} onDismiss={() => setXpInfoVisible(false)}>
+          <Dialog.Title>Comment gagner de l'XP ?</Dialog.Title>
+          <Dialog.Content>
+            <Text style={styles.xpInfoLine}>+{XP_RULES.perSession} XP par seance assistee</Text>
+            <Text style={styles.xpInfoLine}>+{XP_RULES.perFeedback} XP par feedback envoye</Text>
+            <Text style={styles.xpInfoLine}>
+              +{XP_RULES.perStreakWeek} XP par semaine de streak en cours
+            </Text>
+            <Text style={styles.xpInfoLine}>+{XP_RULES.per100m} XP par 100 m nages</Text>
+            <Text style={styles.xpInfoHint}>
+              Le streak compte les semaines consecutives avec au moins une seance —
+              une semaine sans nage le remet a zero.
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setXpInfoVisible(false)}>Compris !</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </GradientScreen>
   );
 }
@@ -235,5 +312,39 @@ const styles = StyleSheet.create({
   logoutButton: {
     marginTop: 16,
     borderColor: '#EF4444',
+  },
+  // Gamification
+  badgesHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  gamifRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    marginTop: 8,
+  },
+  badgesTitle: {
+    color: '#1e293b',
+    marginTop: 16,
+    marginBottom: 12,
+  },
+  badgesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    justifyContent: 'flex-start',
+  },
+  xpInfoLine: {
+    color: '#1e293b',
+    fontSize: 14,
+    marginBottom: 6,
+  },
+  xpInfoHint: {
+    color: '#64748b',
+    fontSize: 12,
+    marginTop: 8,
+    lineHeight: 17,
   },
 });

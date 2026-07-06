@@ -8,6 +8,7 @@ export {
   useSubmitFeedback,
 } from './useSwimmerData';
 export { useClub, useGroups, useWorkouts } from './useCoachData';
+export { useGamification } from './useGamification';
 export {
   useCoachDashboard,
   useSwimmerDashboard,
