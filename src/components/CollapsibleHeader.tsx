@@ -72,7 +72,7 @@ export default function CollapsibleHeader({
   return (
     <View style={styles.container}>
       {/* Ligne compacte (visible apres scroll) */}
-      <Animated.View style={[styles.compactRow, compactStyle]} pointerEvents="box-none">
+      <Animated.View style={[styles.compactRow, { pointerEvents: 'box-none' }, compactStyle]}>
         <Avatar.Text size={32} label={initials} style={{ backgroundColor: avatarColor }} />
         <Text style={styles.compactGreeting} numberOfLines={1}>
           {greeting}

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
+import { shadow } from '../config/tokens';
 
 interface TabConfig {
   name: string;
@@ -71,10 +72,7 @@ const styles = StyleSheet.create({
   },
   activeWrap: {
     backgroundColor: 'rgba(8, 145, 178, 0.10)',
-    shadowColor: '#0891b2',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
+    ...shadow(0.2, 8, 0, 3, '8, 145, 178'),
   },
   label: {
     fontSize: 11,

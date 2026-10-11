@@ -1,11 +1,25 @@
 import React from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable, Platform } from 'react-native';
 import { Text } from 'react-native-paper';
 import { getRPEColor, RPE_LABELS } from '../config/theme';
 
 interface RPESliderProps {
   value: number;
   onChange: (value: number) => void;
+}
+
+/** Glow colore dynamique, boxShadow sur web (shadow* deprecies par RN-web) */
+function glow(color: string, radius: number, elevation = 0) {
+  if (Platform.OS === 'web') {
+    return { boxShadow: `0px 0px ${radius}px ${color}66` } as const;
+  }
+  return {
+    shadowColor: color,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.4,
+    shadowRadius: radius,
+    ...(elevation ? { elevation } : {}),
+  } as const;
 }
 
 export default function RPESlider({ value, onChange }: RPESliderProps) {
@@ -32,11 +46,8 @@ export default function RPESlider({ value, onChange }: RPESliderProps) {
             {
               width: `${((value - 6) / 14) * 100}%`,
               backgroundColor: color,
-              shadowColor: color,
-              shadowOffset: { width: 0, height: 0 },
-              shadowOpacity: 0.4,
-              shadowRadius: 8,
             },
+            glow(color, 8),
           ]}
         />
       </View>
@@ -57,11 +68,7 @@ export default function RPESlider({ value, onChange }: RPESliderProps) {
                   borderColor: isSelected ? bgColor : 'rgba(0,0,0,0.08)',
                 },
                 isSelected && {
-                  shadowColor: bgColor,
-                  shadowOffset: { width: 0, height: 0 },
-                  shadowOpacity: 0.4,
-                  shadowRadius: 10,
-                  elevation: 5,
+                  ...glow(bgColor, 10, 5),
                   transform: [{ scale: 1.15 }],
                 },
               ]}

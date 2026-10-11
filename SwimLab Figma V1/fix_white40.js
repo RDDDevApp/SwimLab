@@ -1,6 +1,0 @@
-const fs = require('fs');
-let content = fs.readFileSync('../src/app/components/home/SwimmerHome.tsx', 'utf8');
-content = content.replace('className="lg:col-span-2 bg-white/40 backdrop-blur-xl border border-white/60 rounded-2xl p-6 shadow-lg shadow-blue-900/5 flex flex-col"', 'className="lg:col-span-2 bg-white/50 backdrop-blur-xl border border-white/80 rounded-[32px] p-8 shadow-xl shadow-indigo-900/5 flex flex-col"');
-content = content.replace('className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-2xl p-6 shadow-lg shadow-blue-900/5"', 'className="bg-white/50 backdrop-blur-xl border border-white/80 rounded-[32px] p-8 shadow-xl shadow-indigo-900/5"');
-content = content.replace('className="group relative overflow-hidden rounded-2xl bg-white/40 backdrop-blur-md border border-white/60 p-6 shadow-lg shadow-blue-900/5 transition-all hover:shadow-xl hover:bg-white/60 cursor-pointer"', 'className="group relative overflow-hidden rounded-[32px] bg-white/50 backdrop-blur-xl border border-white/80 p-6 shadow-xl shadow-indigo-900/5 transition-all hover:shadow-2xl hover:bg-white/60 cursor-pointer"');
-fs.writeFileSync('../src/app/components/home/SwimmerHome.tsx', content, 'utf8');

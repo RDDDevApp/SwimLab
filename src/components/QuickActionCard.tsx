@@ -4,6 +4,7 @@ import { Text } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import Animated, { FadeInUp } from 'react-native-reanimated';
+import { shadow } from '../config/tokens';
 
 interface QuickActionCardProps {
   title: string;
@@ -68,11 +69,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 16,
     overflow: 'hidden',
-    shadowColor: '#1e293b',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 16,
-    elevation: 3,
+    ...shadow(0.05, 16, 4, 3),
     minHeight: 140,
   },
   pressed: {

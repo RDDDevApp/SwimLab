@@ -8,7 +8,7 @@ import Animated, {
   withTiming,
   Easing,
 } from 'react-native-reanimated';
-import { TEXT_COLORS } from '../config/tokens';
+import { TEXT_COLORS, shadow } from '../config/tokens';
 
 interface Props {
   options: string[];
@@ -78,11 +78,7 @@ const styles = StyleSheet.create({
     bottom: 2,
     backgroundColor: '#fff',
     borderRadius: 10,
-    shadowColor: '#1e293b',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 2,
+    ...shadow(0.08, 6, 2, 2),
   },
   segment: {
     flex: 1,
