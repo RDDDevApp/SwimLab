@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
-import { SUPABASE_URL } from '../config/supabase';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config/supabase';
 
 type Status = 'unknown' | 'ok' | 'unreachable';
 
@@ -19,10 +19,13 @@ export default function BackendStatusBanner() {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 6000);
       const res = await fetch(`${SUPABASE_URL}/auth/v1/health`, {
+        headers: { apikey: SUPABASE_ANON_KEY },
         signal: controller.signal,
       });
       clearTimeout(timer);
-      setStatus(res.ok ? 'ok' : 'unreachable');
+      // Toute reponse non-5xx prouve que le serveur est joignable ; un projet
+      // en pause renvoie des 5xx (502/521) ou une erreur reseau.
+      setStatus(res.status < 500 ? 'ok' : 'unreachable');
     } catch {
       setStatus('unreachable');
     }
