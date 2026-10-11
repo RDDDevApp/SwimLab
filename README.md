@@ -1,116 +1,114 @@
-# 🏊 SwimLab
+# SwimLab
 
-> Application mobile de gestion de clubs de natation
+Application de suivi d'entraînement de natation qui relie coachs et nageurs :
+le coach planifie ses séances et fait l'émargement, le nageur voit son programme,
+donne son ressenti (RPE) et suit sa progression.
 
-[![React Native](https://img.shields.io/badge/React_Native-20232A?style=flat&logo=react&logoColor=61DAFB)]()
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)]()
-[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)]()
+**Version web en ligne : https://rdddevapp.github.io/SwimLab/** (déployée depuis `main`)
 
-## 📱 Qu'est-ce que SwimLab ?
+## Fonctionnalités
 
-SwimLab digitalise l'entraînement en natation pour créer un lien fort entre coachs et nageurs.
+| Coach | Nageur |
+|---|---|
+| Club, groupes, multi-coachs, codes d'invitation | Rejoindre un club par code, ou nager en solo |
+| Créneaux récurrents et calendrier semaine / mois | Calendrier avec statut de chaque séance |
+| Éditeur de séances par blocs, bibliothèque de blocs, export PDF | Détail de la séance, compte à rebours |
+| Émargement, nageurs invités, absences déclarées | Feedback RPE, fatigue, technique (modifiable 24 h) |
+| Statistiques, alertes de surcharge RPE | Statistiques, historique, XP, streaks, badges |
+| Génération de séances par IA | Mode solo : séances perso, planification, auto-émargement |
 
-**Pour les Coachs** :
-- ✅ Créer des entraînements structurés rapidement
-- ✅ Planifier la saison avec des créneaux récurrents
-- ✅ Suivre l'assiduité et la fatigue des nageurs
-- ✅ Analyser les feedbacks
+Certaines fonctions demandent des migrations ou des services pas encore déployés :
+voir [l'état des migrations](./docs/migrations/README.md).
 
-**Pour les Nageurs** :
-- ✅ Voir leur planning à l'avance
-- ✅ Donner leur ressenti (RPE + commentaire)
-- ✅ Suivre leur progression
+## Stack
 
-## 🛠️ Stack Technique
+- **App** : Expo SDK 54, React Native 0.81, React 19, TypeScript 5.9 (iOS, Android, web)
+- **UI** : React Native Paper, design system maison (`src/config/tokens.ts`, `src/components/`)
+- **Données** : TanStack Query (cache serveur), Zustand (session, snackbar)
+- **Navigation** : React Navigation 7
+- **Backend** : Supabase (Postgres + RLS, Auth, Edge Functions)
+- **IA** : API Claude via l'Edge Function `generate-workout` (clé côté serveur uniquement)
 
-- **Frontend** : React Native + Expo SDK 54
-- **Langage** : TypeScript
-- **Backend** : Supabase (PostgreSQL, Auth, RLS)
-- **UI** : React Native Paper
-- **Navigation** : React Navigation 6
-- **State** : Zustand
-
-### Conventions UI
-
-- **React Native / Paper uniquement** : aucun composant HTML/CSS web. On utilise exclusivement les composants React Native et React Native Paper pour garantir la compatibilite cross-platform (Web, iOS, Android) sans effort supplementaire.
-
-## 📂 Structure du Projet
+## Structure
 
 ```
 src/
-├── screens/        # Écrans de l'app
-├── components/     # Composants réutilisables
-├── services/       # Logique métier + API calls
-├── hooks/          # Custom hooks
-├── types/          # Types TypeScript
-└── utils/          # Fonctions utilitaires
+├── components/   # Design system et composants partagés (workout/, calendar/)
+├── config/       # Supabase, thème, tokens, gamification, badges, feature flags
+├── hooks/        # Hooks TanStack Query (dashboards, historique, solo, gamification)
+├── navigation/   # Navigateurs Auth / Coach / Swimmer
+├── screens/      # Écrans par rôle : auth, coach, swimmer, onboarding, shared, dev
+├── services/     # Accès Supabase, un service par domaine
+├── stores/       # Zustand
+├── types/        # Types de la base et de la navigation
+└── utils/        # Dates, export PDF, migration du format de séance
+supabase/functions/  # Edge Functions (Deno) : generate-workout, send-push
+docs/                # Vision produit, guides, migrations SQL, archives
 ```
 
-## 🚀 Installation
+## Développement local
+
+Prérequis : Node.js 22 et npm.
 
 ```bash
-# Cloner le repo
-git clone https://github.com/TON_USERNAME/swimlab-app.git
-cd swimlab-app
-
-# Installer les dépendances
 npm install
-
-# Configurer Supabase
-cp .env.example .env
-# Éditer .env avec tes credentials Supabase
-
-# Lancer l'app
-npm start
+cp .env.example .env   # puis renseigner l'URL et la clé anon du projet Supabase
+npm run web            # http://localhost:8081
 ```
 
-## 📖 Documentation
+| Commande | Rôle |
+|---|---|
+| `npm run web` | Lancer la version web en local |
+| `npm start` | Lancer Expo (QR code pour Expo Go) |
+| `npm run typecheck` | Vérifier les types |
+| `npm run lint` | Lancer ESLint |
+| `npm test` | Lancer les tests |
+| `npm run check` | Les trois à la suite, à lancer avant chaque pull request |
 
-- [Vision Produit](./docs/VISION.md)
-- [Product Spec V0](./docs/PRODUCT_SPEC_V0.md)
-- [Database Schema](./docs/DATABASE_SCHEMA_V0.md)
-- [Technical Roadmap](./docs/TECHNICAL_ROADMAP_V0.md)
+Les valeurs du `.env` se trouvent dans Supabase : *Project Settings > API*. Seule la
+clé publique `anon` va dans l'app ; aucune autre clé ne doit être commitée.
 
-## 🗺️ Roadmap
+## Branches et workflow
 
-### ✅ Fait (Setup)
-- Auth & Profils
-- Clubs + Code invitation
-- Groupes d'entraînement
-- Database schema
+| Branche | Rôle | Règle |
+|---|---|---|
+| `main` | Production : ce qui est en ligne | Ne reçoit que des pull requests depuis `develop` (ou `hotfix/*`). Chaque merge redéploie le site |
+| `develop` | Intégration : la prochaine version | Reçoit les pull requests des branches de travail. La CI (types, lint, tests) doit passer |
+| `feature/<sujet>` | Nouvelle fonctionnalité | Part de `develop`, revient dans `develop` |
+| `fix/<sujet>` | Correction non urgente | Part de `develop`, revient dans `develop` |
+| `chore/<sujet>` | Outillage, dépendances, docs | Part de `develop`, revient dans `develop` |
+| `hotfix/<sujet>` | Correction urgente en production | Part de `main`, revient dans `main` **et** `develop` |
+| `claude/*` | Branches créées par les sessions Claude Code | Traitées comme des `feature/*` : pull request vers `develop` |
 
-### 🚧 En Cours (V0 - MVP)
-- Créneaux récurrents (slots)
-- Création entraînements structurés
-- Calendrier Coach
-- Calendrier Nageur
-- Émargement + Feedback
-- Stats coach
+Cycle normal :
 
-### 📋 Backlog (Sprint futur)
-- Flow création / rejoindre un club (onboarding coach + nageur)
+```bash
+git checkout develop && git pull
+git checkout -b feature/feedback-parents
+# ... commits ...
+npm run check
+git push -u origin feature/feedback-parents
+# ouvrir une pull request vers develop ; supprimer la branche une fois fusionnée
+```
 
-### 📅 Prévu (V0.5)
-- Bibliothèque d'exercices
-- Templates d'entraînements
-- Historique + Analytics
-- Notifications push
+## Déploiement
 
-### 🔮 Futur (V1+)
-- Mode Nageur Solo
-- IA Coach Virtuel
-- Social & Communauté
+- **Web** : `.github/workflows/deploy-web.yml` construit et publie sur GitHub Pages à
+  chaque push sur `main` (relance manuelle possible depuis l'onglet Actions).
+- **CI** : `.github/workflows/ci.yml` vérifie types, lint et tests sur chaque pull
+  request vers `main` ou `develop`.
+- **Base de données** : migrations SQL dans [`docs/migrations/`](./docs/migrations/README.md),
+  appliquées à la main dans Supabase.
+- **Edge Functions** : `supabase functions deploy generate-workout` et `send-push`
+  (secret `ANTHROPIC_API_KEY` à définir dans Supabase pour l'IA).
 
-## 🤝 Contributeurs
+## Documentation
 
-- **Raudi** (DI) - Créateur & Développeur
-- **Claude** (Anthropic) - Assistant Technique
+- [Vision produit](./docs/product/VISION.md)
+- [État des migrations SQL](./docs/migrations/README.md)
+- [Restaurer le backend Supabase](./docs/guides/RESTORE_BACKEND.md)
+- [Archives (spécification V0, roadmap, ancien schéma)](./docs/archive/README.md)
 
-## 📝 Licence
+## Licence
 
-Privé - Tous droits réservés
-
----
-
-**Version** : V0 (MVP en cours)  
-**Dernière mise à jour** : 29 Janvier 2026
+Voir [LICENSE](./LICENSE).
