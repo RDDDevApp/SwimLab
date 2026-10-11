@@ -11,8 +11,8 @@ l'état actuel de l'application.
 | `PLAN_REFONTE_SEANCES.md` | Plan de refonte de l'éditeur de séances, exécuté |
 
 Le prototype Figma V1 (projet Vite) et les wireframes V0 ont été retirés du dépôt.
-Pour les récupérer :
+Ils restent dans l'historique de `main` (commit `7bf270e`). Pour les récupérer :
 
 ```bash
-git checkout archive/figma-prototype-v1 -- "SwimLab Figma V1" wireframes_v0.html
+git checkout 7bf270e -- "SwimLab Figma V1" wireframes_v0.html
 ```
