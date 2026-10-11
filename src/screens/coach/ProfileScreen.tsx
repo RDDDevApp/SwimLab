@@ -4,6 +4,7 @@ import { Text, Card, Button, Avatar, List, Chip, Switch } from 'react-native-pap
 import GradientScreen from '../../components/GradientScreen';
 import DemoAccountSwitcher from '../../components/DemoAccountSwitcher';
 import DeleteAccountSection from '../../components/DeleteAccountSection';
+import InviteLinkActions from '../../components/InviteLinkActions';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
@@ -123,6 +124,11 @@ export default function ProfileScreen() {
                   {club.invitation_code_coach}
                 </Chip>
               </View>
+              <InviteLinkActions
+                clubName={club.name}
+                swimmerCode={club.invitation_code}
+                coachCode={club.invitation_code_coach}
+              />
               <List.Item
                 title="Membres"
                 description={`${memberCount} membre${memberCount > 1 ? 's' : ''}`}

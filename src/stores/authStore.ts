@@ -22,7 +22,11 @@ interface AuthState {
   setProfile: (profile: Profile | null) => void;
   setClubId: (clubId: string | null) => void;
   initialize: () => Promise<void>;
-  signUp: (email: string, password: string, userData: SignUpData) => Promise<{ error: Error | null }>;
+  signUp: (
+    email: string,
+    password: string,
+    userData: SignUpData,
+  ) => Promise<{ error: Error | null; needsEmailConfirmation?: boolean }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   requestPasswordReset: (email: string) => Promise<{ error: Error | null }>;
@@ -36,6 +40,8 @@ interface SignUpData {
   firstName: string;
   lastName: string;
   role: 'coach' | 'swimmer';
+  /** Code d'invitation a utiliser a la premiere connexion (voir consumePendingInvite) */
+  inviteCode?: string;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -129,6 +135,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             first_name: userData.firstName,
             last_name: userData.lastName,
             role: userData.role,
+            pending_club_code: userData.inviteCode || null,
           },
         },
       });
@@ -151,7 +158,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
       }
 
-      return { error: null };
+      // Sans session, Supabase attend la confirmation de l'email avant la premiere connexion
+      return { error: null, needsEmailConfirmation: !data.session };
     } catch (error) {
       return { error: error as Error };
     } finally {
