@@ -85,7 +85,7 @@ export const clubService = {
     if (error) throw error;
   },
 
-  /** Join a club via invitation code (auto-detects swimmer code vs coach code) */
+  /** Join a club via invitation code. `role` is the account's role: the code type must match it. */
   async joinByCode(
     code: string,
     userId: string,
@@ -109,6 +109,16 @@ export const clubService = {
     if (!club) throw new Error("Code d'invitation invalide");
 
     const detectedRole: 'coach' | 'swimmer' = clubByCoachCode ? 'coach' : 'swimmer';
+
+    // Le type de code doit correspondre au compte : un code coach donnerait sinon
+    // des droits de coach a un compte nageur (et inversement)
+    if (detectedRole !== role) {
+      throw new Error(
+        role === 'swimmer'
+          ? "Ce code est réservé aux coachs. Demande à ton coach le code nageur du club."
+          : "Ce code est un code nageur. Demande le code coach au responsable du club.",
+      );
+    }
 
     // If joining as coach, verify not already coach in another club
     if (detectedRole === 'coach') {

@@ -3,6 +3,7 @@ import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, TextInput, Button, HelperText, Card, Chip } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
 import DemoAccountSwitcher from '../../components/DemoAccountSwitcher';
+import InviteLinkActions from '../../components/InviteLinkActions';
 import { clubService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 
@@ -81,8 +82,14 @@ export default function ClubSetupScreen({ navigation }: Props) {
                 {createdClub.invitation_code_coach}
               </Chip>
               <Text variant="bodySmall" style={styles.hint}>
-                Partagez le code nageur a vos nageurs et le code coach a vos collegues coaches.
+                Envoyez le lien nageur à vos nageurs et le lien coach à vos collègues : ils
+                arriveront directement dans le club en s'inscrivant.
               </Text>
+              <InviteLinkActions
+                clubName={name}
+                swimmerCode={createdClub.invitation_code}
+                coachCode={createdClub.invitation_code_coach}
+              />
             </Card.Content>
           </Card>
 
