@@ -16,6 +16,7 @@ export default function WorkoutDetailScreen({ navigation, route }: Props) {
 
   const [workout, setWorkout] = useState<Workout | null>(null);
   const [loading, setLoading] = useState(true);
+  const [unavailable, setUnavailable] = useState(false);
 
   useEffect(() => {
     loadWorkout();
@@ -25,8 +26,9 @@ export default function WorkoutDetailScreen({ navigation, route }: Props) {
     try {
       const data = await workoutService.getById(workoutId);
       setWorkout(data);
-    } catch (err) {
-      console.error('Error loading workout:', err);
+    } catch {
+      // Séance pas encore dévoilée (programme secret) ou supprimée
+      setUnavailable(true);
     } finally {
       setLoading(false);
     }
@@ -42,7 +44,9 @@ export default function WorkoutDetailScreen({ navigation, route }: Props) {
         </View>
         <View style={styles.loading}>
           <Text variant="bodyMedium" style={styles.loadingText}>
-            Chargement...
+            {unavailable
+              ? 'Ce programme sera dévoilé à la fin de la séance.'
+              : 'Chargement...'}
           </Text>
         </View>
       </GradientScreen>
