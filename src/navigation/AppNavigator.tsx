@@ -7,12 +7,14 @@ import AuthNavigator from './AuthNavigator';
 import CoachNavigator from './CoachNavigator';
 import SwimmerNavigator from './SwimmerNavigator';
 import ClubSetupScreen from '../screens/onboarding/ClubSetupScreen';
+import ResetPasswordScreen from '../screens/auth/ResetPasswordScreen';
 import { RootStackParamList } from '../types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
-  const { session, user, profile, isLoading, isInitialized, initialize, setClubId, clubId } = useAuthStore();
+  const { session, user, profile, isLoading, isInitialized, initialize, setClubId, clubId, isPasswordRecovery } =
+    useAuthStore();
   const [checkingClub, setCheckingClub] = useState(false);
 
   useEffect(() => {
@@ -61,7 +63,10 @@ export default function AppNavigator() {
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {!session ? (
+      {session && isPasswordRecovery ? (
+        // Ouvert depuis le lien « mot de passe oublié »
+        <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+      ) : !session ? (
         // Not authenticated
         <Stack.Screen name="Auth" component={AuthNavigator} />
       ) : !hasClub && profile?.role === 'coach' ? (

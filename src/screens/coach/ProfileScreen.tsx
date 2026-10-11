@@ -3,6 +3,7 @@ import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { Text, Card, Button, Avatar, List, Chip, Switch } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
 import DemoAccountSwitcher from '../../components/DemoAccountSwitcher';
+import DeleteAccountSection from '../../components/DeleteAccountSection';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
@@ -182,6 +183,8 @@ export default function ProfileScreen() {
         >
           Se deconnecter
         </Button>
+
+        <DeleteAccountSection />
       </ScrollView>
     </GradientScreen>
   );
