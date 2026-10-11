@@ -22,6 +22,7 @@ CREATE INDEX IF NOT EXISTS idx_session_presence_swimmer
 ALTER TABLE session_presence ENABLE ROW LEVEL SECURITY;
 
 -- Le nageur gere ses propres declarations
+DROP POLICY IF EXISTS "swimmer_manages_own_presence" ON session_presence;
 CREATE POLICY "swimmer_manages_own_presence" ON session_presence
   FOR ALL
   USING (swimmer_id = auth.uid())
@@ -29,6 +30,7 @@ CREATE POLICY "swimmer_manages_own_presence" ON session_presence
 
 -- Les coachs des groupes concernes lisent les declarations
 -- (via assignment -> training_slot -> group -> group_coaches)
+DROP POLICY IF EXISTS "group_coaches_read_presence" ON session_presence;
 CREATE POLICY "group_coaches_read_presence" ON session_presence
   FOR SELECT
   USING (
@@ -46,6 +48,7 @@ CREATE POLICY "group_coaches_read_presence" ON session_presence
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'handle_updated_at') THEN
+    DROP TRIGGER IF EXISTS session_presence_updated_at ON session_presence;
     CREATE TRIGGER session_presence_updated_at
       BEFORE UPDATE ON session_presence
       FOR EACH ROW EXECUTE FUNCTION handle_updated_at();

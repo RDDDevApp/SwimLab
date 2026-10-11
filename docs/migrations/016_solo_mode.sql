@@ -7,6 +7,7 @@
 ALTER TABLE workouts ALTER COLUMN club_id DROP NOT NULL;
 
 -- RLS : un nageur gere ses propres seances solo
+DROP POLICY IF EXISTS "solo_swimmer_manages_own_workouts" ON workouts;
 CREATE POLICY "solo_swimmer_manages_own_workouts" ON workouts
   FOR ALL
   USING (club_id IS NULL AND coach_id = auth.uid())
@@ -31,6 +32,7 @@ CREATE INDEX IF NOT EXISTS idx_solo_sessions_swimmer
 
 ALTER TABLE solo_sessions ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "swimmer_manages_own_solo_sessions" ON solo_sessions;
 CREATE POLICY "swimmer_manages_own_solo_sessions" ON solo_sessions
   FOR ALL
   USING (swimmer_id = auth.uid())
