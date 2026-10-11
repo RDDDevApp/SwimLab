@@ -1,13 +1,6 @@
 export { queryKeys } from './queryKeys';
 export { useRefreshOnFocus } from './useRefreshOnFocus';
-export {
-  useSwimmerHistory,
-  useSwimmerStats,
-  usePendingFeedback,
-  useAssignmentSessions,
-  useSubmitFeedback,
-} from './useSwimmerData';
-export { useClub, useGroups, useWorkouts } from './useCoachData';
+export { useSwimmerHistory, useAssignmentSessions } from './useSwimmerData';
 export { useGamification } from './useGamification';
 export {
   useSoloDashboard,
