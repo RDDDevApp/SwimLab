@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../config/supabase';
+import { queryClient } from '../config/queryClient';
 import { Profile } from '../types/database.types';
 
 interface AuthState {
@@ -154,6 +155,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       set({ isLoading: true });
       await supabase.auth.signOut();
+      // Sans ca, le compte suivant verrait un instant les donnees en cache du precedent
+      queryClient.clear();
       set({ session: null, user: null, profile: null, clubId: null });
     } catch (error) {
       console.error('Sign out error:', error);

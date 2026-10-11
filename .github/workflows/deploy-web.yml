@@ -45,6 +45,8 @@ jobs:
           EXPO_PUBLIC_SUPABASE_URL: https://kwzghvmwsrodpomtmfjt.supabase.co
           EXPO_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3emdodm13c3JvZHBvbXRtZmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3NjEzMTMsImV4cCI6MjA4NTMzNzMxM30.SW48Gk_s2tAMWKdWcsBApDK_STdWy6jCm-EldvrehN4
           EXPO_PUBLIC_APP_ENV: production
+          # Panneau de connexion aux comptes de demo ; passer a 'false' avant le pilote
+          EXPO_PUBLIC_DEMO_MODE: 'true'
 
       - name: Prepare for Pages
         run: |

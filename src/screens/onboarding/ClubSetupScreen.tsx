@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, TextInput, Button, HelperText, Card, Chip } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
+import DemoAccountSwitcher from '../../components/DemoAccountSwitcher';
 import { clubService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 
@@ -10,7 +11,7 @@ interface Props {
 }
 
 export default function ClubSetupScreen({ navigation }: Props) {
-  const { user, setClubId } = useAuthStore();
+  const { user, setClubId, signOut } = useAuthStore();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
@@ -142,12 +143,22 @@ export default function ClubSetupScreen({ navigation }: Props) {
         >
           Creer le club
         </Button>
+
+        <Button mode="text" onPress={signOut} style={styles.signOutBtn}>
+          Se déconnecter
+        </Button>
+
+        <DemoAccountSwitcher />
       </ScrollView>
     </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
+  signOutBtn: {
+    marginTop: 8,
+    marginBottom: 16,
+  },
   container: {
     flex: 1,
     backgroundColor: 'transparent',

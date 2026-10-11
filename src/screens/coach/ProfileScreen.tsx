@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { Text, Card, Button, Avatar, List, Chip, Switch } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
+import DemoAccountSwitcher from '../../components/DemoAccountSwitcher';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
@@ -169,6 +170,8 @@ export default function ProfileScreen() {
             />
           </Card.Content>
         </Card>
+
+        <DemoAccountSwitcher />
 
         <Button
           mode="outlined"
