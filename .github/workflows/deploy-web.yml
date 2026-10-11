@@ -1,10 +1,10 @@
 name: Deploy web to GitHub Pages
 
 on:
+  # Production = main uniquement ; relance manuelle possible depuis l'onglet Actions
   push:
     branches:
       - main
-      - claude/review-swimlab-figma-2FcNz
   workflow_dispatch:
 
 permissions:
