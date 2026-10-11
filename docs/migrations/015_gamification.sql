@@ -16,11 +16,13 @@ CREATE INDEX IF NOT EXISTS idx_swimmer_badges_swimmer ON swimmer_badges (swimmer
 
 ALTER TABLE swimmer_badges ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "swimmer_manages_own_badges" ON swimmer_badges;
 CREATE POLICY "swimmer_manages_own_badges" ON swimmer_badges
   FOR ALL
   USING (swimmer_id = auth.uid())
   WITH CHECK (swimmer_id = auth.uid());
 
+DROP POLICY IF EXISTS "group_coaches_read_badges" ON swimmer_badges;
 CREATE POLICY "group_coaches_read_badges" ON swimmer_badges
   FOR SELECT
   USING (
@@ -51,11 +53,13 @@ CREATE INDEX IF NOT EXISTS idx_personal_records_swimmer
 
 ALTER TABLE personal_records ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "swimmer_manages_own_records" ON personal_records;
 CREATE POLICY "swimmer_manages_own_records" ON personal_records
   FOR ALL
   USING (swimmer_id = auth.uid())
   WITH CHECK (swimmer_id = auth.uid());
 
+DROP POLICY IF EXISTS "group_coaches_read_records" ON personal_records;
 CREATE POLICY "group_coaches_read_records" ON personal_records
   FOR SELECT
   USING (

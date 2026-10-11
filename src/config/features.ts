@@ -8,4 +8,6 @@
  */
 export const FEATURES = {
   push: true,
+  /** Panneau de connexion rapide aux comptes de demo (supabase/seed/demo_seed.sql). A couper avant le pilote. */
+  demo: process.env.EXPO_PUBLIC_DEMO_MODE === 'true',
 } as const;

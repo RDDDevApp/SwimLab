@@ -68,6 +68,24 @@ npm run web            # http://localhost:8081
 Les valeurs du `.env` se trouvent dans Supabase : *Project Settings > API*. Seule la
 clé publique `anon` va dans l'app ; aucune autre clé ne doit être commitée.
 
+## Données de démo
+
+Un club fictif complet (« CN Les Dauphins », 2 coachs, 3 groupes, 15 nageurs,
+6 semaines d'historique, un nageur solo) pour tester l'app sous tous les profils.
+
+1. Dans Supabase, *SQL Editor* : exécuter les migrations manquantes de
+   [`docs/migrations/`](./docs/migrations/README.md), puis
+   [`supabase/seed/demo_seed.sql`](./supabase/seed/demo_seed.sql). Le script est
+   rejouable : il recrée la démo à jour à chaque exécution.
+2. Avec `EXPO_PUBLIC_DEMO_MODE=true`, l'écran de connexion et les écrans Profil
+   affichent un panneau « Comptes démo » : un clic pour se connecter sous n'importe
+   quel profil. Mot de passe commun : `SwimLabDemo2026`.
+3. Pour tout supprimer : [`supabase/seed/demo_reset.sql`](./supabase/seed/demo_reset.sql).
+   Les vrais comptes ne sont pas touchés.
+
+Avant d'ouvrir l'app à un vrai club : supprimer la démo et passer
+`EXPO_PUBLIC_DEMO_MODE` à `false` dans `.github/workflows/deploy-web.yml`.
+
 ## Branches et workflow
 
 | Branche | Rôle | Règle |

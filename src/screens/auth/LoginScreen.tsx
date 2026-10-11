@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
+import DemoAccountSwitcher from '../../components/DemoAccountSwitcher';
 import { useAuthStore } from '../../stores/authStore';
 
 export default function LoginScreen({ navigation }: any) {
@@ -55,6 +56,7 @@ export default function LoginScreen({ navigation }: any) {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
+        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Text variant="displaySmall" style={styles.title}>
             SwimLab
@@ -115,6 +117,9 @@ export default function LoginScreen({ navigation }: any) {
             Pas encore de compte ? S'inscrire
           </Button>
         </View>
+
+        <DemoAccountSwitcher />
+        </ScrollView>
       </KeyboardAvoidingView>
     </GradientScreen>
   );
@@ -127,12 +132,16 @@ const styles = StyleSheet.create({
   },
   keyboardView: {
     flex: 1,
+  },
+  scroll: {
+    flexGrow: 1,
     justifyContent: 'center',
     padding: 24,
+    gap: 32,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 48,
+    marginBottom: 16,
   },
   title: {
     color: '#0891B2',
