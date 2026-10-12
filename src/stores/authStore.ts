@@ -3,6 +3,7 @@ import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../config/supabase';
 import { queryClient } from '../config/queryClient';
 import { Profile } from '../types/database.types';
+import { getAuthRedirectUrl, readAuthLinkFromUrl } from '../utils/authLink';
 
 interface AuthState {
   session: Session | null;
@@ -11,6 +12,10 @@ interface AuthState {
   clubId: string | null;
   isLoading: boolean;
   isInitialized: boolean;
+  /** Ouvert depuis le lien « mot de passe oublié » : l'app demande un nouveau mot de passe */
+  isPasswordRecovery: boolean;
+  /** Lien d'authentification expiré ou invalide, affiché sur l'écran de connexion */
+  authLinkError: string | null;
 
   // Actions
   setSession: (session: Session | null) => void;
@@ -24,6 +29,10 @@ interface AuthState {
   ) => Promise<{ error: Error | null; needsEmailConfirmation?: boolean }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
+  requestPasswordReset: (email: string) => Promise<{ error: Error | null }>;
+  updatePassword: (password: string) => Promise<{ error: Error | null }>;
+  deleteAccount: () => Promise<{ error: Error | null }>;
+  clearAuthLinkError: () => void;
   fetchProfile: () => Promise<void>;
 }
 
@@ -42,6 +51,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   clubId: null,
   isLoading: true,
   isInitialized: false,
+  isPasswordRecovery: false,
+  authLinkError: null,
 
   setSession: (session) => {
     set({
@@ -61,6 +72,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   initialize: async () => {
     try {
       set({ isLoading: true });
+
+      // Lien reçu par email (mot de passe oublié) : ouvre une session de récupération
+      const authLink = readAuthLinkFromUrl();
+      if (authLink?.type === 'recovery') {
+        const { error } = await supabase.auth.setSession({
+          access_token: authLink.accessToken,
+          refresh_token: authLink.refreshToken,
+        });
+        if (error) {
+          set({ authLinkError: 'Ce lien a expiré. Redemande un email de réinitialisation.' });
+        } else {
+          set({ isPasswordRecovery: true });
+        }
+      } else if (authLink?.type === 'error') {
+        set({ authLinkError: authLink.message });
+      }
 
       // Get current session
       const { data: { session } } = await supabase.auth.getSession();
@@ -172,6 +199,31 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ isLoading: false });
     }
   },
+
+  requestPasswordReset: async (email) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: getAuthRedirectUrl(),
+    });
+    return { error: error ? (error as Error) : null };
+  },
+
+  updatePassword: async (password) => {
+    const { error } = await supabase.auth.updateUser({ password });
+    if (!error) set({ isPasswordRecovery: false });
+    return { error: error ? (error as Error) : null };
+  },
+
+  deleteAccount: async () => {
+    const { error } = await supabase.rpc('delete_my_account' as never);
+    if (error) return { error: new Error(error.message) };
+    // Le compte n'existe plus côté serveur : on vide seulement la session locale
+    await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+    queryClient.clear();
+    set({ session: null, user: null, profile: null, clubId: null });
+    return { error: null };
+  },
+
+  clearAuthLinkError: () => set({ authLinkError: null }),
 
   fetchProfile: async () => {
     const { user } = get();
