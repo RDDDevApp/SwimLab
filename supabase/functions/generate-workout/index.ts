@@ -68,7 +68,9 @@ const WORKOUT_TOOL = {
                   distance: { type: 'integer', description: 'Distance par répétition en mètres, multiple de la longueur du bassin' },
                   repetitions: { type: 'integer', description: 'Nombre de répétitions (au moins 1)' },
                   description: { type: 'string', description: 'Consigne courte (nage, allure, éducatif)' },
-                  departure: { type: 'string', description: 'Intervalle de départ optionnel, ex "1\'30"' },
+                  // En secondes : écrit en texte (1'30), l'IA s'emmêlait dans les apostrophes
+                  // et coupait la séance au milieu (essais du 12 octobre 2026).
+                  departure_seconds: { type: 'integer', description: 'Intervalle de départ optionnel, en secondes (ex 90 pour partir toutes les 1 min 30)' },
                 },
               },
             },
@@ -150,34 +152,47 @@ Repères :
 - Structure classique : échauffement (~20 % du volume), corps de séance (~65 %), récupération (~15 %).
 - Le corps de séance peut contenir plusieurs séries.
 - Consignes courtes, en français avec les accents (« crawl souple », « 4 nages », « battements planche »…).
-- Intervalles de départ adaptés au niveau.
+- Intervalles de départ adaptés au niveau, donnés en secondes dans departure_seconds.
+- Toujours au moins un bloc d'échauffement, un corps de séance (type main) et une récupération.
 - Volume total cohérent avec la durée et le niveau (débutant ~1500-2000 m/h, intermédiaire ~2500-3000 m/h, avancé ~3500-4500 m/h).`;
 
     const client = new Anthropic({ apiKey });
-    const response = await client.beta.messages.create({
-      model: MODEL,
-      max_tokens: 16000,
-      betas: ['server-side-fallback-2026-07-01'],
-      // @ts-ignore : forme "default" du paramètre de repli (beta)
-      fallbacks: 'default',
-      output_config: { effort: 'medium' },
-      tools: [WORKOUT_TOOL as any],
-      tool_choice: { type: 'auto' },
-      messages: [{ role: 'user', content: prompt }],
-    });
+    // Un second essai si la séance revient incomplète (sans corps de séance)
+    let workout: any = null;
+    for (let attempt = 1; attempt <= 2 && !workout; attempt++) {
+      const response = await client.beta.messages.create({
+        model: MODEL,
+        max_tokens: 16000,
+        betas: ['server-side-fallback-2026-07-01'],
+        // @ts-ignore : forme "default" du paramètre de repli (beta)
+        fallbacks: 'default',
+        output_config: { effort: 'medium' },
+        tools: [WORKOUT_TOOL as any],
+        tool_choice: { type: 'auto' },
+        messages: [{ role: 'user', content: prompt }],
+      });
+      console.log(JSON.stringify({ attempt, stop_reason: response.stop_reason, usage: response.usage }));
 
-    if (response.stop_reason === 'refusal' || response.stop_reason === 'max_tokens') {
-      return json({ error: "L'IA n'a pas pu générer cette séance. Reformule tes envies et réessaie." }, 502);
+      if (response.stop_reason === 'refusal') {
+        return json({ error: "L'IA n'a pas pu générer cette séance. Reformule tes envies et réessaie." }, 502);
+      }
+      const toolUse: any = response.content.find((c: any) => c.type === 'tool_use');
+      const candidate = toolUse?.input;
+      if (
+        response.stop_reason !== 'max_tokens' &&
+        Array.isArray(candidate?.blocks) &&
+        candidate.blocks.some((b: any) => b?.type === 'main' && b.sub_blocks?.length)
+      ) {
+        workout = candidate;
+      }
     }
-    const toolUse: any = response.content.find((c: any) => c.type === 'tool_use');
-    if (!toolUse?.input?.blocks?.length) {
+    if (!workout) {
       return json({ error: "L'IA n'a pas pu générer cette séance. Réessaie." }, 502);
     }
 
     // Comptabilisée seulement si la génération a réussi
     await admin.from('ai_generations').insert({ user_id: user.id });
 
-    const workout = toolUse.input;
     const blocks = workout.blocks
       .filter((b: any) => Array.isArray(b.sub_blocks) && b.sub_blocks.length > 0)
       .map((b: any) => ({
@@ -187,7 +202,7 @@ Repères :
           distance: Math.max(poolLength, Math.round(Number(sb.distance) / poolLength) * poolLength),
           repetitions: Math.max(1, Number(sb.repetitions) || 1),
           description: sb.description ? String(sb.description) : undefined,
-          departure: sb.departure ? String(sb.departure) : undefined,
+          departure: formatDeparture(sb.departure_seconds),
         })),
       }));
 
@@ -201,6 +216,13 @@ Repères :
     return json({ error: 'Erreur du service de génération. Réessaie dans un instant.' }, 500);
   }
 });
+
+/** 90 -> "1'30", 120 -> "2'00" ; rien si absent ou hors bornes (5 s à 30 min). */
+function formatDeparture(seconds: unknown): string | undefined {
+  const n = Math.round(Number(seconds));
+  if (!Number.isFinite(n) || n < 5 || n > 1800) return undefined;
+  return `${Math.floor(n / 60)}'${String(n % 60).padStart(2, '0')}`;
+}
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {

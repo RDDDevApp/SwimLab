@@ -39,6 +39,13 @@ Supabase. Vue d'ensemble, stack et commandes : [README.md](./README.md).
 - Appliquer : avec le connecteur Supabase s'il répond (il se déconnecte souvent),
   sinon envoyer le fichier SQL à Raudi pour le SQL Editor (bouton « Run » **sans
   sélection** : « Run selected » n'exécute que le texte sélectionné).
+- Le connecteur attend une confirmation humaine pour les instructions destructrices
+  (`DELETE`, `DROP`, y compris `DROP POLICY IF EXISTS`) et finit en délai dépassé
+  sans rien appliquer. Passer ces fichiers par le SQL Editor de Raudi, ou exécuter
+  les autres instructions une par une et vérifier ensuite l'état réel.
+- Redéployer une Edge Function existante par le connecteur a échoué (« internal
+  error ») le 12 octobre 2026 ; solution de repli : éditeur de code du tableau de
+  bord Supabase (Edge Functions → la fonction → Code → Deploy).
 - Après application, vérifier contre la vraie API REST avec un compte démo
   (`/auth/v1/token?grant_type=password` puis `/rest/v1/...`).
 - Mettre à jour `docs/migrations/README.md` (tableau d'état) à chaque migration.
@@ -93,8 +100,11 @@ nouveau coach) : tous en `@example.com`. Remise à zéro : `supabase/seed/demo_s
 ## Chantiers ouverts (par priorité)
 
 1. Avant le pilote, en lots (une pull request par lot) :
-   1. Notifications et IA sécurisées (`send-push`, `generate-workout`, migrations
-      021-022), puis déploiement avec les secrets `ANTHROPIC_API_KEY` et `CRON_SECRET`.
+   1. Notifications et IA sécurisées : **en service** (fonctions déployées, migrations
+      021-022 appliquées, essais réels OK). Reste : secret `CRON_SECRET` + secret
+      Vault `cron_secret` (même valeur) ; redéployer `generate-workout` (intervalles
+      en secondes, sinon séance coupée) par l'éditeur du tableau de bord ; supprimer
+      la fonction de diagnostic `generate-workout-test`.
    2. Emails via **Brevo** (SMTP dans Supabase, modèles d'emails en français).
    3. Nageurs mineurs : date de naissance à l'inscription ; sous 15 ans, case
       « un parent est d'accord » + email du parent informé ; page « Conditions et
