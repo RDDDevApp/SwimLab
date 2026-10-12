@@ -7,6 +7,7 @@ import {
   HelperText,
   Divider,
   Chip,
+  Switch,
 } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
 import {
@@ -57,6 +58,9 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
     }
     return defaultBlocks;
   });
+  // Par défaut, le programme reste secret pour les nageurs jusqu'à la fin de la séance
+  const initialShowBefore = editingWorkout?.show_before_session ?? false;
+  const [showBeforeSession, setShowBeforeSession] = useState<boolean>(initialShowBefore);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -165,6 +169,9 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
     setError('');
 
     const content: WorkoutContent = { blocks };
+    // Envoyé seulement s'il change : la colonne n'existe qu'après la migration 020
+    const visibility =
+      showBeforeSession !== initialShowBefore ? { show_before_session: showBeforeSession } : {};
 
     try {
       if (editingWorkout) {
@@ -174,6 +181,7 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
           content,
           total_distance: totalDistance,
           is_published: publish,
+          ...visibility,
         });
       } else {
         await workoutService.create({
@@ -185,6 +193,7 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
           content,
           total_distance: totalDistance,
           is_published: publish,
+          ...visibility,
         });
       }
       navigation.goBack();
@@ -230,6 +239,18 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
           numberOfLines={2}
           style={styles.input}
         />
+
+        {clubId ? (
+          <View style={styles.visibilityRow}>
+            <View style={styles.visibilityText}>
+              <Text style={styles.visibilityTitle}>Montrer le programme avant la séance</Text>
+              <Text style={styles.visibilityHint}>
+                Désactivé : les nageurs découvrent le programme à la fin de la séance.
+              </Text>
+            </View>
+            <Switch value={showBeforeSession} onValueChange={setShowBeforeSession} />
+          </View>
+        ) : null}
 
         <Divider style={styles.divider} />
 
@@ -335,6 +356,25 @@ const styles = StyleSheet.create({
   },
   flex1: {
     flex: 1,
+  },
+  visibilityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 4,
+  },
+  visibilityText: {
+    flex: 1,
+  },
+  visibilityTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1e293b',
+  },
+  visibilityHint: {
+    fontSize: 12,
+    color: '#64748b',
+    marginTop: 2,
   },
   divider: {
     marginVertical: 16,

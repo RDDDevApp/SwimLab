@@ -552,23 +552,35 @@ function ClubDashboardContent({
             text: formatShortDate(new Date(nextWorkout.assignment.scheduled_date + 'T00:00:00')),
           }}
           title={nextWorkout.workoutTitle}
-          subtitle={nextWorkout.slotName || 'Prochain entrainement'}
-          stats={[
-            ...(nextWorkout.totalDistance
-              ? [{ label: 'Volume', value: `${nextWorkout.totalDistance}m` }]
-              : []),
-            { label: 'Type', value: nextWorkout.workoutType || 'General' },
-          ]}
-          primaryAction={{
-            label: 'Voir le programme',
-            icon: 'reader-outline',
-            onPress: () =>
-              navigation.navigate('WorkoutDetail', {
-                workoutId: nextWorkout.assignment.workout_id,
-                workoutTitle: nextWorkout.workoutTitle,
-              }),
-          }}
-          secondaryAction={presenceAction ?? undefined}
+          subtitle={
+            nextWorkout.revealed
+              ? nextWorkout.slotName || 'Prochain entraînement'
+              : 'Programme dévoilé à la fin de la séance'
+          }
+          stats={
+            nextWorkout.revealed
+              ? [
+                  ...(nextWorkout.totalDistance
+                    ? [{ label: 'Volume', value: `${nextWorkout.totalDistance}m` }]
+                    : []),
+                  { label: 'Type', value: nextWorkout.workoutType || 'General' },
+                ]
+              : [{ label: 'Dévoilé à', value: nextWorkout.revealTime }]
+          }
+          primaryAction={
+            nextWorkout.revealed || !presenceAction
+              ? {
+                  label: 'Voir le programme',
+                  icon: 'reader-outline',
+                  onPress: () =>
+                    navigation.navigate('WorkoutDetail', {
+                      workoutId: nextWorkout.assignment.workout_id,
+                      workoutTitle: nextWorkout.workoutTitle,
+                    }),
+                }
+              : presenceAction
+          }
+          secondaryAction={nextWorkout.revealed ? (presenceAction ?? undefined) : undefined}
         />
       ) : (
         <HeroCard

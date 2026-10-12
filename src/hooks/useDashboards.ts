@@ -11,6 +11,7 @@ import type { SwimmerHistoryEntry } from '../services';
 import { presenceService, SessionPresence } from '../services/presenceService';
 import { Club, Group, WorkoutAssignment, WorkoutSession } from '../types';
 import { toISODate } from '../utils/dateHelpers';
+import { formatRevealTime, isSessionRevealed } from '../utils/workoutVisibility';
 
 /* ─── Coach ─── */
 
@@ -172,6 +173,10 @@ export interface SwimmerUpcomingWorkout {
   totalDistance: number | null;
   slotName: string;
   session: WorkoutSession | null;
+  /** Programme visible (séance finie, émargement fait ou montré par le coach) */
+  revealed: boolean;
+  /** Heure de fin, affichée tant que le programme est secret (« 20h30 ») */
+  revealTime: string;
 }
 
 export interface SwimmerDashboardData {
@@ -218,12 +223,25 @@ async function fetchSwimmerDashboard(
         upcoming = assignments.slice(0, 3).map((assignment) => {
           const slot = slots.find((s) => s.id === assignment.training_slot_id);
           const workout = workoutById.get(assignment.workout_id);
+          const timing = {
+            scheduledDate: assignment.scheduled_date,
+            startTime: slot?.start_time,
+            durationMinutes: slot?.duration_minutes,
+          };
+          const revealed = isSessionRevealed({
+            ...timing,
+            attendanceMarked: assignment.attendance_marked,
+            showBeforeSession: (workout as { show_before_session?: boolean } | undefined)?.show_before_session,
+          });
           return {
             assignment,
-            workoutTitle: workout?.title || 'Seance',
-            workoutType: workout?.type || 'other',
-            totalDistance: workout?.total_distance ?? null,
+            // Programme secret : ni titre, ni type, ni volume avant la fin de la séance
+            workoutTitle: revealed ? workout?.title || 'Séance' : `Séance ${slot?.name || ''}`.trim(),
+            workoutType: revealed ? workout?.type || 'other' : 'other',
+            totalDistance: revealed ? (workout?.total_distance ?? null) : null,
             slotName: slot?.name || '',
+            revealed,
+            revealTime: formatRevealTime(timing),
             session:
               sessions.find((s) => s.workout_assignment_id === assignment.id) || null,
           };

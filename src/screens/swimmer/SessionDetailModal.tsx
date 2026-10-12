@@ -7,6 +7,8 @@ import { useSnackbarStore } from '../../stores/snackbarStore';
 import { formatTime } from '../../utils/dateHelpers';
 import WorkoutContentView from '../../components/workout/WorkoutContentView';
 import RPESlider from '../../components/RPESlider';
+import { Ionicons } from '@expo/vector-icons';
+import { formatRevealTime, isSessionRevealed } from '../../utils/workoutVisibility';
 
 interface Props {
   navigation: any;
@@ -39,7 +41,17 @@ export default function SessionDetailModal({ navigation, route }: Props) {
     slotName,
     slot,
     session: initialSession,
+    revealed: revealedParam,
   } = route.params;
+
+  const timing = {
+    scheduledDate: assignment.scheduled_date,
+    startTime: slot?.start_time,
+    durationMinutes: slot?.duration_minutes,
+  };
+  // Le programme reste secret jusqu'à la fin de la séance (ou l'émargement)
+  const revealed: boolean =
+    revealedParam ?? isSessionRevealed({ ...timing, attendanceMarked: assignment.attendance_marked });
 
   const showSnackbar = useSnackbarStore((s) => s.show);
 
@@ -56,6 +68,10 @@ export default function SessionDetailModal({ navigation, route }: Props) {
   }, []);
 
   const loadWorkout = async () => {
+    if (!revealed) {
+      setLoading(false);
+      return;
+    }
     try {
       const data = await workoutService.getById(assignment.workout_id);
       setWorkout(data);
@@ -172,7 +188,17 @@ export default function SessionDetailModal({ navigation, route }: Props) {
                 </View>
 
                 {/* Workout content */}
-                {workout && <WorkoutContentView workout={workout} />}
+                {revealed ? (
+                  workout && <WorkoutContentView workout={workout} />
+                ) : (
+                  <View style={styles.secretBox}>
+                    <Ionicons name="lock-closed-outline" size={22} color="#0891B2" />
+                    <Text style={styles.secretTitle}>Programme secret</Text>
+                    <Text style={styles.secretText}>
+                      Ton coach dévoilera le programme à la fin de la séance, vers {formatRevealTime(timing)}.
+                    </Text>
+                  </View>
+                )}
 
                 {/* Feedback section */}
                 {canGiveFeedback && (
@@ -340,6 +366,25 @@ const styles = StyleSheet.create({
   },
   workoutHeader: {
     marginBottom: 16,
+  },
+  secretBox: {
+    alignItems: 'center',
+    gap: 6,
+    padding: 20,
+    borderRadius: 16,
+    backgroundColor: 'rgba(8, 145, 178, 0.08)',
+    marginBottom: 16,
+  },
+  secretTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#1e293b',
+  },
+  secretText: {
+    fontSize: 13,
+    color: '#64748b',
+    textAlign: 'center',
+    lineHeight: 19,
   },
   workoutTitle: {
     fontWeight: 'bold',

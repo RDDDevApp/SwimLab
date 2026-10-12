@@ -234,6 +234,7 @@ export type Database = {
           total_distance: number | null;
           estimated_duration: number | null;
           is_published: boolean;
+          show_before_session?: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -248,6 +249,7 @@ export type Database = {
           total_distance?: number | null;
           estimated_duration?: number | null;
           is_published?: boolean;
+          show_before_session?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -262,6 +264,7 @@ export type Database = {
           total_distance?: number | null;
           estimated_duration?: number | null;
           is_published?: boolean;
+          show_before_session?: boolean;
           created_at?: string;
           updated_at?: string;
         };
