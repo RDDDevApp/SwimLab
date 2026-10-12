@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl, Pressable } from 'react-native';
-import { Text, Avatar, Chip } from 'react-native-paper';
+import { Text, Avatar, Chip, Button } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import GradientScreen from '../../components/GradientScreen';
 import AnimatedBackground from '../../components/AnimatedBackground';
@@ -28,11 +28,33 @@ function timeAgo(iso: string): string {
 
 export default function CoachDashboardScreen({ navigation }: { navigation: any }) {
   const { profile, user, clubId } = useAuthStore();
-  const { data, isLoading, isRefetching, refetch } = useCoachDashboard(user?.id, clubId);
+  const { data, isError, isRefetching, refetch } = useCoachDashboard(user?.id, clubId);
   const { data: rpeAlerts = [] } = useRpeAlerts(user?.id);
   useRefreshOnFocus(refetch);
 
-  if (isLoading || !data) {
+  if (isError && !data) {
+    return (
+      <GradientScreen>
+        <AnimatedBackground variant="cyan" />
+        <View style={styles.errorWrap}>
+          <GlassCard elevated>
+            <View style={styles.errorBody}>
+              <Ionicons name="cloud-offline-outline" size={28} color="#B91C1C" />
+              <Text style={styles.errorTitle}>Le tableau de bord n'a pas pu se charger</Text>
+              <Text style={styles.errorText}>
+                Vérifie ta connexion puis réessaie. Si le problème continue, préviens l'équipe SwimLab.
+              </Text>
+              <Button mode="contained" onPress={() => refetch()} loading={isRefetching}>
+                Réessayer
+              </Button>
+            </View>
+          </GlassCard>
+        </View>
+      </GradientScreen>
+    );
+  }
+
+  if (!data) {
     return (
       <GradientScreen>
         <AnimatedBackground variant="cyan" />
@@ -269,6 +291,28 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
 }
 
 const styles = StyleSheet.create({
+  errorWrap: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 16,
+  },
+  errorBody: {
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 8,
+  },
+  errorTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#1e293b',
+    textAlign: 'center',
+  },
+  errorText: {
+    fontSize: 13,
+    color: '#64748b',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
   content: {
     padding: 16,
     gap: 16,

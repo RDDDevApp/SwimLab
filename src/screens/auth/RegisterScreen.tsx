@@ -5,14 +5,18 @@ import { Ionicons } from '@expo/vector-icons';
 import GradientScreen from '../../components/GradientScreen';
 import GlassCard from '../../components/GlassCard';
 import { useAuthStore } from '../../stores/authStore';
+import { getInviteCodeFromUrl, normalizeInviteCode } from '../../utils/invite';
 
-type Step = 0 | 1 | 2;
-const STEP_LABELS = ['Role', 'Identite', 'Securite'];
+type Step = 0 | 1 | 2 | 3;
+const STEP_LABELS = ['Rôle', 'Club', 'Identité', 'Sécurité'];
 
-/** Inscription multi-etapes : role -> identite -> mot de passe, avec stepper. */
+/** Inscription multi-etapes : role -> club -> identite -> mot de passe, avec stepper. */
 export default function RegisterScreen({ navigation }: any) {
   const [step, setStep] = useState<Step>(0);
   const [role, setRole] = useState<'coach' | 'swimmer' | null>(null);
+  // Un lien d'invitation (…?club=code) pre-remplit le code du club
+  const [clubCode, setClubCode] = useState(() => getInviteCodeFromUrl() ?? '');
+  const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -40,6 +44,16 @@ export default function RegisterScreen({ navigation }: any) {
       return;
     }
     setError('');
+    setStep(3);
+  };
+
+  const validateClub = (withCode: boolean) => {
+    if (withCode && !clubCode.trim()) {
+      setError('Saisis le code reçu de ton club, ou choisis de continuer sans code.');
+      return;
+    }
+    if (!withCode) setClubCode('');
+    setError('');
     setStep(2);
   };
 
@@ -54,14 +68,17 @@ export default function RegisterScreen({ navigation }: any) {
     }
     setError('');
 
-    const { error: signUpError } = await signUp(email, password, {
+    const { error: signUpError, needsEmailConfirmation } = await signUp(email, password, {
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       role: role || 'swimmer',
+      inviteCode: clubCode.trim() ? normalizeInviteCode(clubCode) : undefined,
     });
 
     if (signUpError) {
       setError(signUpError.message);
+    } else if (needsEmailConfirmation) {
+      setAwaitingConfirmation(true);
     }
   };
 
@@ -81,6 +98,22 @@ export default function RegisterScreen({ navigation }: any) {
         style={styles.keyboardView}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
+          {awaitingConfirmation ? (
+            <GlassCard elevated>
+              <View style={styles.confirmBody}>
+                <Ionicons name="mail-unread-outline" size={36} color="#0891B2" />
+                <Text style={styles.roleTitle}>Vérifie ta boîte mail</Text>
+                <Text style={styles.roleDesc}>
+                  Un lien de confirmation a été envoyé à {email}. Clique dessus, puis connecte-toi.
+                  {clubCode.trim() ? ' Tu rejoindras ton club automatiquement à la première connexion.' : ''}
+                </Text>
+                <Button mode="contained" onPress={() => navigation.navigate('Login')} style={styles.button}>
+                  Aller à la connexion
+                </Button>
+              </View>
+            </GlassCard>
+          ) : (
+          <>
           <View style={styles.header}>
             <Text variant="displaySmall" style={styles.title}>
               SwimLab
@@ -153,8 +186,42 @@ export default function RegisterScreen({ navigation }: any) {
             </View>
           )}
 
-          {/* Etape 1 : identite */}
+          {/* Etape 1 : club */}
           {step === 1 && (
+            <View style={styles.form}>
+              <Text variant="titleMedium" style={styles.stepTitle}>
+                {role === 'coach' ? 'Tu rejoins un club existant ?' : 'Ton club'}
+              </Text>
+              <Text style={styles.stepHint}>
+                {role === 'coach'
+                  ? "Si le responsable de ton club t'a donné un code coach, saisis-le. Sinon, tu créeras ton club juste après l'inscription."
+                  : "Ton coach t'a donné un code ? Saisis-le pour arriver directement dans ton club."}
+              </Text>
+              <TextInput
+                label={role === 'coach' ? 'Code coach du club' : 'Code du club'}
+                value={clubCode}
+                onChangeText={setClubCode}
+                mode="outlined"
+                autoCapitalize="none"
+                autoCorrect={false}
+                style={styles.input}
+              />
+              {error ? (
+                <HelperText type="error" visible>
+                  {error}
+                </HelperText>
+              ) : null}
+              <Button mode="contained" onPress={() => validateClub(true)} style={styles.button}>
+                Continuer avec ce code
+              </Button>
+              <Button mode="outlined" onPress={() => validateClub(false)}>
+                {role === 'coach' ? 'Je crée mon club' : "Je n'ai pas de code : nager en solo"}
+              </Button>
+            </View>
+          )}
+
+          {/* Etape 2 : identite */}
+          {step === 2 && (
             <View style={styles.form}>
               <Text variant="titleMedium" style={styles.stepTitle}>
                 Qui etes-vous ?
@@ -196,8 +263,8 @@ export default function RegisterScreen({ navigation }: any) {
             </View>
           )}
 
-          {/* Etape 2 : mot de passe */}
-          {step === 2 && (
+          {/* Etape 3 : mot de passe */}
+          {step === 3 && (
             <View style={styles.form}>
               <Text variant="titleMedium" style={styles.stepTitle}>
                 Choisissez un mot de passe
@@ -242,8 +309,10 @@ export default function RegisterScreen({ navigation }: any) {
           )}
 
           <Button mode="text" onPress={goBack} style={styles.linkButton}>
-            {step === 0 ? 'Deja un compte ? Se connecter' : 'Retour'}
+            {step === 0 ? 'Déjà un compte ? Se connecter' : 'Retour'}
           </Button>
+          </>
+          )}
         </ScrollView>
       </KeyboardAvoidingView>
     </GradientScreen>
@@ -251,6 +320,17 @@ export default function RegisterScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
+  stepHint: {
+    fontSize: 13,
+    color: '#64748b',
+    lineHeight: 19,
+    marginTop: -8,
+  },
+  confirmBody: {
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 8,
+  },
   keyboardView: {
     flex: 1,
   },

@@ -8,11 +8,13 @@ export type RootStackParamList = {
   CoachApp: undefined;
   SwimmerApp: undefined;
   Onboarding: undefined;
+  ResetPassword: undefined;
 };
 
 export type AuthStackParamList = {
   Login: undefined;
   Register: undefined;
+  ForgotPassword: undefined;
 };
 
 export type OnboardingStackParamList = {

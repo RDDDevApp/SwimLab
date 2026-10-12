@@ -11,7 +11,7 @@ export default function LoginScreen({ navigation }: any) {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
-  const { signIn, isLoading } = useAuthStore();
+  const { signIn, isLoading, authLinkError, clearAuthLinkError } = useAuthStore();
 
   const handleLogin = async () => {
     setError('');
@@ -93,9 +93,9 @@ export default function LoginScreen({ navigation }: any) {
             style={styles.input}
           />
 
-          {error ? (
+          {error || authLinkError ? (
             <View style={styles.errorBanner}>
-              <Text style={styles.errorText}>{error}</Text>
+              <Text style={styles.errorText}>{error || authLinkError}</Text>
             </View>
           ) : null}
 
@@ -107,6 +107,17 @@ export default function LoginScreen({ navigation }: any) {
             style={styles.button}
           >
             Se connecter
+          </Button>
+
+          <Button
+            mode="text"
+            compact
+            onPress={() => {
+              clearAuthLinkError();
+              navigation.navigate('ForgotPassword');
+            }}
+          >
+            Mot de passe oublié ?
           </Button>
 
           <Button

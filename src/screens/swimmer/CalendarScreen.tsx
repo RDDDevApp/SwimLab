@@ -15,6 +15,8 @@ import { useAuthStore } from '../../stores/authStore';
 import { getWeekDates, formatWeekRange, toISODate, formatShortDate, isToday, getDayOfWeek, formatTime } from '../../utils/dateHelpers';
 import { WORKOUT_TYPE_COLORS } from '../../config/tokens';
 import AnimatedCountdown from '../../components/AnimatedCountdown';
+import { Ionicons } from '@expo/vector-icons';
+import { formatRevealTime, isSessionRevealed } from '../../utils/workoutVisibility';
 
 interface EnrichedAssignment {
   assignment: WorkoutAssignment;
@@ -24,6 +26,8 @@ interface EnrichedAssignment {
   slotName: string;
   slot: TrainingSlot;
   session: WorkoutSession | null;
+  /** Programme visible : séance finie, émargement fait ou montré par le coach */
+  revealed: boolean;
 }
 
 interface Props {
@@ -97,7 +101,10 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
 
       // Workouts en batch (anti N+1)
       const workoutIds = [...new Set(assignments.map((a) => a.workout_id))];
-      let workoutById = new Map<string, { title: string; type: string | null; total_distance: number | null }>();
+      let workoutById = new Map<
+        string,
+        { title: string; type: string | null; total_distance: number | null; show_before_session?: boolean }
+      >();
       try {
         const workouts = await workoutService.getByIds(workoutIds);
         workoutById = new Map(workouts.map((w) => [w.id, w]));
@@ -113,14 +120,24 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
           (s) => s.workout_assignment_id === assignment.id,
         ) || null;
 
+        const revealed = isSessionRevealed({
+          scheduledDate: assignment.scheduled_date,
+          startTime: slot.start_time,
+          durationMinutes: slot.duration_minutes,
+          attendanceMarked: assignment.attendance_marked,
+          showBeforeSession: workout?.show_before_session,
+        });
+
         enriched.push({
           assignment,
-          workoutTitle: workout?.title || 'Seance',
-          workoutType: workout?.type || 'other',
-          totalDistance: workout?.total_distance ?? null,
+          // Programme secret jusqu'à la fin de la séance : ni titre, ni type, ni volume
+          workoutTitle: revealed ? workout?.title || 'Séance' : 'Programme secret',
+          workoutType: revealed ? workout?.type || 'other' : 'other',
+          totalDistance: revealed ? (workout?.total_distance ?? null) : null,
           slotName: slot.name,
           slot,
           session,
+          revealed,
         });
       }
 
@@ -261,6 +278,7 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
                             slotName: item.slotName,
                             slot: item.slot,
                             session: item.session,
+                            revealed: item.revealed,
                           });
                         }}
                       >
@@ -278,15 +296,32 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
                         <Text variant="bodySmall" style={styles.slotTime}>
                           {formatTime(item.slot.start_time)} - {item.slot.duration_minutes}min
                         </Text>
-                        <Text variant="titleSmall" style={styles.workoutTitle}>
-                          {item.workoutTitle}
-                        </Text>
+                        <View style={styles.titleRow}>
+                          {!item.revealed && (
+                            <Ionicons name="lock-closed-outline" size={14} color="#64748b" />
+                          )}
+                          <Text variant="titleSmall" style={styles.workoutTitle}>
+                            {item.workoutTitle}
+                          </Text>
+                        </View>
                         <View style={styles.chipRow}>
-                          <View style={[styles.typeChip, { backgroundColor: typeCfg.bg }]}>
-                            <Text style={[styles.typeChipText, { color: typeCfg.color }]}>
-                              {typeCfg.label}
-                            </Text>
-                          </View>
+                          {item.revealed ? (
+                            <View style={[styles.typeChip, { backgroundColor: typeCfg.bg }]}>
+                              <Text style={[styles.typeChipText, { color: typeCfg.color }]}>
+                                {typeCfg.label}
+                              </Text>
+                            </View>
+                          ) : (
+                            <View style={styles.typeChip}>
+                              <Text style={styles.typeChipText}>
+                                Dévoilé à {formatRevealTime({
+                                  scheduledDate: item.assignment.scheduled_date,
+                                  startTime: item.slot.start_time,
+                                  durationMinutes: item.slot.duration_minutes,
+                                })}
+                              </Text>
+                            </View>
+                          )}
                           {item.totalDistance ? (
                             <View style={styles.typeChip}>
                               <Text style={styles.typeChipText}>
@@ -448,6 +483,11 @@ const styles = StyleSheet.create({
   slotTime: {
     color: '#64748b',
     marginTop: 2,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   workoutTitle: {
     fontWeight: 'bold',

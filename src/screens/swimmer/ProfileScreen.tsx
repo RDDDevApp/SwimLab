@@ -3,6 +3,7 @@ import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { Text, Card, Button, Avatar, List, Switch, IconButton, Portal, Dialog } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
 import DemoAccountSwitcher from '../../components/DemoAccountSwitcher';
+import DeleteAccountSection from '../../components/DeleteAccountSection';
 import BadgeChip from '../../components/BadgeChip';
 import XPBar from '../../components/XPBar';
 import StreakFlame from '../../components/StreakFlame';
@@ -239,6 +240,8 @@ export default function SwimmerProfileScreen({ navigation }: { navigation: any }
         >
           Se deconnecter
         </Button>
+
+        <DeleteAccountSection />
       </ScrollView>
 
       {/* Explication du systeme XP */}

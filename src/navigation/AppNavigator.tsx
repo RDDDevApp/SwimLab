@@ -3,17 +3,23 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { useAuthStore } from '../stores/authStore';
 import { clubService, notificationService } from '../services';
+import { useSnackbarStore } from '../stores/snackbarStore';
+import { consumePendingInvite } from '../utils/pendingInvite';
+import { clearInviteCodeFromUrl } from '../utils/invite';
 import AuthNavigator from './AuthNavigator';
 import CoachNavigator from './CoachNavigator';
 import SwimmerNavigator from './SwimmerNavigator';
 import ClubSetupScreen from '../screens/onboarding/ClubSetupScreen';
+import ResetPasswordScreen from '../screens/auth/ResetPasswordScreen';
 import { RootStackParamList } from '../types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
-  const { session, user, profile, isLoading, isInitialized, initialize, setClubId, clubId } = useAuthStore();
+  const { session, user, profile, isLoading, isInitialized, initialize, setClubId, clubId, isPasswordRecovery } =
+    useAuthStore();
   const [checkingClub, setCheckingClub] = useState(false);
+  const showSnackbar = useSnackbarStore((s) => s.show);
 
   useEffect(() => {
     initialize();
@@ -38,6 +44,16 @@ export default function AppNavigator() {
         const clubs = await clubService.getByUser(user.id);
         if (clubs.length > 0) {
           setClubId(clubs[0].id);
+          clearInviteCodeFromUrl();
+        } else {
+          // Code d'invitation en attente (lien ouvert ou saisi a l'inscription)
+          const invite = await consumePendingInvite(user, profile.role === 'coach' ? 'coach' : 'swimmer');
+          if (invite?.status === 'joined') {
+            setClubId(invite.clubId);
+            showSnackbar(`Bienvenue dans ${invite.clubName} !`, 'success');
+          } else if (invite?.status === 'failed') {
+            showSnackbar(invite.message, 'error');
+          }
         }
       } catch {
         // Club check failed
@@ -61,7 +77,10 @@ export default function AppNavigator() {
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {!session ? (
+      {session && isPasswordRecovery ? (
+        // Ouvert depuis le lien « mot de passe oublié »
+        <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+      ) : !session ? (
         // Not authenticated
         <Stack.Screen name="Auth" component={AuthNavigator} />
       ) : !hasClub && profile?.role === 'coach' ? (
