@@ -58,82 +58,16 @@ export const notificationService = {
       .eq('token', token);
   },
 
-  /** Get push tokens for a list of user IDs */
-  async getTokensByUserIds(userIds: string[]): Promise<{ user_id: string; token: string }[]> {
-    if (!userIds.length) return [];
-
-    const { data, error } = await supabase
-      .from('push_tokens')
-      .select('user_id, token')
-      .in('user_id', userIds);
-
-    if (error) throw error;
-    return data as { user_id: string; token: string }[];
-  },
-
-  /** Send push notification via Expo Push API */
-  async sendPushNotifications(
-    tokens: string[],
-    title: string,
-    body: string,
-    data?: Record<string, any>,
-  ): Promise<void> {
+  /**
+   * Demande aux nageurs présents de donner leur ressenti, juste après l'émargement.
+   * L'envoi passe par l'Edge Function send-push : l'app ne peut pas lire les jetons
+   * des autres utilisateurs (RLS de push_tokens).
+   */
+  async requestFeedback(assignmentId: string): Promise<void> {
     if (!FEATURES.push) return;
-    if (!tokens.length) return;
-
-    const messages = tokens.map((token) => ({
-      to: token,
-      sound: 'default',
-      title,
-      body,
-      data: data || {},
-    }));
-
-    try {
-      await fetch('https://exp.host/--/api/v2/push/send', {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(messages),
-      });
-    } catch (err) {
-      console.error('Push notification error:', err);
-    }
-  },
-
-  /** Notify swimmers to give feedback after attendance */
-  async notifyFeedbackRequired(
-    swimmerIds: string[],
-    workoutTitle: string,
-  ): Promise<void> {
-    const tokenData = await this.getTokensByUserIds(swimmerIds);
-    const tokens = tokenData.map((t) => t.token);
-
-    await this.sendPushNotifications(
-      tokens,
-      'Feedback demandé',
-      `Donne ton ressenti pour "${workoutTitle}"`,
-      { type: 'feedback_required' },
-    );
-  },
-
-  /** Notify swimmers of upcoming training */
-  async notifyTrainingReminder(
-    swimmerIds: string[],
-    slotName: string,
-    startTime: string,
-  ): Promise<void> {
-    const tokenData = await this.getTokensByUserIds(swimmerIds);
-    const tokens = tokenData.map((t) => t.token);
-
-    await this.sendPushNotifications(
-      tokens,
-      'Entraînement bientôt',
-      `${slotName} commence à ${startTime}`,
-      { type: 'training_reminder' },
-    );
+    await supabase.functions.invoke('send-push', {
+      body: { type: 'feedback_request', assignment_id: assignmentId },
+    });
   },
 
   /** Schedule a local notification (for reminders) */
