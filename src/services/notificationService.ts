@@ -113,7 +113,7 @@ export const notificationService = {
 
     await this.sendPushNotifications(
       tokens,
-      'Feedback demande',
+      'Feedback demandé',
       `Donne ton ressenti pour "${workoutTitle}"`,
       { type: 'feedback_required' },
     );
@@ -130,8 +130,8 @@ export const notificationService = {
 
     await this.sendPushNotifications(
       tokens,
-      'Entrainement bientot',
-      `${slotName} commence a ${startTime}`,
+      'Entraînement bientôt',
+      `${slotName} commence à ${startTime}`,
       { type: 'training_reminder' },
     );
   },

@@ -81,7 +81,7 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
             </View>
             <Text style={styles.greeting}>Bonjour, {profile?.first_name}</Text>
             <Text style={styles.subtitle}>
-              {nextSession ? 'Vos nageurs vous attendent' : 'Gerez vos groupes et seances'}
+              {nextSession ? 'Tes nageurs t\'attendent' : 'Gère tes groupes et tes séances'}
             </Text>
           </View>
           <Avatar.Text
@@ -95,11 +95,11 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
         {nextSession ? (
           <HeroCard
             gradientColors={HERO_GRADIENTS.coach.colors}
-            badge={{ icon: 'ellipse', text: 'Prochaine Seance' }}
+            badge={{ icon: 'ellipse', text: 'Prochaine séance' }}
             title={nextSession.title}
             subtitle={`${formatShortDate(new Date(nextSession.date + 'T00:00:00'))} · ${nextSession.groupName}`}
             primaryAction={{
-              label: 'Lancer la seance',
+              label: 'Lancer la séance',
               icon: 'play-outline',
               onPress: () =>
                 navigation.navigate('Attendance', {
@@ -113,10 +113,10 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
           <HeroCard
             gradientColors={HERO_GRADIENTS.coach.colors}
             badge={{ icon: 'calendar-outline', text: 'Planning' }}
-            title="Aucune seance planifiee"
-            subtitle="Planifiez votre prochaine seance d'entrainement."
+            title="Aucune séance planifiée"
+            subtitle="Planifie ta prochaine séance d'entraînement."
             primaryAction={{
-              label: 'Creer une seance',
+              label: 'Créer une séance',
               icon: 'add-outline',
               onPress: () => navigation.navigate('CreateWorkout'),
             }}
@@ -128,7 +128,7 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
           <GlassCard style={styles.alertCard}>
             <View style={styles.alertHeader}>
               <Ionicons name="warning-outline" size={18} color="#B45309" />
-              <Text style={styles.alertTitle}>Charge inhabituelle detectee</Text>
+              <Text style={styles.alertTitle}>Charge inhabituelle détectée</Text>
             </View>
             {rpeAlerts.slice(0, 3).map((alert) => (
               <View key={alert.swimmerId} style={styles.alertRow}>
@@ -139,8 +139,7 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
               </View>
             ))}
             <Text style={styles.alertHint}>
-              RPE moyen 7 jours nettement au-dessus de la baseline 28 jours — pensez a
-              alleger ou verifier la recuperation.
+              RPE moyen sur 7 jours nettement au-dessus de sa moyenne sur 28 jours : pense à alléger ou à vérifier la récupération.
             </Text>
           </GlassCard>
         )}
@@ -164,14 +163,14 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
         <View style={styles.quickActionsGrid}>
           <QuickActionCard
             title="Analyses"
-            subtitle="Stats detaillees"
+            subtitle="Stats détaillées"
             icon="pulse-outline"
             iconColor="#0891B2"
             onPress={() => navigation.navigate('CoachStats')}
             delay={500}
           />
           <QuickActionCard
-            title="Mes Groupes"
+            title="Mes groupes"
             subtitle={`${data.groupCount} groupe${data.groupCount > 1 ? 's' : ''}`}
             icon="people-outline"
             iconColor="#6366F1"
@@ -187,8 +186,8 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
             delay={700}
           />
           <QuickActionCard
-            title="Bibliotheque"
-            subtitle="Blocs reutilisables"
+            title="Bibliothèque"
+            subtitle="Blocs réutilisables"
             icon="library-outline"
             iconColor="#EAB308"
             onPress={() => navigation.navigate('BlockLibrary')}
@@ -200,7 +199,7 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
         {recentActivity.length > 0 && (
           <GlassCard elevated>
             <SectionHeader
-              title="Activite Recente"
+              title="Activité récente"
               onAction={() => navigation.navigate('WorkoutHistory')}
             />
             {recentActivity.slice(0, 5).map((entry) => (
@@ -222,7 +221,7 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
                       "{entry.feedbackText}"
                     </Text>
                   ) : (
-                    <Text style={styles.activityDetail}>Feedback envoye</Text>
+                    <Text style={styles.activityDetail}>Feedback envoyé</Text>
                   )}
                 </View>
                 {entry.rpeScore !== null && (
@@ -246,13 +245,13 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
         {/* Defis du Mois — calcules en direct sur les vraies donnees */}
         {(monthly.attendancePct !== null || monthly.distancePct !== null) && (
           <GlassCard elevated>
-            <SectionHeader title="Defis du Mois" />
+            <SectionHeader title="Défis du mois" />
             <View style={styles.ringsRow}>
               {monthly.attendancePct !== null && (
                 <ProgressRing
                   progress={monthly.attendancePct}
                   color="#059669"
-                  caption="Assiduite"
+                  caption="Assiduité"
                 />
               )}
               {monthly.distancePct !== null && (

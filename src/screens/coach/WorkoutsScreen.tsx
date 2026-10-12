@@ -53,7 +53,7 @@ export default function WorkoutsScreen({ navigation }: Props) {
     try {
       await workoutService.delete(deleteTarget.id);
       setDeleteTarget(null);
-      showSnackbar('Seance supprimee', 'success');
+      showSnackbar('Séance supprimée', 'success');
       loadWorkouts();
     } catch (err) {
       showSnackbar('Erreur lors de la suppression', 'error');
@@ -73,7 +73,7 @@ export default function WorkoutsScreen({ navigation }: Props) {
         total_distance: workout.total_distance,
         is_published: false,
       });
-      showSnackbar('Seance dupliquee', 'success');
+      showSnackbar('Séance dupliquée', 'success');
       loadWorkouts();
     } catch (err) {
       showSnackbar('Erreur lors de la duplication', 'error');
@@ -84,10 +84,10 @@ export default function WorkoutsScreen({ navigation }: Props) {
     try {
       if (workout.is_published) {
         await workoutService.unpublish(workout.id);
-        showSnackbar('Seance depubliee', 'success');
+        showSnackbar('Séance dépubliée', 'success');
       } else {
         await workoutService.publish(workout.id);
-        showSnackbar('Seance publiee', 'success');
+        showSnackbar('Séance publiée', 'success');
       }
       loadWorkouts();
     } catch (err) {
@@ -193,7 +193,7 @@ export default function WorkoutsScreen({ navigation }: Props) {
     <GradientScreen>
       <View style={styles.header}>
         <Text variant="headlineMedium" style={styles.title}>
-          Entrainements
+          Séances
         </Text>
         <View style={styles.headerButtons}>
           <Button
@@ -203,7 +203,7 @@ export default function WorkoutsScreen({ navigation }: Props) {
             compact
             style={styles.headerBtn}
           >
-            Biblio Blocs
+            Bibliothèque
           </Button>
           <Button
             mode="outlined"
@@ -230,8 +230,8 @@ export default function WorkoutsScreen({ navigation }: Props) {
       {workouts.length === 0 && !loading ? (
         <EmptyState
           icon="dumbbell"
-          title="Aucun entrainement cree"
-          subtitle="Creez votre premier entrainement structure"
+          title="Aucun entraînement créé"
+          subtitle="Crée ton premier entraînement structuré"
         />
       ) : (
         <FlatList
@@ -296,7 +296,7 @@ export default function WorkoutsScreen({ navigation }: Props) {
                         item.is_published ? styles.publishedChip : styles.draftChip,
                       ]}
                     >
-                      {item.is_published ? 'Publie' : 'Brouillon'}
+                      {item.is_published ? 'Publiée' : 'Brouillon'}
                     </Chip>
                     {!isExpanded && item.content?.blocks ? (
                       <Chip compact style={styles.chip}>
@@ -321,10 +321,10 @@ export default function WorkoutsScreen({ navigation }: Props) {
 
       <Portal>
         <Dialog visible={!!deleteTarget} onDismiss={() => setDeleteTarget(null)}>
-          <Dialog.Title>Supprimer la seance</Dialog.Title>
+          <Dialog.Title>Supprimer la séance</Dialog.Title>
           <Dialog.Content>
             <Paragraph>
-              Supprimer "{deleteTarget?.title}" ? Cette action est irreversible.
+              Supprimer "{deleteTarget?.title}" ? Cette action est irréversible.
             </Paragraph>
           </Dialog.Content>
           <Dialog.Actions>

@@ -32,14 +32,14 @@ export const aiService = {
 
     if (error) {
       throw new Error(
-        "Generation indisponible — l'Edge Function generate-workout n'est pas deployee ou a echoue",
+        "La génération par IA n'est pas encore disponible. Réessaie plus tard.",
       );
     }
     if (data?.error) {
       throw new Error(data.error);
     }
     if (!Array.isArray(data?.blocks) || data.blocks.length === 0) {
-      throw new Error('Reponse IA invalide');
+      throw new Error('Réponse IA invalide');
     }
 
     // Ajouter les ids client attendus par l'editeur

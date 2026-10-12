@@ -50,8 +50,7 @@ export default function BackendStatusBanner() {
       <View style={{ flex: 1 }}>
         <Text style={styles.title}>Serveur injoignable</Text>
         <Text style={styles.subtitle}>
-          Le projet Supabase ne repond pas — verifie ta connexion, ou que le projet
-          existe toujours et que l'URL du .env est a jour. Appuie pour reessayer.
+          Le serveur ne répond pas. Vérifie ta connexion, puis appuie ici pour réessayer.
         </Text>
       </View>
     </Pressable>

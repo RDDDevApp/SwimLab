@@ -107,7 +107,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
       const w = await workoutService.getById(selectedWorkoutId);
       setWorkout(w);
       setPublishedWorkouts([]);
-      showSnackbar('Seance assignee', 'success');
+      showSnackbar('Séance assignée', 'success');
     } catch (err: any) {
       showSnackbar(err.message || 'Erreur lors de l\'attribution', 'error');
     } finally {
@@ -128,7 +128,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
         const allWorkouts = await workoutService.getByCoach(user.id);
         setPublishedWorkouts(allWorkouts.filter((w) => w.is_published));
       }
-      showSnackbar('Assignation supprimee', 'info');
+      showSnackbar('Assignation supprimée', 'info');
     } catch (err: any) {
       showSnackbar(err.message || 'Erreur', 'error');
     }
@@ -213,10 +213,10 @@ export default function SessionDetailModal({ navigation, route }: Props) {
                   <Text style={styles.emptySlotIconText}>📋</Text>
                 </View>
                 <Text variant="titleMedium" style={styles.emptySlotTitle}>
-                  Aucune seance assignee
+                  Aucune séance assignée
                 </Text>
                 <Text variant="bodyMedium" style={styles.emptySlotSubtitle}>
-                  Ce creneau n'a pas encore de seance d'entrainement.
+                  Ce créneau n'a pas encore de séance d'entraînement.
                 </Text>
                 <Button
                   mode="contained"
@@ -224,7 +224,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
                   onPress={() => setShowPicker(true)}
                   style={styles.assignBtn}
                 >
-                  Assigner une seance
+                  Assigner une séance
                 </Button>
               </View>
             ) : !assignment && showPicker ? (
@@ -232,7 +232,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
               <View>
                 <View style={styles.pickerHeader}>
                   <Text variant="titleMedium" style={styles.sectionTitle}>
-                    Choisir une seance
+                    Choisir une séance
                   </Text>
                   <Button
                     compact
@@ -245,7 +245,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
                 {publishedWorkouts.length === 0 ? (
                   <View style={styles.emptyState}>
                     <Text variant="bodyMedium" style={styles.emptyText}>
-                      Aucune seance publiee
+                      Aucune séance publiée
                     </Text>
                     <Button
                       mode="outlined"
@@ -256,7 +256,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
                       }}
                       style={{ marginTop: 8 }}
                     >
-                      Creer une seance
+                      Créer une séance
                     </Button>
                   </View>
                 ) : (
@@ -299,7 +299,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
                       disabled={assigning || !selectedWorkoutId}
                       style={styles.assignBtn}
                     >
-                      Assigner la seance
+                      Assigner la séance
                     </Button>
                   </View>
                 )}
@@ -327,13 +327,13 @@ export default function SessionDetailModal({ navigation, route }: Props) {
                         onPress={handleAttendance}
                         style={styles.actionBtn}
                       >
-                        Emarger
+                        Émarger
                       </Button>
                     </>
                   ) : (
                     <>
                       <View style={styles.lockedBadge}>
-                        <Text style={styles.lockedText}>Seance verrouillee</Text>
+                        <Text style={styles.lockedText}>Séance verrouillée</Text>
                       </View>
                       <Button
                         mode="contained"
@@ -352,7 +352,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
                 {assignment!.attendance_marked && feedbackStats && (
                   <View style={styles.statsRow}>
                     <View style={styles.statItem}>
-                      <Text variant="bodySmall" style={styles.statLabel}>Presents</Text>
+                      <Text variant="bodySmall" style={styles.statLabel}>Présents</Text>
                       <Text variant="titleMedium" style={styles.statValue}>
                         {feedbackStats.attended_count}/{feedbackStats.total_swimmers}
                       </Text>
@@ -362,7 +362,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
                       return (
                         <View style={[styles.statItem, { backgroundColor: colors.bg }]}>
                           <Text variant="bodySmall" style={[styles.statLabel, { color: colors.text }]}>
-                            RPE Moy.
+                            RPE moy.
                           </Text>
                           <Text variant="titleMedium" style={[styles.statValue, { color: colors.text }]}>
                             {feedbackStats.average_rpe!.toFixed(1)}
@@ -377,7 +377,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
                 {workout && (
                   <View style={styles.recapSection}>
                     <Text variant="titleMedium" style={styles.sectionTitle}>
-                      Seance assignee
+                      Séance assignée
                     </Text>
                     <View style={styles.recapHeader}>
                       <Text variant="titleSmall" style={styles.recapTitle}>

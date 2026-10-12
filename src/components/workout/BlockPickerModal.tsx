@@ -117,7 +117,7 @@ export default function BlockPickerModal({
   return (
     <Portal>
       <Dialog visible={visible} onDismiss={onDismiss} style={styles.dialog}>
-        <Dialog.Title>Importer depuis la bibliotheque</Dialog.Title>
+        <Dialog.Title>Importer depuis la bibliothèque</Dialog.Title>
         <View style={styles.searchContainer}>
           <Searchbar
             placeholder="Rechercher un bloc..."
@@ -138,12 +138,12 @@ export default function BlockPickerModal({
             <View style={styles.emptyState}>
               <Text variant="bodyMedium" style={styles.emptyText}>
                 {blocks.length === 0
-                  ? 'Aucun bloc dans la bibliotheque'
-                  : 'Aucun resultat'}
+                  ? 'Aucun bloc dans la bibliothèque'
+                  : 'Aucun résultat'}
               </Text>
               {blocks.length === 0 && (
                 <Text variant="bodySmall" style={styles.emptySubtext}>
-                  Sauvegardez des blocs avec le bouton "Sauvegarder dans biblio"
+                  Sauvegarde des blocs avec le bouton « Sauvegarder dans biblio »
                 </Text>
               )}
             </View>

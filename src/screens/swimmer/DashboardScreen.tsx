@@ -167,7 +167,7 @@ function SoloDashboardContent({
     if (!planTarget) return;
     try {
       await planMutation.mutateAsync({ workoutId: planTarget, date });
-      showSnackbar('Seance planifiee !', 'success');
+      showSnackbar('Séance planifiée !', 'success');
     } catch (err: any) {
       showSnackbar(err.message || 'Erreur', 'error');
     } finally {
@@ -183,7 +183,7 @@ function SoloDashboardContent({
         rpe,
         comment: comment.trim() || undefined,
       });
-      showSnackbar('Bien joue ! Seance validee +70 XP', 'success');
+      showSnackbar('Bien joué ! Séance validée +70 XP', 'success');
     } catch (err: any) {
       showSnackbar(err.message || 'Erreur', 'error');
     } finally {
@@ -205,8 +205,8 @@ function SoloDashboardContent({
           <Text style={styles.greeting}>Bonjour, {profile?.first_name}</Text>
           <Text style={styles.subtitle}>
             {nextSession
-              ? 'Ta prochaine seance t\'attend.'
-              : 'Cree ta seance et va nager !'}
+              ? 'Ta prochaine séance t\'attend.'
+              : 'Crée ta séance et va nager !'}
           </Text>
         </View>
         <Avatar.Text
@@ -241,7 +241,7 @@ function SoloDashboardContent({
             text: formatShortDate(new Date(nextSession.scheduled_date + 'T00:00:00')),
           }}
           title={nextSession.workoutTitle}
-          subtitle="Seance personnelle planifiee"
+          subtitle="Séance personnelle planifiée"
           stats={
             nextSession.totalDistance
               ? [{ label: 'Volume', value: `${nextSession.totalDistance}m` }]
@@ -265,16 +265,16 @@ function SoloDashboardContent({
       ) : (
         <HeroCard
           gradientColors={HERO_GRADIENTS.solo.colors}
-          badge={{ icon: 'rocket-outline', text: 'Mode Solo' }}
-          title="Cree ta premiere seance"
-          subtitle="Construis-la toi-meme ou laisse le coach IA la generer pour toi."
+          badge={{ icon: 'rocket-outline', text: 'Mode solo' }}
+          title="Crée ta première séance"
+          subtitle="Construis-la toi-même ou laisse le coach IA la générer pour toi."
           primaryAction={{
             label: 'Coach IA',
             icon: 'sparkles-outline',
             onPress: () => navigation.navigate('GenerateWorkout'),
           }}
           secondaryAction={{
-            label: 'Creer moi-meme',
+            label: 'Créer moi-même',
             icon: 'construct-outline',
             onPress: () => navigation.navigate('CreateWorkout'),
           }}
@@ -284,8 +284,8 @@ function SoloDashboardContent({
       {/* Quick Actions */}
       <View style={styles.quickActionsGrid}>
         <QuickActionCard
-          title="Nouvelle Seance"
-          subtitle="Editeur manuel"
+          title="Nouvelle séance"
+          subtitle="Éditeur manuel"
           icon="construct-outline"
           iconColor="#0D9488"
           onPress={() => navigation.navigate('CreateWorkout')}
@@ -293,7 +293,7 @@ function SoloDashboardContent({
         />
         <QuickActionCard
           title="Coach IA"
-          subtitle="Generer une seance"
+          subtitle="Générer une séance"
           icon="sparkles-outline"
           iconColor="#7C3AED"
           onPress={() => navigation.navigate('GenerateWorkout')}
@@ -309,7 +309,7 @@ function SoloDashboardContent({
         />
         <QuickActionCard
           title="Historique"
-          subtitle="Seances passees"
+          subtitle="Séances passées"
           icon="time-outline"
           iconColor="#F59E0B"
           onPress={() => navigation.navigate('SwimmerHistory')}
@@ -320,7 +320,7 @@ function SoloDashboardContent({
       {/* Seances planifiees */}
       {upcoming.length > 0 && (
         <GlassCard elevated>
-          <SectionHeader title="Seances planifiees" />
+          <SectionHeader title="Séances planifiées" />
           {upcoming.map((session) => (
             <View key={session.id} style={styles.soloSessionRow}>
               <View style={{ flex: 1 }}>
@@ -352,10 +352,10 @@ function SoloDashboardContent({
 
       {/* Mes seances (bibliotheque perso) */}
       <GlassCard elevated>
-        <SectionHeader title="Mes seances" />
+        <SectionHeader title="Mes séances" />
         {workouts.length === 0 ? (
           <Text style={styles.soloEmptyText}>
-            Aucune seance pour l'instant — cree-en une ou genere-la avec le coach IA.
+            Aucune séance pour l'instant : crée-en une ou génère-la avec le coach IA.
           </Text>
         ) : (
           workouts.map((w) => (
@@ -392,7 +392,7 @@ function SoloDashboardContent({
       {/* Dialog planification */}
       <Portal>
         <Dialog visible={planTarget !== null} onDismiss={() => setPlanTarget(null)}>
-          <Dialog.Title>Planifier la seance</Dialog.Title>
+          <Dialog.Title>Planifier la séance</Dialog.Title>
           <Dialog.Content>
             <View style={styles.dateChipsRow}>
               {quickDates.map((d) => (
@@ -415,9 +415,9 @@ function SoloDashboardContent({
 
         {/* Dialog completion (auto-emargement + feedback) */}
         <Dialog visible={completeTarget !== null} onDismiss={() => setCompleteTarget(null)}>
-          <Dialog.Title>Seance terminee !</Dialog.Title>
+          <Dialog.Title>Séance terminée !</Dialog.Title>
           <Dialog.Content>
-            <Text style={styles.soloSessionDate}>Effort percu (RPE)</Text>
+            <Text style={styles.soloSessionDate}>Effort perçu (RPE)</Text>
             <RPESlider value={rpe} onChange={setRpe} />
             <TextInput
               label="Commentaire (optionnel)"
@@ -476,10 +476,10 @@ function ClubDashboardContent({
   // Etat de la declaration de presence pour la prochaine seance
   const presenceAction = nextWorkout
     ? nextPresence?.status === 'absent'
-      ? { label: 'Absence signalee — annuler', icon: 'refresh-outline' as const, onPress: onDeclarePresent }
+      ? { label: 'Absence signalée — annuler', icon: 'refresh-outline' as const, onPress: onDeclarePresent }
       : nextPresence?.status === 'present'
-        ? { label: 'Prevenir une absence', icon: 'close-circle-outline' as const, onPress: onDeclareAbsent }
-        : { label: 'Je serai present(e)', icon: 'checkmark-outline' as const, onPress: onDeclarePresent }
+        ? { label: 'Prévenir une absence', icon: 'close-circle-outline' as const, onPress: onDeclareAbsent }
+        : { label: 'Je serai présent(e)', icon: 'checkmark-outline' as const, onPress: onDeclarePresent }
     : null;
 
   return (
@@ -493,7 +493,7 @@ function ClubDashboardContent({
           </View>
           <Text style={styles.greeting}>Salut, {profile?.first_name} !</Text>
           <Text style={styles.subtitle}>
-            {nextWorkout ? 'Pret a battre ton record ?' : `Nageur${club ? ` - ${club.name}` : ''}`}
+            {nextWorkout ? 'Prêt à battre ton record ?' : `Nageur${club ? ` - ${club.name}` : ''}`}
           </Text>
         </View>
         <Avatar.Text
@@ -534,7 +534,7 @@ function ClubDashboardContent({
                 {pendingCount} feedback{pendingCount > 1 ? 's' : ''} en attente
               </Text>
               <Text style={styles.pendingSubtitle}>
-                Donne ton ressenti sur tes dernieres seances
+                Donne ton ressenti sur tes dernières séances
               </Text>
             </View>
           </View>
@@ -563,7 +563,7 @@ function ClubDashboardContent({
                   ...(nextWorkout.totalDistance
                     ? [{ label: 'Volume', value: `${nextWorkout.totalDistance}m` }]
                     : []),
-                  { label: 'Type', value: nextWorkout.workoutType || 'General' },
+                  { label: 'Type', value: nextWorkout.workoutType || 'Général' },
                 ]
               : [{ label: 'Dévoilé à', value: nextWorkout.revealTime }]
           }
@@ -586,8 +586,8 @@ function ClubDashboardContent({
         <HeroCard
           gradientColors={HERO_GRADIENTS.swimmer.colors}
           badge={{ icon: 'calendar-outline', text: 'Planning' }}
-          title="Pas d'entrainement prevu"
-          subtitle="Aucune seance programmee pour les prochains jours."
+          title="Pas d'entraînement prévu"
+          subtitle="Aucune séance programmée pour les prochains jours."
           primaryAction={{
             label: 'Voir le planning',
             icon: 'calendar-outline',
@@ -599,8 +599,8 @@ function ClubDashboardContent({
       {/* Quick Actions */}
       <View style={styles.quickActionsGrid}>
         <QuickActionCard
-          title="Mes Performances"
-          subtitle="Stats detaillees"
+          title="Mes performances"
+          subtitle="Stats détaillées"
           icon="trending-up-outline"
           iconColor="#10B981"
           onPress={() => navigation.navigate('SwimmerTabs', { screen: 'Stats' })}
@@ -616,15 +616,15 @@ function ClubDashboardContent({
         />
         <QuickActionCard
           title="Historique"
-          subtitle="Seances passees"
+          subtitle="Séances passées"
           icon="time-outline"
           iconColor="#F59E0B"
           onPress={() => navigation.navigate('SwimmerHistory')}
           delay={700}
         />
         <QuickActionCard
-          title="Mon Profil"
-          subtitle="Club et reglages"
+          title="Mon profil"
+          subtitle="Club et réglages"
           icon="person-outline"
           iconColor="#F43F5E"
           onPress={() => navigation.navigate('SwimmerTabs', { screen: 'Profile' })}
@@ -636,7 +636,7 @@ function ClubDashboardContent({
       <WeeklyBarChart
         data={weekChart.data}
         activeColor="#0891B2"
-        title="Ma Semaine"
+        title="Ma semaine"
         label={`Volume cette semaine : ${weekChart.totalKm >= 10 ? Math.round(weekChart.totalKm) : weekChart.totalKm.toFixed(1)} km`}
       />
 
@@ -644,7 +644,7 @@ function ClubDashboardContent({
       {lastFeedbacks.length > 0 && (
         <GlassCard elevated>
           <SectionHeader
-            title="Mes Derniers Retours"
+            title="Mes derniers retours"
             onAction={() => navigation.navigate('SwimmerHistory')}
           />
           {lastFeedbacks.map((entry) => (
@@ -714,12 +714,12 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
     try {
       await presenceService.declare(assignmentId, user.id, status, reason);
       showSnackbar(
-        status === 'present' ? 'Presence confirmee !' : 'Absence signalee au coach',
+        status === 'present' ? 'Présence confirmée !' : 'Absence signalée au coach',
         'success',
       );
       queryClient.invalidateQueries({ queryKey: ['swimmer', 'dashboard'] });
     } catch (err: any) {
-      showSnackbar(err.message || 'Erreur lors de la declaration', 'error');
+      showSnackbar(err.message || 'Erreur lors de la déclaration', 'error');
     }
   };
 
@@ -813,11 +813,11 @@ export default function SwimmerDashboardScreen({ navigation }: Props) {
           visible={absenceDialogVisible}
           onDismiss={() => setAbsenceDialogVisible(false)}
         >
-          <Dialog.Title>Prevenir une absence</Dialog.Title>
+          <Dialog.Title>Prévenir une absence</Dialog.Title>
           <Dialog.Content>
             <TextInput
               label="Raison (optionnel)"
-              placeholder="Ex: malade, examen, deplacement..."
+              placeholder="Ex. : malade, examen, déplacement…"
               value={absenceReason}
               onChangeText={setAbsenceReason}
               mode="outlined"

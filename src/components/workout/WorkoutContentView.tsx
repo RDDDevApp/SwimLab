@@ -77,7 +77,7 @@ export default function WorkoutContentView({ workout }: Props) {
                     </Text>
                     {sb.departure ? (
                       <Text variant="bodySmall" style={styles.departure}>
-                        Depart: {sb.departure}
+                        Départ: {sb.departure}
                       </Text>
                     ) : null}
                     {sb.description ? (

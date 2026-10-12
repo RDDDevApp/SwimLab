@@ -46,7 +46,7 @@ export const presenceService = {
 
     if (error) {
       if (isMissingTableError(error)) {
-        throw new Error('Fonctionnalite indisponible (migration 014 requise)');
+        throw new Error('Fonctionnalité indisponible (migration 014 requise)');
       }
       throw error;
     }

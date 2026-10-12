@@ -46,10 +46,10 @@ export default function CreateGroupScreen({ navigation, route }: Props) {
         level: level as GroupLevel,
         description: description.trim() || null,
       }, user.id);
-      showSnackbar('Groupe cree', 'success');
+      showSnackbar('Groupe créé', 'success');
       navigation.goBack();
     } catch (err: any) {
-      setError(err.message || 'Erreur lors de la creation');
+      setError(err.message || 'Erreur lors de la création');
     } finally {
       setLoading(false);
     }
@@ -69,7 +69,7 @@ export default function CreateGroupScreen({ navigation, route }: Props) {
       <ScrollView contentContainerStyle={styles.form}>
         <TextInput
           label="Nom du groupe"
-          placeholder="Ex: Poussins, Competition"
+          placeholder="Ex. : Poussins, Compétition"
           value={name}
           onChangeText={setName}
           mode="outlined"
@@ -106,7 +106,7 @@ export default function CreateGroupScreen({ navigation, route }: Props) {
           disabled={loading}
           style={styles.saveButton}
         >
-          Creer le groupe
+          Créer le groupe
         </Button>
       </ScrollView>
     </GradientScreen>

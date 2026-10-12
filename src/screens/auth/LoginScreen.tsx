@@ -17,14 +17,14 @@ export default function LoginScreen({ navigation }: any) {
     setError('');
 
     if (!email || !password) {
-      setError('Veuillez remplir tous les champs');
+      setError('Remplis tous les champs.');
       return;
     }
 
     // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
     if (!emailRegex.test(email)) {
-      setError('Veuillez entrer une adresse email valide');
+      setError('Saisis une adresse email valide.');
       return;
     }
 
@@ -41,9 +41,9 @@ export default function LoginScreen({ navigation }: any) {
       ) {
         setError('Email ou mot de passe incorrect');
       } else if (msg.includes('email not confirmed')) {
-        setError('Veuillez confirmer votre email avant de vous connecter');
+        setError('Confirme ton adresse email avant de te connecter (clique sur le lien reçu par mail).');
       } else if (msg.includes('too many requests') || msg.includes('rate limit')) {
-        setError('Trop de tentatives. Veuillez réessayer dans quelques minutes.');
+        setError('Trop de tentatives. Réessaie dans quelques minutes.');
       } else {
         setError('Email ou mot de passe incorrect');
       }

@@ -51,10 +51,10 @@ export default function WorkoutDetailScreen({ navigation, route }: Props) {
     try {
       if (workout.is_published) {
         await workoutService.unpublish(workout.id);
-        showSnackbar('Seance depubliee', 'success');
+        showSnackbar('Séance dépubliée', 'success');
       } else {
         await workoutService.publish(workout.id);
-        showSnackbar('Seance publiee', 'success');
+        showSnackbar('Séance publiée', 'success');
       }
       loadWorkout();
     } catch (err) {
@@ -67,7 +67,7 @@ export default function WorkoutDetailScreen({ navigation, route }: Props) {
     try {
       await workoutService.delete(workout.id);
       setShowDelete(false);
-      showSnackbar('Seance supprimee', 'success');
+      showSnackbar('Séance supprimée', 'success');
       navigation.goBack();
     } catch (err) {
       showSnackbar('Erreur lors de la suppression', 'error');
@@ -134,7 +134,7 @@ export default function WorkoutDetailScreen({ navigation, route }: Props) {
               workout.is_published ? styles.publishedChip : styles.draftChip
             }
           >
-            {workout.is_published ? 'Publie' : 'Brouillon'}
+            {workout.is_published ? 'Publiée' : 'Brouillon'}
           </Chip>
         </View>
       </View>
@@ -148,16 +148,16 @@ export default function WorkoutDetailScreen({ navigation, route }: Props) {
           onPress={() => navigation.navigate('CreateWorkout', { workout })}
           style={styles.editBtn}
         >
-          Modifier cette seance
+          Modifier cette séance
         </Button>
       </ScrollView>
 
       <Portal>
         <Dialog visible={showDelete} onDismiss={() => setShowDelete(false)}>
-          <Dialog.Title>Supprimer la seance</Dialog.Title>
+          <Dialog.Title>Supprimer la séance</Dialog.Title>
           <Dialog.Content>
             <Paragraph>
-              Supprimer "{workout.title}" ? Cette action est irreversible.
+              Supprimer "{workout.title}" ? Cette action est irréversible.
             </Paragraph>
           </Dialog.Content>
           <Dialog.Actions>

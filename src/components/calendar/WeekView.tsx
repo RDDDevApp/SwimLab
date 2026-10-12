@@ -18,9 +18,9 @@ const getSlotStatus = (
   assignment: WorkoutAssignment | undefined,
   rpeMap?: Record<string, number | null>,
 ) => {
-  if (!assignment) return { color: 'rgba(100,116,139,0.25)', label: 'Non assigne' };
-  if (!assignment.attendance_marked) return { color: '#2563EB', label: 'A emarger' };
-  if (rpeMap?.[assignment.id] != null) return { color: '#059669', label: 'Emarger' };
+  if (!assignment) return { color: 'rgba(100,116,139,0.25)', label: 'Non assigné' };
+  if (!assignment.attendance_marked) return { color: '#2563EB', label: 'À émarger' };
+  if (rpeMap?.[assignment.id] != null) return { color: '#059669', label: 'Émargé' };
   return { color: '#EA580C', label: 'Feedback manquant' };
 };
 
@@ -64,7 +64,7 @@ export default function WeekView({
             {daySlots.length === 0 ? (
               <View style={styles.emptyDay}>
                 <Text variant="bodySmall" style={styles.emptyText}>
-                  Pas de creneau
+                  Pas de créneau
                 </Text>
               </View>
             ) : (

@@ -21,7 +21,7 @@ const Stack = createNativeStackNavigator<SwimmerStackParamList>();
 
 const SWIMMER_TABS = [
   { name: 'Dashboard', icon: 'home', label: 'Accueil' },
-  { name: 'Calendar', icon: 'calendar', label: 'Entrainements' },
+  { name: 'Calendar', icon: 'calendar', label: 'Entraînements' },
   { name: 'Stats', icon: 'stats-chart', label: 'Stats' },
   { name: 'Profile', icon: 'person', label: 'Profil' },
 ];

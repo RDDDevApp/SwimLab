@@ -256,30 +256,30 @@ export default function CoachStatsScreen({ navigation }: Props) {
 
   const mainStats: StatCardData[] = [
     {
-      title: 'Nageurs Actifs',
+      title: 'Nageurs actifs',
       value: `${swimmerCount}`,
       subtitle: 'Total dans le club',
       icon: 'people-outline',
       color: 'rgba(6, 182, 212, 0.30)',
     },
     {
-      title: 'Seances Realisees',
+      title: 'Séances réalisées',
       value: `${sessionCount}`,
       subtitle: 'Ce trimestre',
       icon: 'water-outline',
       color: 'rgba(99, 102, 241, 0.30)',
     },
     {
-      title: 'Km Totaux',
+      title: 'Km totaux',
       value: `${totalKm.toLocaleString()}`,
       subtitle: 'Distance parcourue',
       icon: 'trending-up-outline',
       color: 'rgba(234, 179, 8, 0.30)',
     },
     {
-      title: 'Entrainements',
+      title: 'Entraînements',
       value: `${workoutCount}`,
-      subtitle: 'Seances creees',
+      subtitle: 'Séances créées',
       icon: 'clipboard-outline',
       color: 'rgba(236, 72, 153, 0.30)',
     },
@@ -287,22 +287,22 @@ export default function CoachStatsScreen({ navigation }: Props) {
 
   const secondaryStats: StatCardData[] = [
     {
-      title: 'Km Moyen / Nageur',
+      title: 'Km moyen / nageur',
       value: swimmerCount > 0 ? `${Math.round(totalKm / swimmerCount)} km` : '0 km',
       icon: 'trophy-outline',
       color: 'rgba(6, 182, 212, 0.30)',
     },
     {
-      title: 'RPE Moyen',
+      title: 'RPE moyen',
       value: avgRpe !== null ? `${avgRpe}/20` : '-',
-      subtitle: 'Ressenti des athletes',
+      subtitle: 'Ressenti des athlètes',
       icon: 'pulse-outline',
       color: 'rgba(236, 72, 153, 0.30)',
     },
     {
-      title: 'Assiduite',
+      title: 'Assiduité',
       value: `${attendanceRate}%`,
-      subtitle: 'Presence moyenne',
+      subtitle: 'Présence moyenne',
       icon: 'checkmark-circle-outline',
       color: 'rgba(234, 179, 8, 0.30)',
     },
@@ -318,7 +318,7 @@ export default function CoachStatsScreen({ navigation }: Props) {
       >
         {/* Header */}
         <View style={styles.headerSection}>
-          <Text style={styles.headerTitle}>Tableau de Bord</Text>
+          <Text style={styles.headerTitle}>Tableau de bord</Text>
           <Text style={styles.headerSubtitle}>
             Suivi des performances et statistiques du club
           </Text>
@@ -371,7 +371,7 @@ export default function CoachStatsScreen({ navigation }: Props) {
             {/* Volume chart */}
             {weeklyVolume.data.length > 0 && (
               <View style={styles.chartCard}>
-                <Text style={styles.chartTitle}>Volume d'Entrainement (km/semaine)</Text>
+                <Text style={styles.chartTitle}>Volume d'entraînement (km/semaine)</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   <BarChart
                     data={{
@@ -393,7 +393,7 @@ export default function CoachStatsScreen({ navigation }: Props) {
             {/* Group distribution */}
             {groupDistribution.data.length > 0 && (
               <View style={styles.chartCard}>
-                <Text style={styles.chartTitle}>Nageurs par Groupe</Text>
+                <Text style={styles.chartTitle}>Nageurs par groupe</Text>
                 <BarChart
                   data={{
                     labels: groupDistribution.labels,
@@ -416,7 +416,7 @@ export default function CoachStatsScreen({ navigation }: Props) {
             {/* RPE trend */}
             {rpeByWeek.data.length > 1 && (
               <View style={styles.chartCard}>
-                <Text style={styles.chartTitle}>RPE Moyen par Semaine</Text>
+                <Text style={styles.chartTitle}>RPE moyen par semaine</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   <LineChart
                     data={{
@@ -443,13 +443,13 @@ export default function CoachStatsScreen({ navigation }: Props) {
               style={styles.insightCard}
             >
               <View style={styles.insightBlobDecor} />
-              <Text style={styles.insightTitle}>Insight du Coach</Text>
+              <Text style={styles.insightTitle}>En résumé</Text>
               <Text style={styles.insightText}>
                 {swimmerCount > 0
-                  ? `Votre club compte ${swimmerCount} nageurs repartis en ${groupCount} groupes. `
+                  ? `Ton club compte ${swimmerCount} nageurs répartis en ${groupCount} groupes. `
                   : ''}
                 {sessionCount > 0
-                  ? `${sessionCount} seances realisees avec une assiduite de ${attendanceRate}%. `
+                  ? `${sessionCount} séances réalisées avec une assiduité de ${attendanceRate}%. `
                   : ''}
                 {avgRpe !== null
                   ? `Le RPE moyen est de ${avgRpe}/20.`

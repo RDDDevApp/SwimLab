@@ -130,7 +130,7 @@ export const clubService = {
         .maybeSingle();
 
       if (existingCoach) {
-        throw new Error('Vous etes deja coach dans un autre club. Un coach ne peut etre que dans un seul club.');
+        throw new Error('Tu es déjà coach dans un autre club. Un coach ne peut être que dans un seul club.');
       }
     }
 
@@ -142,7 +142,7 @@ export const clubService = {
       .eq('user_id', userId)
       .maybeSingle();
 
-    if (existing) throw new Error('Vous etes deja membre de ce club');
+    if (existing) throw new Error('Tu es déjà membre de ce club');
 
     const { error: joinError } = await supabase
       .from('club_members')

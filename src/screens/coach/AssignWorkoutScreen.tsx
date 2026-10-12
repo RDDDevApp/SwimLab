@@ -42,7 +42,7 @@ export default function AssignWorkoutScreen({ navigation, route }: Props) {
 
   const handleAssign = async () => {
     if (!selectedId) {
-      setError('Selectionnez une seance');
+      setError('Sélectionne une séance');
       return;
     }
 
@@ -55,7 +55,7 @@ export default function AssignWorkoutScreen({ navigation, route }: Props) {
         training_slot_id: slotId,
         scheduled_date: date,
       });
-      showSnackbar('Seance assignee', 'success');
+      showSnackbar('Séance assignée', 'success');
       navigation.goBack();
     } catch (err: any) {
       setError(err.message || 'Erreur lors de l\'attribution');
@@ -80,7 +80,7 @@ export default function AssignWorkoutScreen({ navigation, route }: Props) {
           Retour
         </Button>
         <Text variant="titleLarge" style={styles.title}>
-          Assigner une seance
+          Assigner une séance
         </Text>
         <View style={styles.slotInfo}>
           <Chip icon="clock-outline" compact>
@@ -95,17 +95,17 @@ export default function AssignWorkoutScreen({ navigation, route }: Props) {
       {workouts.length === 0 && !loading ? (
         <View style={styles.emptyState}>
           <Text variant="bodyLarge" style={styles.emptyText}>
-            Aucune seance publiee
+            Aucune séance publiée
           </Text>
           <Text variant="bodyMedium" style={styles.emptySubtext}>
-            Creez et publiez une seance d'abord
+            Crée et publie d'abord une séance
           </Text>
           <Button
             mode="contained"
             onPress={() => navigation.navigate('CreateWorkout')}
             style={styles.createBtn}
           >
-            Creer une seance
+            Créer une séance
           </Button>
         </View>
       ) : (
@@ -163,7 +163,7 @@ export default function AssignWorkoutScreen({ navigation, route }: Props) {
             loading={submitting}
             disabled={submitting || !selectedId}
           >
-            Assigner la seance
+            Assigner la séance
           </Button>
         </View>
       )}

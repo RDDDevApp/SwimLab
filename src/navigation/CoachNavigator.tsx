@@ -30,7 +30,7 @@ const Stack = createNativeStackNavigator<CoachStackParamList>();
 const COACH_TABS = [
   { name: 'Dashboard', icon: 'home', label: 'Accueil' },
   { name: 'Calendar', icon: 'calendar', label: 'Calendrier' },
-  { name: 'Workouts', icon: 'fitness', label: 'Seances' },
+  { name: 'Workouts', icon: 'fitness', label: 'Séances' },
   { name: 'Groups', icon: 'people', label: 'Groupes' },
   { name: 'Profile', icon: 'person', label: 'Profil' },
 ];

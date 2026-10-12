@@ -26,7 +26,7 @@ const WORKOUT_TOOL = {
     type: 'object',
     required: ['title', 'description', 'blocks'],
     properties: {
-      title: { type: 'string', description: 'Titre court de la seance en francais' },
+      title: { type: 'string', description: 'Titre court de la séance, en français avec les accents' },
       description: { type: 'string', description: '1-2 phrases sur l\'intention de la seance' },
       blocks: {
         type: 'array',
@@ -128,7 +128,7 @@ Appelle l'outil save_workout avec la seance.`;
       }));
 
     return json({
-      title: String(workout.title || 'Seance generee'),
+      title: String(workout.title || 'Séance générée'),
       description: String(workout.description || ''),
       blocks: workout.blocks,
     });

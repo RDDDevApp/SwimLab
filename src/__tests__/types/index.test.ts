@@ -38,10 +38,10 @@ describe('Constants', () => {
     });
 
     it('should have correct French labels', () => {
-      expect(GROUP_LEVELS.beginner).toBe('Debutant');
-      expect(GROUP_LEVELS.intermediate).toBe('Intermediaire');
-      expect(GROUP_LEVELS.advanced).toBe('Avance');
-      expect(GROUP_LEVELS.competition).toBe('Competition');
+      expect(GROUP_LEVELS.beginner).toBe('Débutant');
+      expect(GROUP_LEVELS.intermediate).toBe('Intermédiaire');
+      expect(GROUP_LEVELS.advanced).toBe('Avancé');
+      expect(GROUP_LEVELS.competition).toBe('Compétition');
     });
   });
 

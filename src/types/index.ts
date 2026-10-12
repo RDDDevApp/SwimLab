@@ -95,19 +95,19 @@ export type DayOfWeek = (typeof DAYS_OF_WEEK)[number];
 
 // Group Levels
 export const GROUP_LEVELS = {
-  beginner: 'Debutant',
-  intermediate: 'Intermediaire',
-  advanced: 'Avance',
-  competition: 'Competition',
+  beginner: 'Débutant',
+  intermediate: 'Intermédiaire',
+  advanced: 'Avancé',
+  competition: 'Compétition',
 } as const;
 
 export type GroupLevel = keyof typeof GROUP_LEVELS;
 
 // Block Types (French labels)
 export const BLOCK_TYPE_LABELS = {
-  warmup: 'Echauffement',
-  main: 'Corps de seance',
-  cooldown: 'Recuperation',
+  warmup: 'Échauffement',
+  main: 'Corps de séance',
+  cooldown: 'Récupération',
   other: 'Autre',
 } as const;
 
@@ -117,11 +117,11 @@ export const STROKE_LABELS = {
   backstroke: 'Dos',
   breaststroke: 'Brasse',
   butterfly: 'Papillon',
-  individual_medley: '4 Nages',
+  individual_medley: '4 nages',
   choice: 'Choix',
   kick: 'Jambes',
   pull: 'Bras',
-  drill: 'Educatifs',
+  drill: 'Éducatifs',
   fins: 'Palmes',
   pull_buoy: 'Pull-Buoy',
   paddles: 'Plaquettes',
@@ -129,9 +129,9 @@ export const STROKE_LABELS = {
 
 // Intensity Labels (French)
 export const INTENSITY_LABELS = {
-  recovery: 'Recuperation',
+  recovery: 'Récupération',
   easy: 'Facile',
-  moderate: 'Modere',
+  moderate: 'Modéré',
   threshold: 'Soutenu',
   hard: 'Intense',
   sprint: 'Sprint',

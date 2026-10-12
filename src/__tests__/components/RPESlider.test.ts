@@ -58,12 +58,12 @@ describe('RPESlider logic', () => {
 
   describe('RPE label pairing', () => {
     it('should have paired labels (6-7 same, 8-9 same, etc.)', () => {
-      expect(RPE_LABELS[7]).toBe(RPE_LABELS[8]);  // Tres Tres Facile
-      expect(RPE_LABELS[9]).toBe(RPE_LABELS[10]);  // Tres Facile
+      expect(RPE_LABELS[7]).toBe(RPE_LABELS[8]);  // Très très facile
+      expect(RPE_LABELS[9]).toBe(RPE_LABELS[10]);  // Très facile
       expect(RPE_LABELS[11]).toBe(RPE_LABELS[12]); // Facile
-      expect(RPE_LABELS[13]).toBe(RPE_LABELS[14]); // Un Peu Dur
+      expect(RPE_LABELS[13]).toBe(RPE_LABELS[14]); // Un peu dur
       expect(RPE_LABELS[15]).toBe(RPE_LABELS[16]); // Dur
-      expect(RPE_LABELS[17]).toBe(RPE_LABELS[18]); // Tres Dur
+      expect(RPE_LABELS[17]).toBe(RPE_LABELS[18]); // Très dur
       expect(RPE_LABELS[19]).toBe(RPE_LABELS[20]); // Maximal
     });
 

@@ -8,9 +8,9 @@ const BLOCK_TYPE_COLORS: Record<string, string> = {
 };
 
 const BLOCK_TYPE_LABELS: Record<string, string> = {
-  warmup: 'Echauffement',
-  main: 'Corps de seance',
-  cooldown: 'Recuperation',
+  warmup: 'Échauffement',
+  main: 'Corps de séance',
+  cooldown: 'Récupération',
   other: 'Autre',
 };
 
@@ -83,17 +83,17 @@ export function generateWorkoutHtml(workout: Workout): string {
     <body>
       <h1>${workout.title}</h1>
       ${workout.description ? `<p style="color:#6B7280">${workout.description}</p>` : ''}
-      <div class="meta">Exporte le ${date}</div>
+      <div class="meta">Exporté le ${date}</div>
 
       <div class="total">
         Distance totale : <strong>${workout.total_distance || 0}m</strong>
-        ${workout.estimated_duration ? ` — Duree estimee : ${workout.estimated_duration} min` : ''}
+        ${workout.estimated_duration ? ` — Durée estimée : ${workout.estimated_duration} min` : ''}
       </div>
 
       ${blocksHtml}
 
       <div class="footer">
-        Genere par SwimLab
+        Généré par SwimLab
       </div>
     </body>
     </html>
@@ -109,14 +109,14 @@ export async function exportWorkoutPdf(workout: Workout): Promise<void> {
     Print = require('expo-print');
     Sharing = require('expo-sharing');
   } catch {
-    throw new Error('Les modules expo-print et expo-sharing sont necessaires pour l\'export PDF');
+    throw new Error('Les modules expo-print et expo-sharing sont nécessaires pour l\'export PDF');
   }
 
   const html = generateWorkoutHtml(workout);
   const { uri } = await Print.printToFileAsync({ html });
   await Sharing.shareAsync(uri, {
     mimeType: 'application/pdf',
-    dialogTitle: `Entrainement - ${workout.title}`,
+    dialogTitle: `Entraînement - ${workout.title}`,
     UTI: 'com.adobe.pdf',
   });
 }
