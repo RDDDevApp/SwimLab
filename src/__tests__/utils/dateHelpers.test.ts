@@ -70,21 +70,21 @@ describe('dateHelpers', () => {
     it('should format with French day and month abbreviations', () => {
       const mon = new Date(2026, 1, 2); // Monday Feb 2
       const result = formatShortDate(mon);
-      expect(result).toBe('Lun 02 Fev');
+      expect(result).toBe('Lun 02 Fév');
     });
 
     it('should handle Sunday', () => {
       const sun = new Date(2026, 1, 8); // Sunday Feb 8
       const result = formatShortDate(sun);
-      expect(result).toBe('Dim 08 Fev');
+      expect(result).toBe('Dim 08 Fév');
     });
   });
 
   describe('formatWeekRange', () => {
     it('should show start and end of week', () => {
       const result = formatWeekRange(new Date(2026, 1, 4));
-      expect(result).toContain('02 Fev');
-      expect(result).toContain('08 Fev');
+      expect(result).toContain('02 Fév');
+      expect(result).toContain('08 Fév');
       expect(result).toContain('2026');
     });
   });

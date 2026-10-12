@@ -67,7 +67,7 @@ export default function WorkoutStatsScreen({ navigation, route }: Props) {
 
                 <View style={styles.statRow}>
                   <Text variant="bodyMedium" style={styles.statLabel}>
-                    Presence
+                    Présence
                   </Text>
                   <Text variant="titleSmall" style={styles.statValue}>
                     {attendedSessions.length}/{sessions.length} ({Math.round(attendanceRate)}%)
@@ -146,7 +146,7 @@ export default function WorkoutStatsScreen({ navigation, route }: Props) {
                           style={styles.alertChip}
                           textStyle={styles.alertText}
                         >
-                          RPE eleve
+                          RPE élevé
                         </Chip>
                       )}
                       <Chip

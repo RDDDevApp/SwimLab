@@ -17,9 +17,9 @@ const OBJECTIVES = [
 ] as const;
 
 const LEVELS = [
-  { key: 'debutant', label: 'Debutant' },
-  { key: 'intermediaire', label: 'Intermediaire' },
-  { key: 'avance', label: 'Avance' },
+  { key: 'debutant', label: 'Débutant' },
+  { key: 'intermediaire', label: 'Intermédiaire' },
+  { key: 'avance', label: 'Avancé' },
 ] as const;
 
 const DURATIONS = [30, 45, 60, 90];
@@ -54,7 +54,7 @@ export default function GenerateWorkoutScreen({ navigation }: { navigation: any 
         },
       });
     } catch (err: any) {
-      setError(err.message || 'Erreur lors de la generation');
+      setError(err.message || 'Erreur lors de la génération');
     } finally {
       setLoading(false);
     }
@@ -70,7 +70,7 @@ export default function GenerateWorkoutScreen({ navigation }: { navigation: any 
         <View style={styles.titleRow}>
           <Ionicons name="sparkles" size={22} color="#7C3AED" />
           <Text variant="titleLarge" style={styles.title}>
-            Generer une seance
+            Générer une séance
           </Text>
         </View>
       </View>
@@ -79,9 +79,9 @@ export default function GenerateWorkoutScreen({ navigation }: { navigation: any 
         {loading ? (
           <GlassCard elevated style={styles.loadingCard}>
             <ActivityIndicator size="large" color="#7C3AED" />
-            <Text style={styles.loadingTitle}>Le coach IA reflechit...</Text>
+            <Text style={styles.loadingTitle}>Le coach IA réfléchit…</Text>
             <Text style={styles.loadingHint}>
-              Structure, volumes et intervalles adaptes a ton niveau — quelques secondes.
+              Structure, volumes et intervalles adaptés à ton niveau : quelques secondes.
             </Text>
           </GlassCard>
         ) : (
@@ -128,7 +128,7 @@ export default function GenerateWorkoutScreen({ navigation }: { navigation: any 
               ))}
             </View>
 
-            <Text style={styles.label}>Duree dans l'eau</Text>
+            <Text style={styles.label}>Durée dans l'eau</Text>
             <View style={styles.chipsRow}>
               {DURATIONS.map((d) => (
                 <Pressable
@@ -152,7 +152,7 @@ export default function GenerateWorkoutScreen({ navigation }: { navigation: any 
 
             <Text style={styles.label}>Envies ou contraintes (optionnel)</Text>
             <TextInput
-              placeholder="Ex: travailler les virages, pas de materiel, epaule fragile..."
+              placeholder="Ex. : travailler les virages, pas de matériel, épaule fragile…"
               value={notes}
               onChangeText={setNotes}
               mode="outlined"
@@ -175,11 +175,10 @@ export default function GenerateWorkoutScreen({ navigation }: { navigation: any 
               buttonColor="#7C3AED"
               contentStyle={{ paddingVertical: 6 }}
             >
-              Generer ma seance
+              Générer ma séance
             </Button>
             <Text style={styles.editHint}>
-              La seance generee s'ouvre dans l'editeur — modifie-la librement avant de
-              l'enregistrer.
+              La séance générée s'ouvre dans l'éditeur : modifie-la librement avant de l'enregistrer.
             </Text>
           </>
         )}

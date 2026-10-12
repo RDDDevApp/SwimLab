@@ -35,12 +35,12 @@ export default function RegisterScreen({ navigation }: any) {
 
   const validateIdentity = () => {
     if (!firstName.trim() || !lastName.trim()) {
-      setError('Veuillez renseigner votre prenom et votre nom');
+      setError('Indique ton prénom et ton nom.');
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
     if (!emailRegex.test(email)) {
-      setError('Veuillez entrer une adresse email valide');
+      setError('Saisis une adresse email valide.');
       return;
     }
     setError('');
@@ -59,11 +59,11 @@ export default function RegisterScreen({ navigation }: any) {
 
   const handleRegister = async () => {
     if (password.length < 6) {
-      setError('Le mot de passe doit contenir au moins 6 caracteres');
+      setError('Le mot de passe doit contenir au moins 6 caractères.');
       return;
     }
     if (password !== confirmPassword) {
-      setError('Les mots de passe ne correspondent pas');
+      setError('Les deux mots de passe ne correspondent pas.');
       return;
     }
     setError('');
@@ -119,7 +119,7 @@ export default function RegisterScreen({ navigation }: any) {
               SwimLab
             </Text>
             <Text variant="bodyLarge" style={styles.subtitle}>
-              Creer un compte
+              Créer un compte
             </Text>
           </View>
 
@@ -163,7 +163,7 @@ export default function RegisterScreen({ navigation }: any) {
                   <View style={{ flex: 1 }}>
                     <Text style={styles.roleTitle}>Nageur / Nageuse</Text>
                     <Text style={styles.roleDesc}>
-                      Je rejoins mon club, je vois mes seances et je donne mes ressentis.
+                      Je rejoins mon club, je vois mes séances et je donne mes ressentis.
                     </Text>
                   </View>
                   <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
@@ -177,7 +177,7 @@ export default function RegisterScreen({ navigation }: any) {
                   <View style={{ flex: 1 }}>
                     <Text style={styles.roleTitle}>Coach</Text>
                     <Text style={styles.roleDesc}>
-                      Je cree mon club, je gere mes groupes et je planifie les entrainements.
+                      Je crée mon club, je gère mes groupes et je planifie les entraînements.
                     </Text>
                   </View>
                   <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
@@ -224,10 +224,10 @@ export default function RegisterScreen({ navigation }: any) {
           {step === 2 && (
             <View style={styles.form}>
               <Text variant="titleMedium" style={styles.stepTitle}>
-                Qui etes-vous ?
+                Qui es-tu ?
               </Text>
               <TextInput
-                label="Prenom"
+                label="Prénom"
                 value={firstName}
                 onChangeText={setFirstName}
                 mode="outlined"
@@ -267,7 +267,7 @@ export default function RegisterScreen({ navigation }: any) {
           {step === 3 && (
             <View style={styles.form}>
               <Text variant="titleMedium" style={styles.stepTitle}>
-                Choisissez un mot de passe
+                Choisis un mot de passe
               </Text>
               <TextInput
                 label="Mot de passe"
@@ -303,7 +303,7 @@ export default function RegisterScreen({ navigation }: any) {
                 disabled={isLoading}
                 style={styles.button}
               >
-                Creer mon compte
+                Créer mon compte
               </Button>
             </View>
           )}

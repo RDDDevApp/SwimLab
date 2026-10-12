@@ -56,7 +56,7 @@ export default function SubBlockEditor({
           style={[styles.input, styles.repInput]}
         />
         <TextInput
-          label="Depart"
+          label="Départ"
           placeholder="1'30"
           value={subBlock.departure || ''}
           onChangeText={(v) => onChange({ ...subBlock, departure: v })}
@@ -68,7 +68,7 @@ export default function SubBlockEditor({
 
       <TextInput
         label="Description (optionnel)"
-        placeholder="Ex: 4 nages, 1 crawl 1 spe..."
+        placeholder="Ex. : 4 nages, 1 crawl 1 spé…"
         value={subBlock.description || ''}
         onChangeText={(v) => onChange({ ...subBlock, description: v })}
         mode="outlined"

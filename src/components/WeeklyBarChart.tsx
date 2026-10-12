@@ -43,7 +43,7 @@ function AnimatedBar({ height, color, delay }: { height: number; color: string; 
 export default function WeeklyBarChart({
   data,
   activeColor = '#06B6D4',
-  title = 'Ma Semaine',
+  title = 'Ma semaine',
   label,
 }: WeeklyBarChartProps) {
   return (

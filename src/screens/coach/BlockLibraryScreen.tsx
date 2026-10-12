@@ -38,9 +38,9 @@ const BLOCK_COLORS: Record<string, string> = {
 };
 
 const BLOCK_TYPES = [
-  { value: 'warmup', label: 'Echauffement' },
-  { value: 'main', label: 'Corps de seance' },
-  { value: 'cooldown', label: 'Recuperation' },
+  { value: 'warmup', label: 'Échauffement' },
+  { value: 'main', label: 'Corps de séance' },
+  { value: 'cooldown', label: 'Récupération' },
   { value: 'other', label: 'Autre' },
 ];
 
@@ -77,7 +77,7 @@ export default function BlockLibraryScreen({ navigation }: Props) {
     try {
       await blockLibraryService.delete(deleteTarget.id);
       setDeleteTarget(null);
-      showSnackbar('Bloc supprime', 'success');
+      showSnackbar('Bloc supprimé', 'success');
       loadBlocks();
     } catch (err) {
       showSnackbar('Erreur lors de la suppression', 'error');
@@ -142,18 +142,18 @@ export default function BlockLibraryScreen({ navigation }: Props) {
           Retour
         </Button>
         <Text variant="headlineMedium" style={styles.title}>
-          Bibliotheque de blocs
+          Bibliothèque de blocs
         </Text>
         <Text variant="bodySmall" style={styles.subtitle}>
-          Sauvegardez vos blocs favoris pour les reutiliser dans vos seances
+          Sauvegarde tes blocs favoris pour les réutiliser dans tes séances
         </Text>
       </View>
 
       {blocks.length === 0 && !loading ? (
         <EmptyState
           icon="bookshelf"
-          title="Aucun bloc sauvegarde"
-          subtitle="Sauvegardez des blocs depuis l'editeur de seance pour les retrouver ici"
+          title="Aucun bloc sauvegardé"
+          subtitle="Sauvegarde des blocs depuis l'éditeur de séance pour les retrouver ici"
         />
       ) : (
         <FlatList
@@ -174,7 +174,7 @@ export default function BlockLibraryScreen({ navigation }: Props) {
           <Dialog.Title>Supprimer le bloc</Dialog.Title>
           <Dialog.Content>
             <Paragraph>
-              Supprimer "{deleteTarget?.name}" de la bibliotheque ?
+              Supprimer "{deleteTarget?.name}" de la bibliothèque ?
             </Paragraph>
           </Dialog.Content>
           <Dialog.Actions>

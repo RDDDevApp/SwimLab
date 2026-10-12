@@ -44,7 +44,7 @@ export default function GroupsScreen({ navigation }: Props) {
     try {
       await groupService.delete(deleteTarget.id);
       setDeleteTarget(null);
-      showSnackbar('Groupe supprime', 'success');
+      showSnackbar('Groupe supprimé', 'success');
       loadGroups();
     } catch (err) {
       showSnackbar('Erreur lors de la suppression', 'error');
@@ -55,7 +55,7 @@ export default function GroupsScreen({ navigation }: Props) {
     <GradientScreen>
       <View style={styles.header}>
         <Text variant="headlineMedium" style={styles.title}>
-          Mes Groupes
+          Mes groupes
         </Text>
       </View>
 
@@ -63,7 +63,7 @@ export default function GroupsScreen({ navigation }: Props) {
         <EmptyState
           icon="account-group"
           title="Aucun groupe pour le moment"
-          subtitle="Creez votre premier groupe d'entrainement"
+          subtitle="Crée ton premier groupe d'entraînement"
         />
       ) : (
         <FlatList
@@ -98,7 +98,7 @@ export default function GroupsScreen({ navigation }: Props) {
                     </Chip>
                   )}
                   <Chip compact icon="clock-outline" style={styles.chip}>
-                    Voir creneaux
+                    Voir créneaux
                   </Chip>
                 </View>
                 {item.description ? (
@@ -123,7 +123,7 @@ export default function GroupsScreen({ navigation }: Props) {
           <Dialog.Title>Supprimer le groupe</Dialog.Title>
           <Dialog.Content>
             <Paragraph>
-              Supprimer "{deleteTarget?.name}" ? Cette action est irreversible.
+              Supprimer "{deleteTarget?.name}" ? Cette action est irréversible.
             </Paragraph>
           </Dialog.Content>
           <Dialog.Actions>

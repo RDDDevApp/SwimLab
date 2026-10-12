@@ -43,7 +43,7 @@ export const soloService = {
 
     if (error) {
       if (isMissingTableError(error)) {
-        throw new Error('Fonctionnalite indisponible (migration 016 requise)');
+        throw new Error('Fonctionnalité indisponible (migration 016 requise)');
       }
       throw error;
     }
@@ -93,7 +93,7 @@ export const soloService = {
     },
   ): Promise<SoloSession> {
     if (feedback.rpe_score < 6 || feedback.rpe_score > 20) {
-      throw new Error('Le score RPE doit etre entre 6 et 20');
+      throw new Error('Le score RPE doit être entre 6 et 20');
     }
 
     const { data, error } = await (supabase as any)
@@ -128,7 +128,7 @@ function mapWithWorkout(row: any): SoloSessionWithWorkout {
   const { workouts, ...session } = row;
   return {
     ...session,
-    workoutTitle: workouts?.title || 'Seance',
+    workoutTitle: workouts?.title || 'Séance',
     totalDistance: workouts?.total_distance ?? null,
   };
 }

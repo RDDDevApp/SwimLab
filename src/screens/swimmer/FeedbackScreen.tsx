@@ -113,7 +113,7 @@ export default function FeedbackScreen({ navigation, route }: Props) {
       };
       if (isEdit) {
         await workoutSessionService.updateFeedback(sessionId, payload);
-        showSnackbar('Feedback modifie !', 'success');
+        showSnackbar('Feedback modifié !', 'success');
       } else {
         await workoutSessionService.submitFeedback(sessionId, payload);
         showSnackbar('Merci pour ton feedback ! +20 XP', 'success');
@@ -168,7 +168,7 @@ export default function FeedbackScreen({ navigation, route }: Props) {
             bounces={false}
           >
             <Text variant="titleMedium" style={styles.sectionTitle}>
-              Effort percu (RPE)
+              Effort perçu (RPE)
             </Text>
 
             <Slider value={rpe} onChange={setRpe} />
@@ -180,7 +180,7 @@ export default function FeedbackScreen({ navigation, route }: Props) {
               value={fatigue}
               onChange={setFatigue}
               lowLabel="Frais"
-              highLabel="Epuise"
+              highLabel="Épuisé"
               color="#D97706"
             />
 
@@ -200,7 +200,7 @@ export default function FeedbackScreen({ navigation, route }: Props) {
             </Text>
 
             <TextInput
-              placeholder="Comment s'est passee la seance ?"
+              placeholder="Comment s'est passée la séance ?"
               value={comment}
               onChangeText={setComment}
               mode="outlined"
@@ -228,7 +228,7 @@ export default function FeedbackScreen({ navigation, route }: Props) {
 
             {isEdit && (
               <Text variant="bodySmall" style={styles.editHint}>
-                Modification possible dans les 24h suivant l'envoi
+                Modifiable pendant 24 h après l'envoi
               </Text>
             )}
           </ScrollView>

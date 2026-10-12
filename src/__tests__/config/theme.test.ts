@@ -85,7 +85,7 @@ describe('RPE_LABELS', () => {
 
   it('should have correct boundary labels', () => {
     expect(RPE_LABELS[6]).toBe('Repos');
-    expect(RPE_LABELS[13]).toBe('Un Peu Dur');
+    expect(RPE_LABELS[13]).toBe('Un peu dur');
     expect(RPE_LABELS[20]).toBe('Maximal');
   });
 });

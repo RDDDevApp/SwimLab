@@ -62,7 +62,7 @@ export default function SwimmerHistoryScreen({ navigation }: Props) {
         <EmptyState
           icon="history"
           title="Aucun historique"
-          subtitle="Ton historique apparaitra apres tes premiers entrainements"
+          subtitle="Ton historique apparaîtra après tes premiers entraînements"
         />
       </GradientScreen>
     );
@@ -78,7 +78,7 @@ export default function SwimmerHistoryScreen({ navigation }: Props) {
           Mon historique
         </Text>
         <Chip icon="swim" style={styles.countChip}>
-          {history.filter((h) => h.attended).length} seances
+          {history.filter((h) => h.attended).length} séances
         </Chip>
       </View>
 
@@ -112,7 +112,7 @@ export default function SwimmerHistoryScreen({ navigation }: Props) {
                     style={styles.presentBadge}
                     textStyle={styles.presentText}
                   >
-                    Present
+                    Présent
                   </Chip>
                 ) : (
                   <Chip

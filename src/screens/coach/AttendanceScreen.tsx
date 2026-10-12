@@ -156,14 +156,14 @@ export default function AttendanceScreen({ navigation, route }: Props) {
       try {
         await notificationService.notifyFeedbackRequired(
           attendedArray,
-          workoutTitle || 'la seance',
+          workoutTitle || 'la séance',
         );
       } catch {}
 
-      showSnackbar('Emargement valide', 'success');
+      showSnackbar('Émargement validé', 'success');
       navigation.goBack();
     } catch (err: any) {
-      setError(err.message || "Erreur lors de l'emargement");
+      setError(err.message || "Erreur lors de l'émargement");
     } finally {
       setSubmitting(false);
     }
@@ -180,7 +180,7 @@ export default function AttendanceScreen({ navigation, route }: Props) {
           Retour
         </Button>
         <Text variant="titleLarge" style={styles.title}>
-          Emargement
+          Émargement
         </Text>
         {workoutTitle && (
           <Text variant="bodyMedium" style={styles.subtitle}>
@@ -193,7 +193,7 @@ export default function AttendanceScreen({ navigation, route }: Props) {
       {coaches.length > 1 && (
         <View style={styles.coachSection}>
           <Text variant="labelLarge" style={styles.sectionLabel}>
-            Coach qui a donne la seance
+            Coach qui a donné la séance
           </Text>
           <RadioButton.Group onValueChange={setSelectedCoachId} value={selectedCoachId}>
             {coaches.map((coach) => (
@@ -201,7 +201,7 @@ export default function AttendanceScreen({ navigation, route }: Props) {
                 <RadioButton value={coach.id} />
                 <Text variant="bodyMedium">
                   {coach.first_name} {coach.last_name}
-                  {coach.is_creator ? ' (createur)' : ''}
+                  {coach.is_creator ? ' (créateur)' : ''}
                 </Text>
               </View>
             ))}
@@ -211,7 +211,7 @@ export default function AttendanceScreen({ navigation, route }: Props) {
 
       <View style={styles.statsBar}>
         <Chip icon="account-check" style={styles.statChip}>
-          {presentCount}/{totalCount} presents
+          {presentCount}/{totalCount} présents
         </Chip>
         <View style={styles.quickActions}>
           <Button compact onPress={selectAll}>
@@ -249,17 +249,17 @@ export default function AttendanceScreen({ navigation, route }: Props) {
                   <Chip compact style={styles.declaredAbsentChip} textStyle={styles.declaredAbsentText}>
                     {presenceMap[item.id].reason
                       ? `Absent · ${presenceMap[item.id].reason}`
-                      : 'Absence signalee'}
+                      : 'Absence signalée'}
                   </Chip>
                 )}
                 {presenceMap[item.id]?.status === 'present' && (
                   <Chip compact style={styles.declaredPresentChip} textStyle={styles.declaredPresentText}>
-                    Confirme
+                    Confirmé
                   </Chip>
                 )}
                 {isGuest && (
                   <Chip compact style={styles.guestChip} onClose={() => removeGuest(item.id)}>
-                    Invite
+                    Invité
                   </Chip>
                 )}
               </Card.Content>
@@ -275,7 +275,7 @@ export default function AttendanceScreen({ navigation, route }: Props) {
           icon="account-plus"
           style={styles.addGuestBtn}
         >
-          Ajouter un nageur invite
+          Ajouter un nageur invité
         </Button>
         {error ? (
           <HelperText type="error" visible>
@@ -288,7 +288,7 @@ export default function AttendanceScreen({ navigation, route }: Props) {
           loading={submitting}
           disabled={submitting}
         >
-          Valider l'emargement ({presentCount}/{totalCount})
+          Valider l'émargement ({presentCount}/{totalCount})
         </Button>
       </View>
 
@@ -300,7 +300,7 @@ export default function AttendanceScreen({ navigation, route }: Props) {
           contentContainerStyle={styles.modal}
         >
           <Text variant="titleMedium" style={styles.modalTitle}>
-            Ajouter un nageur invite
+            Ajouter un nageur invité
           </Text>
           {availableGuests.length === 0 ? (
             <Text variant="bodyMedium" style={styles.emptyText}>

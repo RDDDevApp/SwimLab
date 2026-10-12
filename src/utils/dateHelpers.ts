@@ -34,8 +34,8 @@ export function toISODate(date: Date): string {
 export function formatShortDate(date: Date): string {
   const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
   const months = [
-    'Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Juin',
-    'Juil', 'Aout', 'Sep', 'Oct', 'Nov', 'Dec',
+    'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin',
+    'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc',
   ];
   return `${days[date.getDay()]} ${String(date.getDate()).padStart(2, '0')} ${months[date.getMonth()]}`;
 }
@@ -44,8 +44,8 @@ export function formatShortDate(date: Date): string {
 export function formatWeekRange(date: Date): string {
   const dates = getWeekDates(date);
   const months = [
-    'Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Juin',
-    'Juil', 'Aout', 'Sep', 'Oct', 'Nov', 'Dec',
+    'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin',
+    'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc',
   ];
   const start = dates[0];
   const end = dates[6];
@@ -110,8 +110,8 @@ export function getMonthCalendarDates(date: Date): Date[] {
 /** Format month and year: "Fevrier 2026" */
 export function formatMonthYear(date: Date): string {
   const months = [
-    'Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin',
-    'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'Decembre',
+    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
   ];
   return `${months[date.getMonth()]} ${date.getFullYear()}`;
 }

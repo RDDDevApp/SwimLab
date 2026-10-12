@@ -83,7 +83,7 @@ async function fetchCoachDashboard(
   if (upcomingAssignments.length > 0) {
     const assignment = upcomingAssignments[0];
     const slot = slots.find((s) => s.id === assignment.training_slot_id);
-    let title = 'Seance';
+    let title = 'Séance';
     try {
       const workout = await workoutService.getById(assignment.workout_id);
       title = workout.title;

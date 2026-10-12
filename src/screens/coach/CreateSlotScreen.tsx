@@ -44,7 +44,7 @@ export default function CreateSlotScreen({ navigation, route }: Props) {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      setError('Le nom du creneau est requis');
+      setError('Le nom du créneau est requis');
       return;
     }
     if (!user) return;
@@ -71,7 +71,7 @@ export default function CreateSlotScreen({ navigation, route }: Props) {
           location: location.trim() || null,
         });
       }
-      showSnackbar(editingSlot ? 'Creneau modifie' : 'Creneau cree', 'success');
+      showSnackbar(editingSlot ? 'Créneau modifié' : 'Créneau créé', 'success');
       navigation.goBack();
     } catch (err: any) {
       setError(err.message || 'Erreur lors de la sauvegarde');
@@ -87,14 +87,14 @@ export default function CreateSlotScreen({ navigation, route }: Props) {
           Retour
         </Button>
         <Text variant="titleLarge" style={styles.title}>
-          {editingSlot ? 'Modifier le creneau' : 'Nouveau creneau'}
+          {editingSlot ? 'Modifier le créneau' : 'Nouveau créneau'}
         </Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.form}>
         <TextInput
-          label="Nom du creneau"
-          placeholder="Ex: Mardi soir Compet"
+          label="Nom du créneau"
+          placeholder="Ex. : Mardi soir compét"
           value={name}
           onChangeText={setName}
           mode="outlined"
@@ -111,7 +111,7 @@ export default function CreateSlotScreen({ navigation, route }: Props) {
 
         <View style={styles.row}>
           <TextInput
-            label="Heure debut"
+            label="Heure de début"
             placeholder="18:00"
             value={startTime}
             onChangeText={setStartTime}
@@ -119,7 +119,7 @@ export default function CreateSlotScreen({ navigation, route }: Props) {
             style={[styles.input, styles.halfInput]}
           />
           <TextInput
-            label="Duree (min)"
+            label="Durée (min)"
             placeholder="90"
             value={duration}
             onChangeText={setDuration}
@@ -131,7 +131,7 @@ export default function CreateSlotScreen({ navigation, route }: Props) {
 
         <TextInput
           label="Lieu (optionnel)"
-          placeholder="Ex: Piscine Olympique"
+          placeholder="Ex. : Piscine olympique"
           value={location}
           onChangeText={setLocation}
           mode="outlined"
@@ -151,7 +151,7 @@ export default function CreateSlotScreen({ navigation, route }: Props) {
           disabled={loading}
           style={styles.saveButton}
         >
-          {editingSlot ? 'Modifier' : 'Creer le creneau'}
+          {editingSlot ? 'Modifier' : 'Créer le créneau'}
         </Button>
       </ScrollView>
     </GradientScreen>

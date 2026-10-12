@@ -61,8 +61,8 @@ Deno.serve(async (req) => {
         for (const t of tokens ?? []) {
           messages.push({
             to: t.token,
-            title: 'Entrainement demain',
-            body: `${slot.name} demain a ${String(slot.start_time).slice(0, 5)}`,
+            title: 'Entraînement demain',
+            body: `${slot.name} demain à ${String(slot.start_time).slice(0, 5)}`,
             data: { type: 'training_reminder' },
           });
         }
@@ -95,7 +95,7 @@ Deno.serve(async (req) => {
           messages.push({
             to: t.token,
             title: 'Feedback en attente',
-            body: 'Donne ton ressenti sur ta derniere seance !',
+            body: 'Donne ton ressenti sur ta dernière séance !',
             data: { type: 'feedback_reminder' },
           });
         }

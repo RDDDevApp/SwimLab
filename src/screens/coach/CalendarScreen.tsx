@@ -164,8 +164,8 @@ export default function CalendarScreen({ navigation }: Props) {
       {slots.length === 0 && !loading ? (
         <EmptyState
           icon="calendar-blank"
-          title="Aucun creneau configure"
-          subtitle="Creez des creneaux pour voir votre calendrier"
+          title="Aucun créneau configuré"
+          subtitle="Crée des créneaux pour voir ton calendrier"
         />
       ) : viewMode === 'month' ? (
         <ScrollView>
