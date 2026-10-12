@@ -31,8 +31,12 @@ export const aiService = {
     });
 
     if (error) {
+      // Erreur renvoyée par la fonction (limite atteinte, paramètres…) : on affiche son message
+      const serverMessage = await (error as any).context?.json?.()
+        .then((b: any) => b?.error)
+        .catch(() => null);
       throw new Error(
-        "La génération par IA n'est pas encore disponible. Réessaie plus tard.",
+        serverMessage || "La génération par IA n'est pas encore disponible. Réessaie plus tard.",
       );
     }
     if (data?.error) {

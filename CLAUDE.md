@@ -43,6 +43,14 @@ Supabase. Vue d'ensemble, stack et commandes : [README.md](./README.md).
   (`/auth/v1/token?grant_type=password` puis `/rest/v1/...`).
 - Mettre à jour `docs/migrations/README.md` (tableau d'état) à chaque migration.
 
+## Textes de l'interface
+
+- **Tutoiement partout**, coach comme nageur, y compris avant la connexion
+  (décision de Raudi, octobre 2026). Jamais de « vous », « votre », « Veuillez ».
+- **Accents obligatoires**, majuscules accentuées comprises (« Échauffement », « À venir »).
+- Majuscule au premier mot seulement dans les titres (« Mes groupes », « RPE moyen »).
+- Messages d'erreur : une phrase simple qui dit quoi faire (« Réessaie dans quelques minutes. »).
+
 ## Pièges déjà rencontrés
 
 - **Les tests Jest simulent Supabase** : ils ne voient ni les règles de sécurité (RLS)
@@ -60,6 +68,9 @@ Supabase. Vue d'ensemble, stack et commandes : [README.md](./README.md).
 - Un code d'invitation doit correspondre au rôle du compte (`clubService.joinByCode`).
 - Les tests qui importent `react-native` doivent simuler `Platform`
   (`jest.mock('react-native', () => ({ Platform: { OS: 'ios' } }))`).
+- **Edge Functions** : répondre à `OPTIONS` avec les en-têtes CORS (sinon le site web
+  est bloqué) et vérifier l'appelant dans le code. Les notifications vers d'autres
+  utilisateurs passent par `send-push` : l'app ne peut pas lire leurs jetons (RLS).
 - ESLint : `react/no-unescaped-entities` est désactivé (règle HTML, sans objet en RN).
 
 ## Comptes démo (club « CN Les Dauphins (Démo) »)
@@ -81,16 +92,20 @@ nouveau coach) : tous en `@example.com`. Remise à zéro : `supabase/seed/demo_s
 
 ## Chantiers ouverts (par priorité)
 
-1. Accents et ton des textes de l'interface (« Seance », « detectee »… ; coach
-   vouvoyé, nageur tutoyé : à trancher avec Raudi).
-2. Avant le pilote : déployer les Edge Functions (`send-push`, `generate-workout` +
-   secret `ANTHROPIC_API_KEY`), un service d'email (SMTP), passer
-   `EXPO_PUBLIC_DEMO_MODE` à `false` et supprimer la démo, build natif de test
-   (notifications), règle pour les nageurs mineurs (accord parental).
-3. Migrer les 14 écrans encore en chargement manuel vers TanStack Query ; générer
+1. Avant le pilote, en lots (une pull request par lot) :
+   1. Notifications et IA sécurisées (`send-push`, `generate-workout`, migrations
+      021-022), puis déploiement avec les secrets `ANTHROPIC_API_KEY` et `CRON_SECRET`.
+   2. Emails via **Brevo** (SMTP dans Supabase, modèles d'emails en français).
+   3. Nageurs mineurs : date de naissance à l'inscription ; sous 15 ans, case
+      « un parent est d'accord » + email du parent informé ; page « Conditions et
+      données personnelles ».
+   4. Build natif de test (EAS, APK Android) pour les notifications.
+   5. Jour J : `EXPO_PUBLIC_DEMO_MODE` à `false` et suppression de la démo
+      (gardée d'ici là pour tester).
+2. Migrer les 14 écrans encore en chargement manuel vers TanStack Query ; générer
    les types depuis la base (`supabase gen types`) pour supprimer les `any`.
-4. Tests des services récents (absences, solo, IA, notifications, bibliothèque) et
+3. Tests des services récents (absences, solo, IA, notifications, bibliothèque) et
    des parcours émargement / feedback.
-5. Décision en attente : dépôt public sous licence MIT (code réutilisable par tous).
+4. Décision en attente : dépôt public sous licence MIT (code réutilisable par tous).
 
 Audit complet du 11 octobre 2026 : https://claude.ai/artifact/6QEgXoxWRsq4TCYEqm4C2p

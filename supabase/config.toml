@@ -1,0 +1,11 @@
+# Configuration Supabase versionnée (utilisée par `supabase functions deploy`).
+project_id = "kwzghvmwsrodpomtmfjt"
+
+# Génération IA : appel depuis l'app, jeton utilisateur obligatoire.
+[functions.generate-workout]
+verify_jwt = true
+
+# Notifications : appelée par pg_cron (en-tête x-cron-secret, sans jeton) et par
+# l'app après l'émargement. La fonction vérifie elle-même l'un ou l'autre.
+[functions.send-push]
+verify_jwt = false

@@ -7,7 +7,7 @@ réplique locale : `npm run db:replica -- docs/migrations/<fichier>.sql` (voir
 
 ## État de la base de production (vérifié le 12 octobre 2026)
 
-Toutes les migrations du dépôt sont appliquées.
+Appliquées jusqu'à la 020. **021 et 022 : à appliquer** (pull request « pilote : notifications et IA »).
 
 | Migrations | Contenu |
 |---|---|
@@ -21,6 +21,8 @@ Toutes les migrations du dépôt sont appliquées.
 | 018 | Un coach lit les séances programmées dans ses groupes et les séances publiées de son club |
 | 019 | `delete_my_account()` : suppression de compte par l'utilisateur, en protégeant les clubs |
 | 020 | Programme secret : un nageur ne lit une séance qu'après la fin, l'émargement ou si le coach l'a montrée (`workouts.show_before_session`) |
+| 021 | **À appliquer.** Journal des générations IA (`ai_generations`) : plafond de 10 séances générées par jour et par compte |
+| 022 | **À appliquer.** Rappels push planifiés (`pg_cron` + `pg_net`) qui appellent `send-push` ; prérequis : secrets Vault `project_url` et `cron_secret` (voir l'en-tête du fichier). Sans effet sur la réplique locale |
 
 Données démo : [`supabase/seed/demo_seed.sql`](../../supabase/seed/demo_seed.sql), appliquées et rejouables.
 

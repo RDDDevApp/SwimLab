@@ -152,13 +152,8 @@ export default function AttendanceScreen({ navigation, route }: Props) {
         selectedCoachId || undefined,
       );
 
-      // Send push notifications to attended swimmers for feedback
-      try {
-        await notificationService.notifyFeedbackRequired(
-          attendedArray,
-          workoutTitle || 'la séance',
-        );
-      } catch {}
+      // Notification « feedback demandé » aux nageurs présents (sans bloquer l'émargement)
+      notificationService.requestFeedback(assignmentId).catch(() => {});
 
       showSnackbar('Émargement validé', 'success');
       navigation.goBack();
