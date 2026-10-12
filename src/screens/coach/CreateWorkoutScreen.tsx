@@ -40,9 +40,9 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
   const prefill = route?.params?.prefill;
 
   const defaultBlocks: WorkoutBlock[] = [
-    { id: generateId(), type: 'warmup', name: 'Echauffement', sub_blocks: [] },
-    { id: generateId(), type: 'main', name: 'Corps de seance', sub_blocks: [] },
-    { id: generateId(), type: 'cooldown', name: 'Recuperation', sub_blocks: [] },
+    { id: generateId(), type: 'warmup', name: 'Échauffement', sub_blocks: [] },
+    { id: generateId(), type: 'main', name: 'Corps de séance', sub_blocks: [] },
+    { id: generateId(), type: 'cooldown', name: 'Récupération', sub_blocks: [] },
   ];
 
   const [title, setTitle] = useState(editingWorkout?.title || prefill?.title || '');
@@ -110,7 +110,7 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
     if (!user || !clubId) return;
     const block = blocks[blockIndex];
     if (!block.name.trim()) {
-      showSnackbar('Donnez un nom au bloc avant de le sauvegarder', 'error');
+      showSnackbar('Donne un nom au bloc avant de le sauvegarder', 'error');
       return;
     }
     try {
@@ -126,7 +126,7 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
         content: block.sub_blocks,
         total_distance: totalDist,
       });
-      showSnackbar('Bloc sauvegarde dans la bibliotheque', 'success');
+      showSnackbar('Bloc sauvegardé dans la bibliothèque', 'success');
     } catch (err) {
       showSnackbar('Erreur lors de la sauvegarde du bloc', 'error');
     }
@@ -134,7 +134,7 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
 
   const handleOpenImport = (blockIndex: number) => {
     if (!clubId) {
-      showSnackbar('Bibliotheque de blocs indisponible en mode solo', 'info');
+      showSnackbar('Bibliothèque de blocs indisponible en mode solo', 'info');
       return;
     }
     setImportTargetIndex(blockIndex);
@@ -155,7 +155,7 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
     };
     setBlocks(updated);
     setImportTargetIndex(null);
-    showSnackbar('Bloc importe depuis la bibliotheque', 'success');
+    showSnackbar('Bloc importé depuis la bibliothèque', 'success');
   };
 
   const handleSave = async (publish: boolean) => {
@@ -216,13 +216,13 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
           </Chip>
         </View>
         <Text variant="titleLarge" style={styles.headerTitle}>
-          {editingWorkout ? 'Modifier la seance' : 'Nouvelle seance'}
+          {editingWorkout ? 'Modifier la séance' : 'Nouvelle séance'}
         </Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.form}>
         <TextInput
-          label="Titre de la seance"
+          label="Titre de la séance"
           placeholder="Ex: Endurance 2000m"
           value={title}
           onChangeText={setTitle}
@@ -255,7 +255,7 @@ export default function CreateWorkoutScreen({ navigation, route }: Props) {
         <Divider style={styles.divider} />
 
         <Text variant="titleMedium" style={styles.sectionTitle}>
-          Structure de la seance
+          Structure de la séance
         </Text>
 
         {blocks.map((block, index) => (

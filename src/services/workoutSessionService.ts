@@ -158,7 +158,7 @@ export const workoutSessionService = {
         : 'Nageur',
       rpeScore: s.rpe_score,
       feedbackText: s.feedback_text,
-      workoutTitle: s.workout_assignments?.workouts?.title || 'Seance',
+      workoutTitle: s.workout_assignments?.workouts?.title || 'Séance',
       scheduledDate: s.workout_assignments?.scheduled_date || '',
       completedAt: s.completed_at,
     }));
@@ -244,7 +244,7 @@ export const workoutSessionService = {
     feedback: FeedbackData,
   ): Promise<WorkoutSession> {
     if (feedback.rpe_score < 6 || feedback.rpe_score > 20) {
-      throw new Error('Le score RPE doit etre entre 6 et 20');
+      throw new Error('Le score RPE doit être entre 6 et 20');
     }
 
     const { data, error } = await supabase
@@ -277,7 +277,7 @@ export const workoutSessionService = {
     feedback: FeedbackData,
   ): Promise<WorkoutSession> {
     if (feedback.rpe_score < 6 || feedback.rpe_score > 20) {
-      throw new Error('Le score RPE doit etre entre 6 et 20');
+      throw new Error('Le score RPE doit être entre 6 et 20');
     }
 
     // Check if feedback was submitted less than 24h ago
@@ -294,7 +294,7 @@ export const workoutSessionService = {
       const now = new Date();
       const hoursDiff = (now.getTime() - completedAt.getTime()) / (1000 * 60 * 60);
       if (hoursDiff > 24) {
-        throw new Error('La modification du feedback est limitee a 24h apres envoi');
+        throw new Error('Le feedback n\'est modifiable que pendant 24 h après l\'envoi');
       }
     }
 
@@ -402,7 +402,7 @@ export const workoutSessionService = {
 
     return (data as any[]).map((s) => ({
       sessionId: s.id,
-      workoutTitle: s.workout_assignments?.workouts?.title || 'Seance',
+      workoutTitle: s.workout_assignments?.workouts?.title || 'Séance',
       scheduledDate: s.workout_assignments?.scheduled_date || '',
     }));
   },
@@ -459,7 +459,7 @@ export const workoutSessionService = {
         rpeScore: s.rpe_score,
         feedbackText: s.feedback_text,
         workoutId: a?.workout_id || '',
-        workoutTitle: w?.title || 'Seance',
+        workoutTitle: w?.title || 'Séance',
         workoutType: w?.type || 'other',
         totalDistance: w?.total_distance || null,
       };

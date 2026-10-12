@@ -61,7 +61,7 @@ export default function UIKitScreen({ navigation }: { navigation: any }) {
           <Text style={styles.cardText}>Carte standard (rgba)</Text>
         </GlassCard>
         <GlassCard elevated>
-          <Text style={styles.cardText}>Carte elevee — blur reel sur iOS</Text>
+          <Text style={styles.cardText}>Carte élevée — blur réel sur iOS</Text>
         </GlassCard>
         <GlassCard onPress={() => {}}>
           <Text style={styles.cardText}>Carte pressable (scale au press)</Text>
@@ -70,8 +70,8 @@ export default function UIKitScreen({ navigation }: { navigation: any }) {
         <SectionHeader title="ProgressRing" />
         <View style={styles.row}>
           <ProgressRing progress={85} caption="Distance" />
-          <ProgressRing progress={62} color="#D97706" caption="Assiduite" />
-          <ProgressRing progress={100} color="#059669" caption="Complete" size={72} />
+          <ProgressRing progress={62} color="#D97706" caption="Assiduité" />
+          <ProgressRing progress={100} color="#059669" caption="Terminé" size={72} />
         </View>
 
         <SectionHeader title="XPBar" />
@@ -81,10 +81,10 @@ export default function UIKitScreen({ navigation }: { navigation: any }) {
 
         <SectionHeader title="BadgeChip (tiers)" />
         <View style={styles.row}>
-          <BadgeChip name="10 seances" tier="bronze" icon="checkmark-done" />
-          <BadgeChip name="50 km nages" tier="silver" icon="water" />
+          <BadgeChip name="10 séances" tier="bronze" icon="checkmark-done" />
+          <BadgeChip name="50 km nagés" tier="silver" icon="water" />
           <BadgeChip name="Streak 12 sem." tier="gold" icon="flame" />
-          <BadgeChip name="100 seances" tier="diamond" locked />
+          <BadgeChip name="100 séances" tier="diamond" locked />
         </View>
 
         <SectionHeader title="StreakFlame" />
@@ -102,7 +102,7 @@ export default function UIKitScreen({ navigation }: { navigation: any }) {
           </View>
         </GlassCard>
 
-        <SectionHeader title="Couleurs types de seance" />
+        <SectionHeader title="Couleurs types de séance" />
         <View style={styles.row}>
           {(['endurance', 'sprint', 'technique', 'recovery'] as const).map((type) => {
             const cfg = WORKOUT_TYPE_COLORS[type];

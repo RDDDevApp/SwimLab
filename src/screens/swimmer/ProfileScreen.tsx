@@ -111,7 +111,7 @@ export default function SwimmerProfileScreen({ navigation }: { navigation: any }
                 Rejoindre un club
               </Text>
               <Text variant="bodyMedium" style={styles.joinSubtitle}>
-                Entrez le code d'invitation fourni par votre coach.
+                Saisis le code d'invitation donné par ton coach.
               </Text>
               <Button
                 mode="contained"
@@ -189,8 +189,8 @@ export default function SwimmerProfileScreen({ navigation }: { navigation: any }
           <Card.Content>
             <Text variant="titleMedium" style={{ color: '#1e293b' }}>Notifications</Text>
             <List.Item
-              title="Rappels d'entrainement"
-              description="1h avant chaque seance"
+              title="Rappels d'entraînement"
+              description="1 h avant chaque séance"
               left={(props) => <List.Icon {...props} icon="bell-outline" />}
               titleStyle={{ color: '#1e293b' }}
               descriptionStyle={{ color: '#64748b' }}
@@ -209,7 +209,7 @@ export default function SwimmerProfileScreen({ navigation }: { navigation: any }
             />
             <List.Item
               title="Demandes de feedback"
-              description="Apres chaque emargement"
+              description="Après chaque émargement"
               left={(props) => <List.Icon {...props} icon="comment-outline" />}
               titleStyle={{ color: '#1e293b' }}
               descriptionStyle={{ color: '#64748b' }}
@@ -238,7 +238,7 @@ export default function SwimmerProfileScreen({ navigation }: { navigation: any }
           textColor="#EF4444"
           icon="logout"
         >
-          Se deconnecter
+          Se déconnecter
         </Button>
 
         <DeleteAccountSection />
@@ -249,15 +249,14 @@ export default function SwimmerProfileScreen({ navigation }: { navigation: any }
         <Dialog visible={xpInfoVisible} onDismiss={() => setXpInfoVisible(false)}>
           <Dialog.Title>Comment gagner de l'XP ?</Dialog.Title>
           <Dialog.Content>
-            <Text style={styles.xpInfoLine}>+{XP_RULES.perSession} XP par seance assistee</Text>
-            <Text style={styles.xpInfoLine}>+{XP_RULES.perFeedback} XP par feedback envoye</Text>
+            <Text style={styles.xpInfoLine}>+{XP_RULES.perSession} XP par séance assistée</Text>
+            <Text style={styles.xpInfoLine}>+{XP_RULES.perFeedback} XP par feedback envoyé</Text>
             <Text style={styles.xpInfoLine}>
               +{XP_RULES.perStreakWeek} XP par semaine de streak en cours
             </Text>
-            <Text style={styles.xpInfoLine}>+{XP_RULES.per100m} XP par 100 m nages</Text>
+            <Text style={styles.xpInfoLine}>+{XP_RULES.per100m} XP par 100 m nagés</Text>
             <Text style={styles.xpInfoHint}>
-              Le streak compte les semaines consecutives avec au moins une seance —
-              une semaine sans nage le remet a zero.
+              Le streak compte les semaines consécutives avec au moins une séance : une semaine sans nager le remet à zéro.
             </Text>
           </Dialog.Content>
           <Dialog.Actions>

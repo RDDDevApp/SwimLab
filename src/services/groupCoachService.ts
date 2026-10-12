@@ -62,7 +62,7 @@ export const groupCoachService = {
     const count = await this.getCoachCount(groupId);
     if (count <= 1) {
       throw new Error(
-        'Impossible de retirer le dernier coach du groupe. Ajoutez un autre coach ou supprimez le groupe.',
+        'Impossible de retirer le dernier coach du groupe. Ajoute un autre coach ou supprime le groupe.',
       );
     }
 

@@ -38,7 +38,7 @@ export default function ClubSetupScreen({ navigation }: Props) {
       setClubId(club.id);
       setCreatedClub({ id: club.id, invitation_code: club.invitation_code, invitation_code_coach: club.invitation_code_coach });
     } catch (err: any) {
-      setError(err.message || 'Erreur lors de la creation du club');
+      setError(err.message || 'Erreur lors de la création du club');
     } finally {
       setLoading(false);
     }
@@ -53,7 +53,7 @@ export default function ClubSetupScreen({ navigation }: Props) {
       <GradientScreen>
         <ScrollView contentContainerStyle={styles.content}>
           <Text variant="headlineMedium" style={styles.title}>
-            Club cree !
+            Club créé !
           </Text>
 
           <Card style={styles.successCard}>
@@ -62,7 +62,7 @@ export default function ClubSetupScreen({ navigation }: Props) {
                 {name}
               </Text>
               <Text variant="bodyMedium" style={styles.successText}>
-                Code nageur (pour vos nageurs) :
+                Code nageur (pour tes nageurs) :
               </Text>
               <Chip
                 icon="content-copy"
@@ -72,7 +72,7 @@ export default function ClubSetupScreen({ navigation }: Props) {
                 {createdClub.invitation_code}
               </Chip>
               <Text variant="bodyMedium" style={[styles.successText, { marginTop: 8 }]}>
-                Code coach (pour les autres coaches) :
+                Code coach (pour les autres coachs) :
               </Text>
               <Chip
                 icon="content-copy"
@@ -82,8 +82,7 @@ export default function ClubSetupScreen({ navigation }: Props) {
                 {createdClub.invitation_code_coach}
               </Chip>
               <Text variant="bodySmall" style={styles.hint}>
-                Envoyez le lien nageur à vos nageurs et le lien coach à vos collègues : ils
-                arriveront directement dans le club en s'inscrivant.
+                Envoie le lien nageur à tes nageurs et le lien coach à tes collègues : ils arriveront directement dans le club en s'inscrivant.
               </Text>
               <InviteLinkActions
                 clubName={name}
@@ -98,7 +97,7 @@ export default function ClubSetupScreen({ navigation }: Props) {
             onPress={handleContinue}
             style={styles.continueBtn}
           >
-            Acceder a mon espace coach
+            Accéder à mon espace coach
           </Button>
         </ScrollView>
       </GradientScreen>
@@ -109,15 +108,15 @@ export default function ClubSetupScreen({ navigation }: Props) {
     <GradientScreen>
       <ScrollView contentContainerStyle={styles.content}>
         <Text variant="headlineMedium" style={styles.title}>
-          Creez votre club
+          Crée ton club
         </Text>
         <Text variant="bodyMedium" style={styles.subtitle}>
-          Configurez votre club pour commencer a gerer vos entrainements.
+          Configure ton club pour commencer à gérer tes entraînements.
         </Text>
 
         <TextInput
           label="Nom du club"
-          placeholder="Ex: Swim Club Paris"
+          placeholder="Ex. : Swim Club Paris"
           value={name}
           onChangeText={setName}
           mode="outlined"
@@ -126,7 +125,7 @@ export default function ClubSetupScreen({ navigation }: Props) {
 
         <TextInput
           label="Description (optionnel)"
-          placeholder="Decrivez votre club"
+          placeholder="Décris ton club"
           value={description}
           onChangeText={setDescription}
           mode="outlined"
@@ -148,7 +147,7 @@ export default function ClubSetupScreen({ navigation }: Props) {
           disabled={loading}
           style={styles.createBtn}
         >
-          Creer le club
+          Créer le club
         </Button>
 
         <Button mode="text" onPress={signOut} style={styles.signOutBtn}>

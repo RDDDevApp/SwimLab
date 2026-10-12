@@ -122,7 +122,7 @@ export default function WorkoutHistoryScreen({ navigation }: Props) {
         result.push({
           assignmentId: a.id,
           scheduledDate: a.scheduled_date,
-          workoutTitle: workout?.title || 'Seance',
+          workoutTitle: workout?.title || 'Séance',
           workoutType: workout?.type || 'other',
           totalDistance: workout?.total_distance || null,
           groupName: slot?.groupName || '',
@@ -162,11 +162,11 @@ export default function WorkoutHistoryScreen({ navigation }: Props) {
             Retour
           </Button>
           <Chip icon="history" style={styles.countChip}>
-            {items.length} seances
+            {items.length} séances
           </Chip>
         </View>
         <Text variant="titleLarge" style={styles.title}>
-          Historique des seances
+          Historique des séances
         </Text>
       </View>
 
@@ -174,7 +174,7 @@ export default function WorkoutHistoryScreen({ navigation }: Props) {
         <EmptyState
           icon="history"
           title="Aucun historique"
-          subtitle="Les seances passees apparaitront ici"
+          subtitle="Les séances passées apparaîtront ici"
         />
       ) : (
         <FlatList

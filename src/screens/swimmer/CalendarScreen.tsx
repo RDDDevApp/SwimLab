@@ -177,18 +177,18 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
     const isPast = new Date(assignment.scheduled_date + 'T23:59:59') < new Date();
 
     if (session?.completed_at) {
-      return { color: '#10B981', label: 'Feedback donne' };       // Green
+      return { color: '#10B981', label: 'Feedback donné' };       // Green
     }
     if (session?.attended && !session?.completed_at) {
-      return { color: '#F59E0B', label: 'Feedback a donner' };    // Orange
+      return { color: '#F59E0B', label: 'Feedback à donner' };    // Orange
     }
     if (session && !session.attended) {
       return { color: 'rgba(100,116,139,0.45)', label: 'Absent' };               // Gray
     }
     if (isPast && !assignment.attendance_marked) {
-      return { color: 'rgba(100,116,139,0.45)', label: 'Non marque' };           // Gray
+      return { color: 'rgba(100,116,139,0.45)', label: 'Non marqué' };           // Gray
     }
-    return { color: '#3B82F6', label: 'A venir' };               // Blue
+    return { color: '#3B82F6', label: 'À venir' };               // Blue
   };
 
   const getItemsForDate = (dateStr: string) => {
@@ -203,7 +203,7 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
     <GradientScreen>
       <View style={styles.header}>
         <Text variant="headlineMedium" style={styles.title}>
-          Mes Entrainements
+          Mes entraînements
         </Text>
         <View style={styles.weekNav}>
           <IconButton icon="chevron-left" onPress={goToPrevWeek} />
@@ -249,7 +249,7 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
               {daySlots.length === 0 ? (
                 <View style={styles.emptyDay}>
                   <Text variant="bodySmall" style={styles.emptyText}>
-                    Pas de creneau
+                    Pas de créneau
                   </Text>
                 </View>
               ) : (
@@ -260,7 +260,7 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
                     const dot = getStatusDot(item);
                     const typeCfg =
                       WORKOUT_TYPE_COLORS[item.workoutType] || WORKOUT_TYPE_COLORS.other;
-                    const isUpcomingToday = today && dot.label === 'A venir';
+                    const isUpcomingToday = today && dot.label === 'À venir';
                     const sessionStart = isUpcomingToday
                       ? new Date(
                           `${item.assignment.scheduled_date}T${item.slot.start_time || '00:00'}`,
@@ -350,7 +350,7 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
                           </Text>
                         </View>
                         <Text style={[styles.statusLabel, { color: 'rgba(100,116,139,0.45)' }]}>
-                          Pas de seance
+                          Pas de séance
                         </Text>
                       </View>
                       <Text variant="bodySmall" style={styles.slotTime}>

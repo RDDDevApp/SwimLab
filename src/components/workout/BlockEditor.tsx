@@ -16,9 +16,9 @@ interface BlockEditorProps {
 }
 
 const BLOCK_TYPES = [
-  { value: 'warmup', label: 'Echauffement' },
-  { value: 'main', label: 'Corps de seance' },
-  { value: 'cooldown', label: 'Recuperation' },
+  { value: 'warmup', label: 'Échauffement' },
+  { value: 'main', label: 'Corps de séance' },
+  { value: 'cooldown', label: 'Récupération' },
   { value: 'other', label: 'Autre' },
 ];
 

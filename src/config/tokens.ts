@@ -51,11 +51,11 @@ export const WORKOUT_TYPE_COLORS: Record<
   endurance: { color: '#0891B2', bg: 'rgba(8, 145, 178, 0.12)', label: 'Endurance' },
   sprint: { color: '#D97706', bg: 'rgba(217, 119, 6, 0.12)', label: 'Sprint' },
   technique: { color: '#7C3AED', bg: 'rgba(124, 58, 237, 0.12)', label: 'Technique' },
-  recovery: { color: '#059669', bg: 'rgba(5, 150, 105, 0.12)', label: 'Recuperation' },
+  recovery: { color: '#059669', bg: 'rgba(5, 150, 105, 0.12)', label: 'Récupération' },
   // Types de blocs (editeur de seances)
-  warmup: { color: '#059669', bg: 'rgba(5, 150, 105, 0.12)', label: 'Echauffement' },
-  main: { color: '#0891B2', bg: 'rgba(8, 145, 178, 0.12)', label: 'Corps de seance' },
-  cooldown: { color: '#7C3AED', bg: 'rgba(124, 58, 237, 0.12)', label: 'Recuperation' },
+  warmup: { color: '#059669', bg: 'rgba(5, 150, 105, 0.12)', label: 'Échauffement' },
+  main: { color: '#0891B2', bg: 'rgba(8, 145, 178, 0.12)', label: 'Corps de séance' },
+  cooldown: { color: '#7C3AED', bg: 'rgba(124, 58, 237, 0.12)', label: 'Récupération' },
   other: { color: '#64748B', bg: 'rgba(100, 116, 139, 0.12)', label: 'Autre' },
 } as const;
 

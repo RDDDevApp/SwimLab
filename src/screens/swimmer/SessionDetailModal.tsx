@@ -19,18 +19,18 @@ const getStatusDot = (session: any, assignment: any) => {
   const isPast = new Date(assignment.scheduled_date + 'T23:59:59') < new Date();
 
   if (session?.completed_at) {
-    return { color: '#10B981', label: 'Feedback donne' };
+    return { color: '#10B981', label: 'Feedback donné' };
   }
   if (session?.attended && !session?.completed_at) {
-    return { color: '#F59E0B', label: 'Feedback a donner' };
+    return { color: '#F59E0B', label: 'Feedback à donner' };
   }
   if (session && !session.attended) {
     return { color: 'rgba(100,116,139,0.45)', label: 'Absent' };
   }
   if (isPast && !assignment.attendance_marked) {
-    return { color: 'rgba(100,116,139,0.45)', label: 'Non marque' };
+    return { color: 'rgba(100,116,139,0.45)', label: 'Non marqué' };
   }
-  return { color: '#3B82F6', label: 'A venir' };
+  return { color: '#3B82F6', label: 'À venir' };
 };
 
 export default function SessionDetailModal({ navigation, route }: Props) {
@@ -150,7 +150,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
                 </Chip>
                 {session?.is_guest && (
                   <Chip compact style={styles.guestChip}>
-                    Invite
+                    Invité
                   </Chip>
                 )}
               </View>
@@ -208,7 +208,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
                     </Text>
 
                     <Text variant="titleSmall" style={styles.fieldLabel}>
-                      Effort percu (RPE)
+                      Effort perçu (RPE)
                     </Text>
                     <RPESlider value={rpe} onChange={setRpe} />
 
@@ -216,7 +216,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
                       Commentaire (optionnel)
                     </Text>
                     <TextInput
-                      placeholder="Comment s'est passee la seance ?"
+                      placeholder="Comment s'est passée la séance ?"
                       value={comment}
                       onChangeText={setComment}
                       mode="outlined"
@@ -264,7 +264,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
                 {isAbsent && (
                   <View style={styles.noticeBox}>
                     <Text style={styles.noticeText}>
-                      Absent(e) pour cette seance
+                      Absent(e) pour cette séance
                     </Text>
                   </View>
                 )}
@@ -272,7 +272,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
                 {!session && !isAbsent && (
                   <View style={[styles.noticeBox, styles.noticeBlue]}>
                     <Text style={[styles.noticeText, styles.noticeBlueText]}>
-                      Seance a venir
+                      Séance à venir
                     </Text>
                   </View>
                 )}

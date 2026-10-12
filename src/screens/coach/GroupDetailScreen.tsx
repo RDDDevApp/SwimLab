@@ -122,7 +122,7 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
     try {
       await groupService.removeMember(groupId, removeTarget.id);
       setRemoveTarget(null);
-      showSnackbar('Nageur retire du groupe', 'success');
+      showSnackbar('Nageur retiré du groupe', 'success');
       loadData();
     } catch (err) {
       showSnackbar('Erreur lors du retrait', 'error');
@@ -175,7 +175,7 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
   const handleRemoveCoach = async (coachId: string) => {
     try {
       await groupCoachService.removeCoach(groupId, coachId);
-      showSnackbar('Coach retire du groupe', 'success');
+      showSnackbar('Coach retiré du groupe', 'success');
       loadData();
     } catch (err: any) {
       showSnackbar(err.message || 'Erreur lors du retrait', 'error');
@@ -214,7 +214,7 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
               {coach.first_name} {coach.last_name}
             </Text>
             {coach.is_creator && (
-              <Chip compact style={styles.creatorChip}>Createur</Chip>
+              <Chip compact style={styles.creatorChip}>Créateur</Chip>
             )}
             {coaches.length > 1 && coach.id === user?.id && (
               <IconButton
@@ -246,7 +246,7 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
         <EmptyState
           icon="account-plus"
           title="Aucun nageur dans ce groupe"
-          subtitle="Ajoutez des nageurs de votre club a ce groupe"
+          subtitle="Ajoute des nageurs de ton club à ce groupe"
         />
       ) : (
         <FlatList
@@ -281,7 +281,7 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
         style={styles.slotsBtn}
         onPress={() => navigation.navigate('Slots', { groupId })}
       >
-        Voir les creneaux
+        Voir les créneaux
       </Button>
 
       {/* Add swimmers dialog */}
@@ -295,7 +295,7 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
           <Dialog.ScrollArea style={styles.dialogScroll}>
             {clubSwimmers.length === 0 ? (
               <Text variant="bodyMedium" style={styles.noSwimmers}>
-                Aucun nageur disponible. Invitez des nageurs avec le code de votre club.
+                Aucun nageur disponible. Invite des nageurs avec le code de ton club.
               </Text>
             ) : (
               <FlatList
@@ -353,11 +353,11 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
           onDismiss={() => setShowAddCoachModal(false)}
           style={styles.dialog}
         >
-          <Dialog.Title>Ajouter des coaches</Dialog.Title>
+          <Dialog.Title>Ajouter des coachs</Dialog.Title>
           <Dialog.ScrollArea style={styles.dialogScroll}>
             {clubCoaches.length === 0 ? (
               <Text variant="bodyMedium" style={styles.noSwimmers}>
-                Aucun coach disponible. Invitez des coaches avec le code coach de votre club.
+                Aucun coach disponible. Invite des coachs avec le code coach de ton club.
               </Text>
             ) : (
               <FlatList

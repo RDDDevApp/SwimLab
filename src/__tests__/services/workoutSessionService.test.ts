@@ -37,13 +37,13 @@ describe('workoutSessionService', () => {
     it('should reject RPE score below 6', async () => {
       await expect(
         workoutSessionService.submitFeedback('s1', { rpe_score: 3 }),
-      ).rejects.toThrow('Le score RPE doit etre entre 6 et 20');
+      ).rejects.toThrow('Le score RPE doit être entre 6 et 20');
     });
 
     it('should reject RPE score above 20', async () => {
       await expect(
         workoutSessionService.submitFeedback('s1', { rpe_score: 25 }),
-      ).rejects.toThrow('Le score RPE doit etre entre 6 et 20');
+      ).rejects.toThrow('Le score RPE doit être entre 6 et 20');
     });
   });
 
@@ -76,7 +76,7 @@ describe('workoutSessionService', () => {
 
       await expect(
         workoutSessionService.updateFeedback('s1', { rpe_score: 15 }),
-      ).rejects.toThrow('La modification du feedback est limitee a 24h apres envoi');
+      ).rejects.toThrow("Le feedback n'est modifiable que pendant 24 h après l'envoi");
     });
   });
 

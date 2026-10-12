@@ -50,7 +50,7 @@ export default function SlotsScreen({ navigation, route }: Props) {
     try {
       await trainingSlotService.delete(deleteTarget.id);
       setDeleteTarget(null);
-      showSnackbar('Creneau supprime', 'success');
+      showSnackbar('Créneau supprimé', 'success');
       loadSlots();
     } catch (err) {
       showSnackbar('Erreur lors de la suppression', 'error');
@@ -64,15 +64,15 @@ export default function SlotsScreen({ navigation, route }: Props) {
           Retour
         </Button>
         <Text variant="headlineMedium" style={styles.title}>
-          Creneaux
+          Créneaux
         </Text>
       </View>
 
       {slots.length === 0 && !loading ? (
         <EmptyState
           icon="clock-outline"
-          title="Aucun creneau pour le moment"
-          subtitle="Creez votre premier creneau d'entrainement"
+          title="Aucun créneau pour le moment"
+          subtitle="Crée ton premier créneau d'entraînement"
         />
       ) : (
         <FlatList
@@ -101,10 +101,10 @@ export default function SlotsScreen({ navigation, route }: Props) {
 
       <Portal>
         <Dialog visible={!!deleteTarget} onDismiss={() => setDeleteTarget(null)}>
-          <Dialog.Title>Supprimer le creneau</Dialog.Title>
+          <Dialog.Title>Supprimer le créneau</Dialog.Title>
           <Dialog.Content>
             <Paragraph>
-              Supprimer "{deleteTarget?.name}" ? Cette action est irreversible.
+              Supprimer "{deleteTarget?.name}" ? Cette action est irréversible.
             </Paragraph>
           </Dialog.Content>
           <Dialog.Actions>

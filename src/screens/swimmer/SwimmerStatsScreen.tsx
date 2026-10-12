@@ -59,8 +59,8 @@ function getMonthKey(date: string): string {
 
 function getMonthLabel(key: string): string {
   const months = [
-    'Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Jun',
-    'Jul', 'Aou', 'Sep', 'Oct', 'Nov', 'Dec',
+    'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun',
+    'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc',
   ];
   return months[parseInt(key.split('-')[1], 10) - 1] || key;
 }
@@ -226,7 +226,7 @@ export default function SwimmerStatsScreen({ navigation }: Props) {
 
   const statCards: StatCardData[] = [
     {
-      title: 'Volume Total',
+      title: 'Volume total',
       value: totalVolume > 0 ? `${(totalVolume / 1000).toFixed(1)} km` : '0 m',
       subtitle: 'Distance parcourue',
       icon: 'water-outline',
@@ -234,23 +234,23 @@ export default function SwimmerStatsScreen({ navigation }: Props) {
       trend: volumeTrend !== null ? { value: volumeTrend, isPositive: volumeTrend >= 0 } : undefined,
     },
     {
-      title: 'Assiduite',
+      title: 'Assiduité',
       value: `${attendanceRate}%`,
-      subtitle: `${attended.length} seances`,
+      subtitle: `${attended.length} séances`,
       icon: 'checkmark-circle-outline',
       color: 'rgba(16, 185, 129, 0.30)',
     },
     {
-      title: 'RPE Moyen',
+      title: 'RPE moyen',
       value: `${avgRpe}`,
       subtitle: `${withRpe.length} feedbacks`,
       icon: 'fitness-outline',
       color: 'rgba(236, 72, 153, 0.30)',
     },
     {
-      title: 'Seances',
+      title: 'Séances',
       value: `${attended.length}`,
-      subtitle: 'Sur la periode',
+      subtitle: 'Sur la période',
       icon: 'calendar-outline',
       color: 'rgba(99, 102, 241, 0.30)',
     },
@@ -260,13 +260,13 @@ export default function SwimmerStatsScreen({ navigation }: Props) {
     return (
       <GradientScreen>
         <View style={styles.headerSection}>
-          <Text style={styles.headerTitle}>Mes Statistiques</Text>
+          <Text style={styles.headerTitle}>Mes statistiques</Text>
           <Text style={styles.headerSubtitle}>Suivi de tes performances</Text>
         </View>
         <EmptyState
           icon="chart-line"
-          title="Pas encore de donnees"
-          subtitle="Tes stats apparaitront apres tes premiers entrainements"
+          title="Pas encore de données"
+          subtitle="Tes stats apparaîtront après tes premiers entraînements"
         />
       </GradientScreen>
     );
@@ -282,7 +282,7 @@ export default function SwimmerStatsScreen({ navigation }: Props) {
       >
         {/* Header */}
         <View style={styles.headerSection}>
-          <Text style={styles.headerTitle}>Mes Statistiques</Text>
+          <Text style={styles.headerTitle}>Mes statistiques</Text>
           <Text style={styles.headerSubtitle}>Suivi de tes performances</Text>
           <View style={styles.datePill}>
             <Ionicons name="calendar-outline" size={16} color="#0891b2" />
@@ -336,7 +336,7 @@ export default function SwimmerStatsScreen({ navigation }: Props) {
         {/* RPE chart */}
         {rpeData.length > 1 && (
           <View style={styles.chartCard}>
-            <Text style={styles.chartTitle}>Evolution RPE</Text>
+            <Text style={styles.chartTitle}>Évolution RPE</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <LineChart
                 data={{
@@ -358,7 +358,7 @@ export default function SwimmerStatsScreen({ navigation }: Props) {
         {/* Attendance chart */}
         {attendanceData.length > 0 && (
           <View style={styles.chartCard}>
-            <Text style={styles.chartTitle}>Assiduite par mois (%)</Text>
+            <Text style={styles.chartTitle}>Assiduité par mois (%)</Text>
             <BarChart
               data={{
                 labels: attendanceLabels,
@@ -383,11 +383,11 @@ export default function SwimmerStatsScreen({ navigation }: Props) {
           style={styles.insightCard}
         >
           <View style={styles.insightBlobDecor} />
-          <Text style={styles.insightTitle}>Ton Bilan</Text>
+          <Text style={styles.insightTitle}>Ton bilan</Text>
           <Text style={styles.insightText}>
             {totalVolume > 0
-              ? `Tu as parcouru ${(totalVolume / 1000).toFixed(1)} km sur ${attended.length} seances avec une assiduite de ${attendanceRate}%. `
-              : 'Continue tes entrainements pour voir ton bilan ici. '}
+              ? `Tu as parcouru ${(totalVolume / 1000).toFixed(1)} km sur ${attended.length} séances avec une assiduité de ${attendanceRate}%. `
+              : 'Continue tes entraînements pour voir ton bilan ici. '}
             {avgRpe !== '-' ? `Ton effort moyen est de ${avgRpe}/20.` : ''}
           </Text>
         </LinearGradient>

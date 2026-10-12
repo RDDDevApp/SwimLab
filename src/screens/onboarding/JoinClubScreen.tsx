@@ -65,12 +65,12 @@ export default function JoinClubScreen({ navigation, onSkip }: Props) {
           <Card style={styles.successCard}>
             <Card.Content style={styles.successContent}>
               <Text variant="titleMedium" style={styles.successTitle}>
-                Vous avez rejoint {joinedClubName}
+                Tu as rejoint {joinedClubName}
               </Text>
               <Text variant="bodyMedium" style={styles.successText}>
                 {joinedRole === 'coach'
-                  ? 'Vous avez rejoint en tant que coach. Vous pouvez maintenant gerer les groupes et entrainements.'
-                  : "Votre coach vous ajoutera a un groupe d'entrainement. Vous verrez ensuite vos seances dans le calendrier."}
+                  ? 'Tu as rejoint le club en tant que coach. Tu peux maintenant gérer les groupes et les entraînements.'
+                  : "Ton coach va t'ajouter à un groupe d'entraînement. Tu verras ensuite tes séances dans le calendrier."}
               </Text>
             </Card.Content>
           </Card>
@@ -80,7 +80,7 @@ export default function JoinClubScreen({ navigation, onSkip }: Props) {
             onPress={handleContinue}
             style={styles.continueBtn}
           >
-            Acceder a mon espace
+            Accéder à mon espace
           </Button>
         </ScrollView>
       </GradientScreen>
@@ -94,7 +94,7 @@ export default function JoinClubScreen({ navigation, onSkip }: Props) {
           Rejoindre un club
         </Text>
         <Text variant="bodyMedium" style={styles.subtitle}>
-          Entrez le code d'invitation fourni par votre coach.
+          Saisis le code d'invitation donné par ton coach.
         </Text>
 
         <TextInput

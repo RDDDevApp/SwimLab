@@ -21,7 +21,7 @@ export default function ProfileScreen() {
   const copyInvitationCode = async (code: string) => {
     try {
       await navigator.clipboard.writeText(code);
-      showSnackbar('Code copie dans le presse-papier', 'success');
+      showSnackbar('Code copié dans le presse-papiers', 'success');
     } catch {
       // Fallback: show code in snackbar so user can copy manually
       showSnackbar(`Code : ${code}`, 'success');
@@ -142,8 +142,8 @@ export default function ProfileScreen() {
           <Card.Content>
             <Text variant="titleMedium">Notifications</Text>
             <List.Item
-              title="Rappels d'entrainement"
-              description="1h avant chaque seance"
+              title="Rappels d'entraînement"
+              description="1 h avant chaque séance"
               left={(props) => <List.Icon {...props} icon="bell-outline" />}
               right={() => (
                 <Switch
@@ -160,7 +160,7 @@ export default function ProfileScreen() {
             />
             <List.Item
               title="Demandes de feedback"
-              description="Apres chaque emargement"
+              description="Après chaque émargement"
               left={(props) => <List.Icon {...props} icon="comment-outline" />}
               right={() => (
                 <Switch
@@ -187,7 +187,7 @@ export default function ProfileScreen() {
           textColor="#EF4444"
           icon="logout"
         >
-          Se deconnecter
+          Se déconnecter
         </Button>
 
         <DeleteAccountSection />
