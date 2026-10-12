@@ -3,12 +3,15 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
 import { AuthStackParamList } from '../types';
+import { getInviteCodeFromUrl } from '../utils/invite';
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
 export default function AuthNavigator() {
   return (
     <Stack.Navigator
+      // Un lien d'invitation ouvre directement l'inscription, code pre-rempli
+      initialRouteName={getInviteCodeFromUrl() ? 'Register' : 'Login'}
       screenOptions={{
         headerShown: false,
       }}

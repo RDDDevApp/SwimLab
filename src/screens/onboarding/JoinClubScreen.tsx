@@ -4,6 +4,7 @@ import { Text, TextInput, Button, HelperText, Card } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
 import { clubService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
+import { clearInviteCodeFromUrl, getInviteCodeFromUrl, normalizeInviteCode } from '../../utils/invite';
 
 interface Props {
   navigation: any;
@@ -11,8 +12,8 @@ interface Props {
 }
 
 export default function JoinClubScreen({ navigation, onSkip }: Props) {
-  const { user, setClubId } = useAuthStore();
-  const [code, setCode] = useState('');
+  const { user, profile, setClubId } = useAuthStore();
+  const [code, setCode] = useState(() => getInviteCodeFromUrl() ?? '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [joinedClubName, setJoinedClubName] = useState('');
@@ -29,7 +30,12 @@ export default function JoinClubScreen({ navigation, onSkip }: Props) {
     setError('');
 
     try {
-      const { club, detectedRole } = await clubService.joinByCode(code.trim().toLowerCase(), user.id, 'swimmer');
+      const { club, detectedRole } = await clubService.joinByCode(
+        normalizeInviteCode(code),
+        user.id,
+        profile?.role === 'coach' ? 'coach' : 'swimmer',
+      );
+      clearInviteCodeFromUrl();
       setClubId(club.id);
       setJoinedClubName(club.name);
       setJoinedRole(detectedRole);

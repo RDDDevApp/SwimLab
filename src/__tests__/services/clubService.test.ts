@@ -148,6 +148,33 @@ describe('clubService', () => {
         clubService.joinByCode('INVALID', 'user-1', 'swimmer'),
       ).rejects.toThrow("Code d'invitation invalide");
     });
+
+    it('should refuse a coach code used by a swimmer account, without joining', async () => {
+      const mockClub = { id: 'club-1', name: 'Test', invitation_code: 'code123', invitation_code_coach: 'coach456' };
+      const findSwimmerBuilder = createMockQueryBuilder({ data: null, error: null });
+      const findCoachBuilder = createMockQueryBuilder({ data: mockClub, error: null });
+
+      mockFrom
+        .mockReturnValueOnce(findSwimmerBuilder)
+        .mockReturnValueOnce(findCoachBuilder);
+
+      await expect(
+        clubService.joinByCode('coach456', 'user-1', 'swimmer'),
+      ).rejects.toThrow('réservé aux coachs');
+      // Seulement les deux recherches de code : aucune insertion dans club_members
+      expect(mockFrom).toHaveBeenCalledTimes(2);
+    });
+
+    it('should refuse a swimmer code used by a coach account', async () => {
+      const mockClub = { id: 'club-1', name: 'Test', invitation_code: 'code123', invitation_code_coach: 'coach456' };
+      mockFrom
+        .mockReturnValueOnce(createMockQueryBuilder({ data: mockClub, error: null }))
+        .mockReturnValueOnce(createMockQueryBuilder({ data: null, error: null }));
+
+      await expect(
+        clubService.joinByCode('code123', 'user-1', 'coach'),
+      ).rejects.toThrow('code nageur');
+    });
   });
 
   describe('update', () => {
