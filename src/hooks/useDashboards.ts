@@ -65,7 +65,8 @@ async function fetchCoachDashboard(
   const [memberIds, slots, recentActivity] = await Promise.all([
     groupService.getMemberIdsByGroups(groupIds),
     trainingSlotService.getByGroups(groupIds),
-    workoutSessionService.getRecentActivityByGroups(groupIds, 10),
+    // Bloc secondaire : son echec ne doit pas vider tout le tableau de bord
+    workoutSessionService.getRecentActivityByGroups(groupIds, 10).catch(() => []),
   ]);
 
   const slotIds = slots.map((s) => s.id);
