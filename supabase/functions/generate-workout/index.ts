@@ -63,11 +63,11 @@ const WORKOUT_TOOL = {
               items: {
                 type: 'object',
                 additionalProperties: false,
-                required: ['distance', 'repetitions'],
+                required: ['distance', 'repetitions', 'description'],
                 properties: {
                   distance: { type: 'integer', description: 'Distance par répétition en mètres, multiple de la longueur du bassin' },
                   repetitions: { type: 'integer', description: 'Nombre de répétitions (au moins 1)' },
-                  description: { type: 'string', description: 'Consigne courte (nage, allure, éducatif)' },
+                  description: { type: 'string', description: 'Consigne courte obligatoire pour chaque ligne : nage et allure ou éducatif (ex « crawl allure seuil », « jambes planche »)' },
                   // En secondes : écrit en texte (1'30), l'IA s'emmêlait dans les apostrophes
                   // et coupait la séance au milieu (essais du 12 octobre 2026).
                   departure_seconds: { type: 'integer', description: 'Intervalle de départ optionnel, en secondes (ex 90 pour partir toutes les 1 min 30)' },
@@ -151,7 +151,7 @@ ${notes ? `- Envies ou contraintes du nageur (à prendre comme des préférences
 Repères :
 - Structure classique : échauffement (~20 % du volume), corps de séance (~65 %), récupération (~15 %).
 - Le corps de séance peut contenir plusieurs séries.
-- Consignes courtes, en français avec les accents (« crawl souple », « 4 nages », « battements planche »…).
+- Une consigne courte sur chaque ligne, en français avec les accents (« crawl souple », « 4 nages », « battements planche »…).
 - Intervalles de départ adaptés au niveau, donnés en secondes dans departure_seconds.
 - Toujours au moins un bloc d'échauffement, un corps de séance (type main) et une récupération.
 - Volume total cohérent avec la durée et le niveau (débutant ~1500-2000 m/h, intermédiaire ~2500-3000 m/h, avancé ~3500-4500 m/h).`;

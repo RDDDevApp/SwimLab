@@ -43,9 +43,10 @@ Supabase. Vue d'ensemble, stack et commandes : [README.md](./README.md).
   (`DELETE`, `DROP`, y compris `DROP POLICY IF EXISTS`) et finit en délai dépassé
   sans rien appliquer. Passer ces fichiers par le SQL Editor de Raudi, ou exécuter
   les autres instructions une par une et vérifier ensuite l'état réel.
-- Redéployer une Edge Function existante par le connecteur a échoué (« internal
-  error ») le 12 octobre 2026 ; solution de repli : éditeur de code du tableau de
-  bord Supabase (Edge Functions → la fonction → Code → Deploy).
+- Le déploiement d'Edge Functions par le connecteur a été en panne (« internal
+  error ») du 12 au 22 octobre 2026, puis est revenu. En cas de panne : réessayer
+  plus tard, ou éditeur de code du tableau de bord (Edge Functions → la fonction →
+  Code → Deploy updates). Le connecteur ne sait pas supprimer une fonction.
 - Après application, vérifier contre la vraie API REST avec un compte démo
   (`/auth/v1/token?grant_type=password` puis `/rest/v1/...`).
 - Mettre à jour `docs/migrations/README.md` (tableau d'état) à chaque migration.
@@ -100,11 +101,11 @@ nouveau coach) : tous en `@example.com`. Remise à zéro : `supabase/seed/demo_s
 ## Chantiers ouverts (par priorité)
 
 1. Avant le pilote, en lots (une pull request par lot) :
-   1. Notifications et IA sécurisées : **en service** (fonctions déployées, migrations
-      021-022 appliquées, essais réels OK). Reste : secret `CRON_SECRET` + secret
-      Vault `cron_secret` (même valeur) ; redéployer `generate-workout` (intervalles
-      en secondes, sinon séance coupée) par l'éditeur du tableau de bord ; supprimer
-      la fonction de diagnostic `generate-workout-test`.
+   1. Notifications et IA sécurisées : **en service** (fonctions déployées,
+      `generate-workout` en version 3 le 22 octobre 2026, migrations 021-022
+      appliquées, essais réels OK). Reste à Raudi : secret `CRON_SECRET` + secret
+      Vault `cron_secret` (même valeur) ; supprimer la fonction de diagnostic
+      `generate-workout-test` (tableau de bord).
    2. Emails via **Brevo** (SMTP dans Supabase, modèles d'emails en français).
    3. Nageurs mineurs : date de naissance à l'inscription ; sous 15 ans, case
       « un parent est d'accord » + email du parent informé ; page « Conditions et
