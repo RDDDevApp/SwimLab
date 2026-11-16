@@ -14,6 +14,7 @@ import {
 import { presenceService, SessionPresence } from '../../services/presenceService';
 import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
+import { C, FONTS } from '../../config/tokens';
 
 interface Props {
   navigation: any;
@@ -339,28 +340,28 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     paddingHorizontal: 16,
   },
   subtitle: {
-    color: '#64748b',
+    color: C.inkMuted,
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
   coachSection: {
     padding: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   sectionLabel: {
-    color: '#0891b2',
+    color: C.primary,
     marginBottom: 4,
   },
   radioRow: {
@@ -372,12 +373,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   statChip: {
-    backgroundColor: '#D1FAE5',
+    backgroundColor: C.successSoft,
   },
   quickActions: {
     flexDirection: 'row',
@@ -386,13 +387,11 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   swimmerCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginBottom: 6,
   },
   presentCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.35)',
-    borderLeftWidth: 3,
-    borderLeftColor: '#10B981',
+    backgroundColor: C.surface,
   },
   swimmerRow: {
     flexDirection: 'row',
@@ -400,35 +399,35 @@ const styles = StyleSheet.create({
   },
   swimmerName: {
     marginLeft: 8,
-    color: '#1e293b',
+    color: C.ink,
     flex: 1,
   },
   guestChip: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: C.warningSoft,
   },
   declaredAbsentChip: {
-    backgroundColor: '#FEE2E2',
+    backgroundColor: C.dangerSoft,
   },
   declaredAbsentText: {
-    color: '#991B1B',
+    color: C.danger,
     fontSize: 11,
   },
   declaredPresentChip: {
-    backgroundColor: '#D1FAE5',
+    backgroundColor: C.successSoft,
   },
   declaredPresentText: {
-    color: '#065F46',
+    color: C.success,
     fontSize: 11,
   },
   footer: {
     padding: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.60)',
+    borderTopColor: 'transparent',
     gap: 8,
   },
   addGuestBtn: {
-    borderColor: '#0891b2',
+    borderColor: C.primary,
   },
   modal: {
     backgroundColor: 'white',
@@ -438,11 +437,11 @@ const styles = StyleSheet.create({
     maxHeight: '70%',
   },
   modalTitle: {
-    fontWeight: 'bold',
+    fontFamily: FONTS.display,
     marginBottom: 12,
   },
   emptyText: {
-    color: '#64748b',
+    color: C.inkMuted,
     textAlign: 'center',
     paddingVertical: 24,
   },
@@ -450,7 +449,7 @@ const styles = StyleSheet.create({
     maxHeight: 300,
   },
   guestCard: {
-    backgroundColor: '#f1f5f9',
+    backgroundColor: C.surfaceSunken,
     marginBottom: 6,
   },
   closeBtn: {

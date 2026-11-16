@@ -4,6 +4,7 @@ import { Text, TextInput, Button, IconButton, Divider } from 'react-native-paper
 import { WorkoutBlock, SubBlock, BlockType, BLOCK_TYPE_LABELS } from '../../types';
 import SubBlockEditor from './SubBlockEditor';
 import PickerSelect from '../PickerSelect';
+import { C, FONTS } from '../../config/tokens';
 
 interface BlockEditorProps {
   block: WorkoutBlock;
@@ -21,13 +22,6 @@ const BLOCK_TYPES = [
   { value: 'cooldown', label: 'Récupération' },
   { value: 'other', label: 'Autre' },
 ];
-
-const BLOCK_COLORS: Record<string, string> = {
-  warmup: '#059669',
-  main: '#0891B2',
-  cooldown: '#7C3AED',
-  other: '#4B5563',
-};
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 9);
@@ -67,10 +61,9 @@ export default function BlockEditor({
     0,
   );
 
-  const accentColor = BLOCK_COLORS[block.type] || BLOCK_COLORS.other;
 
   return (
-    <View style={[styles.container, { borderLeftColor: accentColor }]}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <View style={styles.moveButtons}>
@@ -94,13 +87,13 @@ export default function BlockEditor({
           />
         </View>
         <View style={styles.headerRight}>
-          <Text variant="titleSmall" style={[styles.distance, { color: accentColor }]}>
+          <Text variant="titleSmall" style={styles.distance}>
             {totalDistance}m
           </Text>
           <IconButton
             icon="delete"
             size={20}
-            iconColor="#DC2626"
+            iconColor={C.danger}
             onPress={onRemove}
           />
         </View>
@@ -166,13 +159,12 @@ export default function BlockEditor({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: C.surface,
     borderRadius: 12,
     padding: 12,
     marginBottom: 16,
-    borderLeftWidth: 4,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.60)',
+    borderColor: 'transparent',
   },
   header: {
     flexDirection: 'row',
@@ -199,10 +191,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   distance: {
-    fontWeight: 'bold',
+    fontFamily: FONTS.textBold,
   },
   nameInput: {
-    backgroundColor: 'rgba(255, 255, 255, 0.60)',
+    backgroundColor: C.surface,
     marginTop: 8,
     marginBottom: 4,
   },
@@ -211,7 +203,7 @@ const styles = StyleSheet.create({
   },
   addBtn: {
     alignSelf: 'flex-start',
-    borderColor: 'rgba(0, 0, 0, 0.15)',
+    borderColor: C.line,
     marginBottom: 8,
   },
   libraryRow: {
@@ -219,7 +211,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 4,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.60)',
+    borderTopColor: 'transparent',
     paddingTop: 8,
   },
   libBtn: {

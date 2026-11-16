@@ -11,6 +11,7 @@ import { getWeekDates, formatWeekRange, toISODate, getMonthCalendarDates, format
 import WeekView from '../../components/calendar/WeekView';
 import MonthView from '../../components/calendar/MonthView';
 import EmptyState from '../../components/EmptyState';
+import { C, FONTS } from '../../config/tokens';
 
 interface Props {
   navigation: any;
@@ -215,9 +216,9 @@ const styles = StyleSheet.create({
   header: {
     padding: 16,
     paddingBottom: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   titleRow: {
     flexDirection: 'row',
@@ -225,8 +226,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
   },
   segmented: {
     width: 170,
@@ -238,7 +239,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   weekRange: {
-    color: '#0891b2',
-    fontWeight: '500',
+    color: C.primary,
+    fontFamily: FONTS.textMedium,
   },
 });

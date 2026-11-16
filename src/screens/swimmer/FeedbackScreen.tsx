@@ -5,6 +5,7 @@ import * as Haptics from 'expo-haptics';
 import Slider from '../../components/RPESlider';
 import { workoutSessionService } from '../../services';
 import { useSnackbarStore } from '../../stores/snackbarStore';
+import { C, FONTS } from '../../config/tokens';
 
 interface Props {
   navigation: any;
@@ -66,17 +67,17 @@ const miniStyles = StyleSheet.create({
     height: 40,
     borderRadius: 12,
     borderWidth: 1.5,
-    borderColor: 'rgba(148, 163, 184, 0.4)',
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    borderColor: C.line,
+    backgroundColor: C.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
   dotText: {
-    fontWeight: '700',
-    color: '#64748b',
+    fontFamily: FONTS.textBold,
+    color: C.inkMuted,
   },
   dotTextActive: {
-    color: '#fff',
+    color: C.onPrimary,
   },
   labels: {
     flexDirection: 'row',
@@ -85,7 +86,7 @@ const miniStyles = StyleSheet.create({
   },
   labelText: {
     fontSize: 11,
-    color: '#94a3b8',
+    color: C.inkMuted,
   },
 });
 
@@ -181,7 +182,7 @@ export default function FeedbackScreen({ navigation, route }: Props) {
               onChange={setFatigue}
               lowLabel="Frais"
               highLabel="Épuisé"
-              color="#D97706"
+              color={C.warning}
             />
 
             <Text variant="titleMedium" style={[styles.sectionTitle, { marginTop: 20 }]}>
@@ -192,7 +193,7 @@ export default function FeedbackScreen({ navigation, route }: Props) {
               onChange={setTechnique}
               lowLabel="Difficile"
               highLabel="Excellente"
-              color="#7C3AED"
+              color={C.primary}
             />
 
             <Text variant="titleMedium" style={[styles.sectionTitle, { marginTop: 20 }]}>
@@ -245,13 +246,13 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: C.scrim,
   },
   sheetWrapper: {
     justifyContent: 'flex-end',
   },
   sheet: {
-    backgroundColor: '#F0F7F4',
+    backgroundColor: C.successSoft,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '92%',
@@ -260,7 +261,7 @@ const styles = StyleSheet.create({
   handleBar: {
     width: 40,
     height: 4,
-    backgroundColor: 'rgba(0,0,0,0.15)',
+    backgroundColor: C.surfaceSunken,
     borderRadius: 2,
     alignSelf: 'center',
     marginTop: 12,
@@ -274,17 +275,17 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.50)',
+    borderBottomColor: 'transparent',
   },
   headerLeft: {
     flex: 1,
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
   },
   subtitle: {
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 2,
   },
   closeBtn: {
@@ -295,12 +296,12 @@ const styles = StyleSheet.create({
     paddingTop: 16,
   },
   sectionTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginBottom: 12,
   },
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.60)',
+    backgroundColor: C.surface,
   },
   submitBtn: {
     marginTop: 20,
@@ -310,7 +311,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   editHint: {
-    color: '#64748b',
+    color: C.inkMuted,
     textAlign: 'center',
     marginTop: 8,
   },

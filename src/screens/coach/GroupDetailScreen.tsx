@@ -19,6 +19,7 @@ import { groupService, groupCoachService, profileService } from '../../services'
 import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
 import EmptyState from '../../components/EmptyState';
+import { C, FONTS } from '../../config/tokens';
 
 interface Props {
   navigation: any;
@@ -220,7 +221,7 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
               <IconButton
                 icon="close"
                 size={16}
-                iconColor="#EF4444"
+                iconColor={C.danger}
                 onPress={() => handleRemoveCoach(coach.id)}
               />
             )}
@@ -266,7 +267,7 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
                 <IconButton
                   icon="close"
                   size={18}
-                  iconColor="#EF4444"
+                  iconColor={C.danger}
                   onPress={() => setRemoveTarget(item)}
                 />
               </Card.Content>
@@ -341,7 +342,7 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setRemoveTarget(null)}>Annuler</Button>
-            <Button onPress={handleRemove} textColor="#EF4444">
+            <Button onPress={handleRemove} textColor={C.danger}>
               Retirer
             </Button>
           </Dialog.Actions>
@@ -404,13 +405,13 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     paddingHorizontal: 16,
   },
   levelChip: {
@@ -420,9 +421,9 @@ const styles = StyleSheet.create({
   },
   coachSection: {
     padding: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   coachHeader: {
     flexDirection: 'row',
@@ -430,7 +431,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sectionLabel: {
-    color: '#0891b2',
+    color: C.primary,
   },
   coachRow: {
     flexDirection: 'row',
@@ -439,23 +440,23 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   coachName: {
-    color: '#1e293b',
+    color: C.ink,
     flex: 1,
   },
   creatorChip: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: C.warningSoft,
   },
   statsBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   statChip: {
-    backgroundColor: '#DBEAFE',
+    backgroundColor: C.primarySoft,
   },
   list: {
     padding: 12,
@@ -467,16 +468,16 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   emptyText: {
-    color: '#64748b',
+    color: C.inkMuted,
     textAlign: 'center',
   },
   emptySubtext: {
-    color: '#64748b',
+    color: C.inkMuted,
     textAlign: 'center',
     marginTop: 8,
   },
   memberCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginBottom: 6,
   },
   memberRow: {
@@ -488,8 +489,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   memberName: {
-    color: '#1e293b',
-    fontWeight: '600',
+    color: C.ink,
+    fontFamily: FONTS.textStrong,
   },
   slotsBtn: {
     margin: 16,
@@ -502,7 +503,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
   },
   noSwimmers: {
-    color: '#64748b',
+    color: C.inkMuted,
     textAlign: 'center',
     padding: 16,
   },
@@ -513,7 +514,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   checkboxLabel: {
-    color: '#1e293b',
+    color: C.ink,
     marginLeft: 8,
   },
 });

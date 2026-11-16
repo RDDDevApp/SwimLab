@@ -22,6 +22,7 @@ import { useSnackbarStore } from '../../stores/snackbarStore';
 import BlockEditor from '../../components/workout/BlockEditor';
 import BlockPickerModal from '../../components/workout/BlockPickerModal';
 import { migrateWorkoutContent } from '../../utils';
+import { C, FONTS } from '../../config/tokens';
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 9);
@@ -327,9 +328,9 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   headerRow: {
     flexDirection: 'row',
@@ -337,13 +338,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
   distanceChip: {
-    backgroundColor: 'rgba(14, 116, 144, 0.10)',
+    backgroundColor: C.primarySoft,
     marginRight: 8,
   },
   form: {
@@ -351,7 +352,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginBottom: 12,
   },
   flex1: {
@@ -368,24 +369,24 @@ const styles = StyleSheet.create({
   },
   visibilityTitle: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#1e293b',
+    fontFamily: FONTS.displaySemi,
+    color: C.ink,
   },
   visibilityHint: {
     fontSize: 12,
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 2,
   },
   divider: {
     marginVertical: 16,
   },
   sectionTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginBottom: 12,
   },
   addBlockBtn: {
-    borderColor: '#0891B2',
+    borderColor: C.primary,
     borderStyle: 'dashed',
     marginBottom: 16,
   },

@@ -2,11 +2,12 @@ import React from 'react';
 import { Snackbar } from 'react-native-paper';
 import { StyleSheet } from 'react-native';
 import { useSnackbarStore } from '../stores/snackbarStore';
+import { C } from '../config/tokens';
 
 const COLORS = {
-  success: '#10B981',
-  error: '#EF4444',
-  info: '#3B82F6',
+  success: C.success,
+  error: C.danger,
+  info: C.primary,
 };
 
 export default function GlobalSnackbar() {
@@ -18,7 +19,7 @@ export default function GlobalSnackbar() {
       onDismiss={hide}
       duration={3000}
       style={[styles.snackbar, { backgroundColor: COLORS[type] }]}
-      action={{ label: 'OK', onPress: hide, textColor: '#FFFFFF' }}
+      action={{ label: 'OK', onPress: hide, textColor: C.onPrimary }}
     >
       {message}
     </Snackbar>

@@ -12,6 +12,7 @@ import SwimmerNavigator from './SwimmerNavigator';
 import ClubSetupScreen from '../screens/onboarding/ClubSetupScreen';
 import ResetPasswordScreen from '../screens/auth/ResetPasswordScreen';
 import { RootStackParamList } from '../types';
+import { C } from '../config/tokens';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -68,7 +69,7 @@ export default function AppNavigator() {
   if (!isInitialized || isLoading || (session && checkingClub)) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#06B6D4" />
+        <ActivityIndicator size="large" color={C.primary} />
       </View>
     );
   }
@@ -102,6 +103,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#82C8D1',
+    backgroundColor: C.bg,
   },
 });

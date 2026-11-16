@@ -9,6 +9,7 @@ import WorkoutContentView from '../../components/workout/WorkoutContentView';
 import RPESlider from '../../components/RPESlider';
 import { Ionicons } from '@expo/vector-icons';
 import { formatRevealTime, isSessionRevealed } from '../../utils/workoutVisibility';
+import { C, FONTS } from '../../config/tokens';
 
 interface Props {
   navigation: any;
@@ -19,18 +20,18 @@ const getStatusDot = (session: any, assignment: any) => {
   const isPast = new Date(assignment.scheduled_date + 'T23:59:59') < new Date();
 
   if (session?.completed_at) {
-    return { color: '#10B981', label: 'Feedback donné' };
+    return { color: C.success, label: 'Feedback donné' };
   }
   if (session?.attended && !session?.completed_at) {
-    return { color: '#F59E0B', label: 'Feedback à donner' };
+    return { color: C.warning, label: 'Feedback à donner' };
   }
   if (session && !session.attended) {
-    return { color: 'rgba(100,116,139,0.45)', label: 'Absent' };
+    return { color: C.inkMuted, label: 'Absent' };
   }
   if (isPast && !assignment.attendance_marked) {
-    return { color: 'rgba(100,116,139,0.45)', label: 'Non marqué' };
+    return { color: C.inkMuted, label: 'Non marqué' };
   }
-  return { color: '#3B82F6', label: 'À venir' };
+  return { color: C.primary, label: 'À venir' };
 };
 
 export default function SessionDetailModal({ navigation, route }: Props) {
@@ -192,7 +193,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
                   workout && <WorkoutContentView workout={workout} />
                 ) : (
                   <View style={styles.secretBox}>
-                    <Ionicons name="lock-closed-outline" size={22} color="#0891B2" />
+                    <Ionicons name="lock-closed-outline" size={22} color={C.primary} />
                     <Text style={styles.secretTitle}>Programme secret</Text>
                     <Text style={styles.secretText}>
                       Ton coach dévoilera le programme à la fin de la séance, vers {formatRevealTime(timing)}.
@@ -292,13 +293,13 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: C.scrim,
   },
   sheetWrapper: {
     justifyContent: 'flex-end',
   },
   sheet: {
-    backgroundColor: '#F0F7F4',
+    backgroundColor: C.successSoft,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '92%',
@@ -307,7 +308,7 @@ const styles = StyleSheet.create({
   handleBar: {
     width: 40,
     height: 4,
-    backgroundColor: 'rgba(0,0,0,0.15)',
+    backgroundColor: C.surfaceSunken,
     borderRadius: 2,
     alignSelf: 'center',
     marginTop: 12,
@@ -321,7 +322,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.50)',
+    borderBottomColor: 'transparent',
   },
   headerLeft: {
     flex: 1,
@@ -337,11 +338,11 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
   },
   subtitle: {
-    color: '#0891b2',
+    color: C.primary,
     marginTop: 2,
   },
   infoRow: {
@@ -351,10 +352,10 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   infoChip: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
   },
   guestChip: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: C.warningSoft,
   },
   closeBtn: {
     margin: -4,
@@ -372,23 +373,23 @@ const styles = StyleSheet.create({
     gap: 6,
     padding: 20,
     borderRadius: 16,
-    backgroundColor: 'rgba(8, 145, 178, 0.08)',
+    backgroundColor: C.primarySoft,
     marginBottom: 16,
   },
   secretTitle: {
     fontSize: 15,
-    fontWeight: '800',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
   },
   secretText: {
     fontSize: 13,
-    color: '#64748b',
+    color: C.inkMuted,
     textAlign: 'center',
     lineHeight: 19,
   },
   workoutTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginBottom: 6,
   },
   chipRow: {
@@ -397,31 +398,31 @@ const styles = StyleSheet.create({
   },
   typeChip: {
     height: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
   },
   distanceChip: {
     height: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
   },
   // Feedback section
   feedbackSection: {
     marginTop: 20,
     paddingTop: 20,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.50)',
+    borderTopColor: 'transparent',
   },
   sectionTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginBottom: 12,
   },
   fieldLabel: {
-    fontWeight: '600',
-    color: '#0891b2',
+    fontFamily: FONTS.textStrong,
+    color: C.primary,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.60)',
+    backgroundColor: C.surface,
   },
   submitBtn: {
     marginTop: 16,
@@ -432,48 +433,48 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   rpeDisplay: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
   },
   rpeLabel: {
-    color: '#0891b2',
-    fontWeight: '500',
+    color: C.primary,
+    fontFamily: FONTS.textMedium,
   },
   rpeValue: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.textBold,
+    color: C.ink,
   },
   commentDisplay: {
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: C.surface,
     borderRadius: 12,
     padding: 12,
   },
   commentLabel: {
-    color: '#64748b',
-    fontWeight: '500',
+    color: C.inkMuted,
+    fontFamily: FONTS.textMedium,
     marginBottom: 4,
   },
   commentText: {
-    color: '#1e293b',
+    color: C.ink,
   },
   // Notices
   noticeBox: {
     marginTop: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: C.surface,
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
   },
   noticeText: {
-    color: '#64748b',
-    fontWeight: '600',
+    color: C.inkMuted,
+    fontFamily: FONTS.textStrong,
   },
   noticeBlue: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
   },
   noticeBlueText: {
-    color: '#0891b2',
+    color: C.primary,
   },
 });

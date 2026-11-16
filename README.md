@@ -26,7 +26,7 @@ Functions à déployer, voir « Déploiement »).
 ## Stack
 
 - **App** : Expo SDK 54, React Native 0.81, React 19, TypeScript 5.9 (iOS, Android, web)
-- **UI** : React Native Paper, design system maison (`src/config/tokens.ts`, `src/components/`)
+- **UI** : React Native Paper, DA « La vague » (`src/config/tokens.ts`, `src/components/`), polices Sora et Figtree
 - **Données** : TanStack Query (cache serveur), Zustand (session, snackbar)
 - **Navigation** : React Navigation 7
 - **Backend** : Supabase (Postgres + RLS, Auth, Edge Functions)

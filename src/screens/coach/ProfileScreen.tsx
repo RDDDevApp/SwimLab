@@ -10,6 +10,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
 import { clubService, profileService } from '../../services';
 import { Club } from '../../types';
+import { C, FONTS } from '../../config/tokens';
 
 export default function ProfileScreen() {
   const { profile, user, clubId, signOut } = useAuthStore();
@@ -184,7 +185,7 @@ export default function ProfileScreen() {
           mode="outlined"
           onPress={signOut}
           style={styles.logoutButton}
-          textColor="#EF4444"
+          textColor={C.danger}
           icon="logout"
         >
           Se déconnecter
@@ -209,19 +210,19 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
   },
   avatar: {
-    backgroundColor: '#0891B2',
+    backgroundColor: C.primary,
   },
   name: {
     marginTop: 16,
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.textBold,
+    color: C.ink,
   },
   role: {
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 4,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginBottom: 16,
   },
   codeRow: {
@@ -232,16 +233,16 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   codeLabel: {
-    color: '#64748b',
+    color: C.inkMuted,
   },
   codeChip: {
-    backgroundColor: 'rgba(14, 116, 144, 0.10)',
+    backgroundColor: C.primarySoft,
   },
   codeChipCoach: {
-    backgroundColor: 'rgba(139, 92, 246, 0.10)',
+    backgroundColor: C.primarySoft,
   },
   logoutButton: {
     marginTop: 16,
-    borderColor: '#EF4444',
+    borderColor: C.danger,
   },
 });

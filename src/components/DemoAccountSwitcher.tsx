@@ -6,7 +6,7 @@ import GlassCard from './GlassCard';
 import { useAuthStore } from '../stores/authStore';
 import { FEATURES } from '../config/features';
 import { DEMO_ACCOUNTS, DEMO_PASSWORD } from '../config/demo';
-import { TEXT_COLORS } from '../config/tokens';
+import { TEXT_COLORS, C, FONTS } from '../config/tokens';
 
 /**
  * Connexion en un clic aux comptes de demo. Sur l'ecran de connexion, connecte ;
@@ -40,7 +40,7 @@ export default function DemoAccountSwitcher() {
   return (
     <GlassCard elevated>
       <View style={styles.header}>
-        <Ionicons name="flask-outline" size={18} color="#0891B2" />
+        <Ionicons name="flask-outline" size={18} color={C.primary} />
         <Text style={styles.title}>{currentEmail ? 'Changer de compte démo' : 'Comptes démo'}</Text>
       </View>
       <Text style={styles.hint}>
@@ -64,8 +64,8 @@ export default function DemoAccountSwitcher() {
                 pressed && styles.rowPressed,
               ]}
             >
-              <View style={[styles.icon, { backgroundColor: `${account.color}1F` }]}>
-                <Ionicons name={account.icon} size={18} color={account.color} />
+              <View style={[styles.icon, { backgroundColor: C.primarySoft }]}>
+                <Ionicons name={account.icon} size={18} color={C.onPrimarySoft} />
               </View>
               <View style={styles.text}>
                 <Text style={styles.name} numberOfLines={1}>
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 15,
-    fontWeight: '800',
+    fontFamily: FONTS.display,
     color: TEXT_COLORS.primary,
   },
   hint: {
@@ -121,10 +121,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   rowCurrent: {
-    backgroundColor: 'rgba(8, 145, 178, 0.08)',
+    backgroundColor: C.primarySoft,
   },
   rowPressed: {
-    backgroundColor: 'rgba(15, 23, 42, 0.05)',
+    backgroundColor: C.surfaceSunken,
   },
   icon: {
     width: 34,
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 13,
-    fontWeight: '700',
+    fontFamily: FONTS.textBold,
     color: TEXT_COLORS.primary,
   },
   detail: {
@@ -149,12 +149,12 @@ const styles = StyleSheet.create({
   },
   current: {
     fontSize: 11,
-    fontWeight: '700',
-    color: '#0891B2',
+    fontFamily: FONTS.textBold,
+    color: C.primary,
   },
   error: {
     fontSize: 12,
-    color: '#B91C1C',
+    color: C.danger,
     marginTop: 10,
   },
 });

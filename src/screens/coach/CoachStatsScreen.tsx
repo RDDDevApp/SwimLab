@@ -1,13 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions, RefreshControl } from 'react-native';
 import { Text, Button, ActivityIndicator } from 'react-native-paper';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import GradientScreen from '../../components/GradientScreen';
 import { useFocusEffect } from '@react-navigation/native';
 import { BarChart, LineChart } from 'react-native-chart-kit';
 import { useAuthStore } from '../../stores/authStore';
-import { shadow } from '../../config/tokens';
+import { C, FONTS, RADIUS, SHADOW, SPACING } from '../../config/tokens';
 import {
   groupService,
   workoutService,
@@ -19,20 +18,23 @@ import {
 const screenWidth = Dimensions.get('window').width - 48;
 
 const chartConfig = {
-  backgroundGradientFrom: 'rgba(255, 255, 255, 0.40)',
-  backgroundGradientTo: 'rgba(255, 255, 255, 0.40)',
+  backgroundGradientFrom: C.surface,
+  backgroundGradientTo: C.surface,
   decimalCount: 0,
-  color: (opacity = 1) => `rgba(6, 182, 212, ${opacity})`,
-  labelColor: () => '#64748b',
+  color: (opacity = 1) => `rgba(1, 178, 192, ${opacity})`,
+  labelColor: () => C.inkMuted,
   barPercentage: 0.6,
+  propsForLabels: {
+    fontFamily: FONTS.text,
+  },
   propsForBackgroundLines: {
-    stroke: 'rgba(203, 213, 225, 0.50)',
+    stroke: C.line,
   },
 };
 
 const rpeChartConfig = {
   ...chartConfig,
-  color: (opacity = 1) => `rgba(236, 72, 153, ${opacity})`,
+  color: (opacity = 1) => `rgba(238, 61, 128, ${opacity})`,
 };
 
 interface StatCardData {
@@ -60,15 +62,15 @@ function StatCardItem({ stat }: { stat: StatCardData }) {
                 styles.trendBadge,
                 {
                   backgroundColor: stat.trend.isPositive
-                    ? 'rgba(16, 185, 129, 0.15)'
-                    : 'rgba(244, 63, 94, 0.15)',
+                    ? C.successSoft
+                    : C.dangerSoft,
                 },
               ]}
             >
               <Text
                 style={[
                   styles.trendText,
-                  { color: stat.trend.isPositive ? '#059669' : '#e11d48' },
+                  { color: stat.trend.isPositive ? C.success : C.danger },
                 ]}
               >
                 {stat.trend.isPositive ? '+' : ''}{stat.trend.value}%
@@ -76,7 +78,7 @@ function StatCardItem({ stat }: { stat: StatCardData }) {
               <Text
                 style={[
                   styles.trendLabel,
-                  { color: stat.trend.isPositive ? '#059669' : '#e11d48' },
+                  { color: stat.trend.isPositive ? C.success : C.danger },
                 ]}
               >
                 {' '}vs mois dernier
@@ -85,10 +87,9 @@ function StatCardItem({ stat }: { stat: StatCardData }) {
           )}
         </View>
         <View style={styles.statIconWrap}>
-          <Ionicons name={stat.icon} size={22} color="#475569" />
+          <Ionicons name={stat.icon} size={22} color={C.inkMuted} />
         </View>
       </View>
-      <View style={[styles.decorativeBlob, { backgroundColor: stat.color }]} />
     </View>
   );
 }
@@ -260,28 +261,28 @@ export default function CoachStatsScreen({ navigation }: Props) {
       value: `${swimmerCount}`,
       subtitle: 'Total dans le club',
       icon: 'people-outline',
-      color: 'rgba(6, 182, 212, 0.30)',
+      color: C.primary,
     },
     {
       title: 'Séances réalisées',
       value: `${sessionCount}`,
       subtitle: 'Ce trimestre',
       icon: 'water-outline',
-      color: 'rgba(99, 102, 241, 0.30)',
+      color: C.primary,
     },
     {
       title: 'Km totaux',
       value: `${totalKm.toLocaleString()}`,
       subtitle: 'Distance parcourue',
       icon: 'trending-up-outline',
-      color: 'rgba(234, 179, 8, 0.30)',
+      color: C.warning,
     },
     {
       title: 'Entraînements',
       value: `${workoutCount}`,
       subtitle: 'Séances créées',
       icon: 'clipboard-outline',
-      color: 'rgba(236, 72, 153, 0.30)',
+      color: C.danger,
     },
   ];
 
@@ -290,21 +291,21 @@ export default function CoachStatsScreen({ navigation }: Props) {
       title: 'Km moyen / nageur',
       value: swimmerCount > 0 ? `${Math.round(totalKm / swimmerCount)} km` : '0 km',
       icon: 'trophy-outline',
-      color: 'rgba(6, 182, 212, 0.30)',
+      color: C.primary,
     },
     {
       title: 'RPE moyen',
       value: avgRpe !== null ? `${avgRpe}/20` : '-',
       subtitle: 'Ressenti des athlètes',
       icon: 'pulse-outline',
-      color: 'rgba(236, 72, 153, 0.30)',
+      color: C.danger,
     },
     {
       title: 'Assiduité',
       value: `${attendanceRate}%`,
       subtitle: 'Présence moyenne',
       icon: 'checkmark-circle-outline',
-      color: 'rgba(234, 179, 8, 0.30)',
+      color: C.warning,
     },
   ];
 
@@ -323,7 +324,7 @@ export default function CoachStatsScreen({ navigation }: Props) {
             Suivi des performances et statistiques du club
           </Text>
           <View style={styles.datePill}>
-            <Ionicons name="calendar-outline" size={16} color="#0891b2" />
+            <Ionicons name="calendar-outline" size={16} color={C.primary} />
             <Text style={styles.datePillText}>
               {currentMonth.charAt(0).toUpperCase() + currentMonth.slice(1)}
             </Text>
@@ -358,12 +359,9 @@ export default function CoachStatsScreen({ navigation }: Props) {
                       )}
                     </View>
                     <View style={styles.statIconWrap}>
-                      <Ionicons name={stat.icon} size={20} color="#475569" />
+                      <Ionicons name={stat.icon} size={20} color={C.inkMuted} />
                     </View>
                   </View>
-                  <View
-                    style={[styles.decorativeBlob, { backgroundColor: stat.color }]}
-                  />
                 </View>
               ))}
             </View>
@@ -405,7 +403,7 @@ export default function CoachStatsScreen({ navigation }: Props) {
                   yAxisLabel=""
                   chartConfig={{
                     ...chartConfig,
-                    color: (opacity = 1) => `rgba(99, 102, 241, ${opacity})`,
+                    color: (opacity = 1) => `rgba(4, 79, 179, ${opacity})`,
                   }}
                   style={styles.chart}
                   fromZero
@@ -436,13 +434,7 @@ export default function CoachStatsScreen({ navigation }: Props) {
             )}
 
             {/* Insight Card */}
-            <LinearGradient
-              colors={['#0891b2', '#1d4ed8']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.insightCard}
-            >
-              <View style={styles.insightBlobDecor} />
+            <View style={styles.insightCard}>
               <Text style={styles.insightTitle}>En résumé</Text>
               <Text style={styles.insightText}>
                 {swimmerCount > 0
@@ -463,7 +455,7 @@ export default function CoachStatsScreen({ navigation }: Props) {
               >
                 Retour au tableau de bord
               </Button>
-            </LinearGradient>
+            </View>
           </>
         )}
       </ScrollView>
@@ -497,21 +489,21 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 32,
-    fontWeight: '800',
-    color: '#0891b2',
+    fontFamily: FONTS.display,
+    color: C.ink,
     letterSpacing: -0.5,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#475569',
+    color: C.inkMuted,
     marginTop: 4,
   },
   datePill: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
-    borderColor: 'rgba(255, 255, 255, 0.50)',
+    backgroundColor: C.surface,
+    borderColor: 'transparent',
     borderWidth: 1,
     borderRadius: 20,
     paddingHorizontal: 14,
@@ -521,8 +513,8 @@ const styles = StyleSheet.create({
   },
   datePillText: {
     fontSize: 13,
-    fontWeight: '500',
-    color: '#475569',
+    fontFamily: FONTS.textMedium,
+    color: C.inkMuted,
   },
   statsGrid: {
     flexDirection: 'row',
@@ -531,34 +523,32 @@ const styles = StyleSheet.create({
   },
   statCard: {
     width: (screenWidth - 12) / 2,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
-    borderColor: 'rgba(255, 255, 255, 0.60)',
-    borderWidth: 1,
-    borderRadius: 16,
+    backgroundColor: C.surface,
+    borderRadius: RADIUS.md,
     padding: 16,
     overflow: 'hidden',
-    ...shadow(0.05, 12, 4, 3),
+    ...SHADOW.card,
   },
   statCardInner: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    position: 'relative',
   },
   statCardTitle: {
     fontSize: 12,
-    fontWeight: '500',
-    color: '#475569',
+    lineHeight: 16,
+    fontFamily: FONTS.textStrong,
+    color: C.inkMuted,
     marginBottom: 4,
+    paddingRight: 24,
   },
   statCardValue: {
     fontSize: 24,
-    fontWeight: '700',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     letterSpacing: -0.5,
   },
   statCardSubtitle: {
     fontSize: 11,
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 2,
   },
   trendBadge: {
@@ -572,27 +562,17 @@ const styles = StyleSheet.create({
   },
   trendText: {
     fontSize: 11,
-    fontWeight: '700',
+    fontFamily: FONTS.textBold,
   },
   trendLabel: {
     fontSize: 10,
-    fontWeight: '400',
+    fontFamily: FONTS.text,
     opacity: 0.7,
   },
   statIconWrap: {
-    backgroundColor: 'rgba(255, 255, 255, 0.60)',
-    borderColor: 'rgba(255, 255, 255, 0.50)',
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 10,
-  },
-  decorativeBlob: {
     position: 'absolute',
-    bottom: -16,
-    right: -16,
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    top: 0,
+    right: 0,
   },
   secondaryGrid: {
     flexDirection: 'row',
@@ -600,64 +580,50 @@ const styles = StyleSheet.create({
   },
   secondaryCard: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
-    borderColor: 'rgba(255, 255, 255, 0.60)',
-    borderWidth: 1,
-    borderRadius: 16,
+    backgroundColor: C.surface,
+    borderRadius: RADIUS.md,
     padding: 12,
     overflow: 'hidden',
-    ...shadow(0.05, 12, 4, 3),
+    ...SHADOW.card,
   },
   chartCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
-    borderColor: 'rgba(255, 255, 255, 0.60)',
-    borderWidth: 1,
-    borderRadius: 16,
+    backgroundColor: C.surface,
+    borderRadius: RADIUS.md,
     padding: 16,
-    ...shadow(0.05, 12, 4, 3),
+    ...SHADOW.card,
   },
   chartTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#1e293b',
+    fontFamily: FONTS.displaySemi,
+    color: C.ink,
     marginBottom: 16,
   },
   chart: {
     borderRadius: 8,
   },
   insightCard: {
-    borderRadius: 16,
-    padding: 20,
-    overflow: 'hidden',
-    ...shadow(0.3, 16, 8, 6, '8, 145, 178'),
-  },
-  insightBlobDecor: {
-    position: 'absolute',
-    right: -30,
-    top: -30,
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: C.surface,
+    borderRadius: RADIUS.md,
+    padding: SPACING.lg,
+    ...SHADOW.card,
   },
   insightTitle: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginBottom: 8,
   },
   insightText: {
     fontSize: 14,
-    color: 'rgba(219, 234, 254, 0.90)',
+    color: C.ink,
     lineHeight: 22,
     marginBottom: 16,
   },
   insightButton: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    backgroundColor: C.primarySoft,
   },
   insightButtonLabel: {
-    color: '#1d4ed8',
-    fontWeight: '700',
+    color: C.onPrimarySoft,
+    fontFamily: FONTS.textStrong,
   },
 });

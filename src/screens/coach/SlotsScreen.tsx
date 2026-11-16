@@ -9,6 +9,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
 import SlotCard from '../../components/SlotCard';
 import EmptyState from '../../components/EmptyState';
+import { C, FONTS } from '../../config/tokens';
 
 interface Props {
   navigation: any;
@@ -95,6 +96,7 @@ export default function SlotsScreen({ navigation, route }: Props) {
 
       <FAB
         icon="plus"
+        color={C.onPrimary}
         style={styles.fab}
         onPress={() => navigation.navigate('CreateSlot', { groupId })}
       />
@@ -109,7 +111,7 @@ export default function SlotsScreen({ navigation, route }: Props) {
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setDeleteTarget(null)}>Annuler</Button>
-            <Button onPress={handleDelete} textColor="#EF4444">
+            <Button onPress={handleDelete} textColor={C.danger}>
               Supprimer
             </Button>
           </Dialog.Actions>
@@ -126,13 +128,13 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
   },
   list: {
     padding: 16,
@@ -144,11 +146,11 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   emptyText: {
-    color: '#64748b',
+    color: C.inkMuted,
     textAlign: 'center',
   },
   emptySubtext: {
-    color: '#64748b',
+    color: C.inkMuted,
     textAlign: 'center',
     marginTop: 8,
   },
@@ -157,6 +159,7 @@ const styles = StyleSheet.create({
     margin: 16,
     right: 0,
     bottom: 0,
-    backgroundColor: '#0891B2',
+    backgroundColor: C.primary,
+    borderRadius: 999,
   },
 });
