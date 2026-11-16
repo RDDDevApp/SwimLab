@@ -3,6 +3,7 @@ import { View, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { Text } from 'react-native-paper';
 import { TrainingSlot, WorkoutAssignment } from '../../types';
 import { formatShortDate, isToday, getDayOfWeek, formatTime, toISODate } from '../../utils/dateHelpers';
+import { C, FONTS } from '../../config/tokens';
 
 interface WeekViewProps {
   dates: Date[];
@@ -18,10 +19,10 @@ const getSlotStatus = (
   assignment: WorkoutAssignment | undefined,
   rpeMap?: Record<string, number | null>,
 ) => {
-  if (!assignment) return { color: 'rgba(100,116,139,0.25)', label: 'Non assigné' };
-  if (!assignment.attendance_marked) return { color: '#2563EB', label: 'À émarger' };
-  if (rpeMap?.[assignment.id] != null) return { color: '#059669', label: 'Émargé' };
-  return { color: '#EA580C', label: 'Feedback manquant' };
+  if (!assignment) return { color: C.inkMuted, label: 'Non assigné' };
+  if (!assignment.attendance_marked) return { color: C.primary, label: 'À émarger' };
+  if (rpeMap?.[assignment.id] != null) return { color: C.success, label: 'Émargé' };
+  return { color: C.warning, label: 'Feedback manquant' };
 };
 
 export default function WeekView({
@@ -125,8 +126,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   dayColumn: {
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
-    borderColor: 'rgba(255, 255, 255, 0.60)',
+    backgroundColor: C.surface,
+    borderColor: 'transparent',
     borderWidth: 1,
     borderRadius: 16,
     overflow: 'hidden',
@@ -134,39 +135,39 @@ const styles = StyleSheet.create({
   },
   todayColumn: {
     borderWidth: 2,
-    borderColor: '#0891B2',
+    borderColor: C.primary,
   },
   dayHeader: {
     padding: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.35)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.50)',
+    borderBottomColor: 'transparent',
   },
   todayHeader: {
-    backgroundColor: 'rgba(14, 116, 144, 0.10)',
+    backgroundColor: C.primarySoft,
   },
   dayLabel: {
-    color: '#0891b2',
-    fontWeight: '600',
+    color: C.primary,
+    fontFamily: FONTS.textStrong,
   },
   todayLabel: {
-    color: '#0891B2',
-    fontWeight: 'bold',
+    color: C.primary,
+    fontFamily: FONTS.textBold,
   },
   emptyDay: {
     padding: 12,
   },
   emptyText: {
-    color: 'rgba(100,116,139,0.30)',
+    color: C.inkMuted,
     fontStyle: 'italic',
   },
   slotItem: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.04)',
+    borderBottomColor: C.line,
   },
   slotFilled: {
-    backgroundColor: 'rgba(14, 116, 144, 0.06)',
+    backgroundColor: C.primarySoft,
   },
   slotEmpty: {
     backgroundColor: 'transparent',
@@ -187,21 +188,21 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   slotName: {
-    color: '#1e293b',
-    fontWeight: '600',
+    color: C.ink,
+    fontFamily: FONTS.textStrong,
   },
   statusLabel: {
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: FONTS.textStrong,
   },
   slotTime: {
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 2,
     marginLeft: 18,
   },
   workoutTitle: {
-    color: '#0891b2',
-    fontWeight: '500',
+    color: C.primary,
+    fontFamily: FONTS.displaySemi,
     marginTop: 4,
     marginLeft: 18,
     fontStyle: 'italic',

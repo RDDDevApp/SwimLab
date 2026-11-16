@@ -9,7 +9,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import { TEXT_COLORS } from '../config/tokens';
+import { TEXT_COLORS, C, FONTS } from '../config/tokens';
 
 interface Props {
   /** Nombre de semaines de streak */
@@ -47,7 +47,7 @@ export default function StreakFlame({ count, label, size = 'small' }: Props) {
   return (
     <View style={styles.container}>
       <Animated.View style={flameStyle}>
-        <Ionicons name="flame" size={iconSize} color={active ? '#F97316' : '#94a3b8'} />
+        <Ionicons name="flame" size={iconSize} color={active ? C.warning : C.inkMuted} />
       </Animated.View>
       <Text style={[styles.count, { fontSize: countSize }, !active && styles.inactive]}>
         {count}
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   count: {
-    fontWeight: '800',
+    fontFamily: FONTS.textBold,
     color: TEXT_COLORS.primary,
   },
   inactive: {
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: FONTS.textStrong,
     color: TEXT_COLORS.secondary,
     marginLeft: 2,
   },

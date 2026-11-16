@@ -9,7 +9,7 @@ import Animated, {
   Extrapolation,
   SharedValue,
 } from 'react-native-reanimated';
-import { TEXT_COLORS } from '../config/tokens';
+import { TEXT_COLORS, C, FONTS } from '../config/tokens';
 
 const COLLAPSE_RANGE = 80;
 
@@ -48,7 +48,7 @@ export default function CollapsibleHeader({
   initials,
   children,
   right,
-  avatarColor = '#0891B2',
+  avatarColor = C.primary,
 }: Props) {
   const expandedStyle = useAnimatedStyle(() => ({
     opacity: interpolate(scrollY.value, [0, COLLAPSE_RANGE * 0.7], [1, 0], Extrapolation.CLAMP),
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   compactGreeting: {
     flex: 1,
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: FONTS.textBold,
     color: TEXT_COLORS.primary,
   },
   expanded: {
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 28,
-    fontWeight: '800',
+    fontFamily: FONTS.display,
     color: TEXT_COLORS.primary,
     marginBottom: 4,
   },

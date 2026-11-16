@@ -3,6 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { Card, Text, IconButton, Chip } from 'react-native-paper';
 import { TrainingSlot, DAYS_OF_WEEK } from '../types';
 import { formatTime } from '../utils/dateHelpers';
+import { C, FONTS } from '../config/tokens';
 
 interface SlotCardProps {
   slot: TrainingSlot;
@@ -36,7 +37,7 @@ export default function SlotCard({ slot, onEdit, onDelete }: SlotCardProps) {
               <IconButton icon="pencil" size={20} onPress={() => onEdit(slot)} />
             )}
             {onDelete && (
-              <IconButton icon="delete" size={20} iconColor="#DC2626" onPress={() => onDelete(slot)} />
+              <IconButton icon="delete" size={20} iconColor={C.danger} onPress={() => onDelete(slot)} />
             )}
           </View>
         </View>
@@ -47,7 +48,7 @@ export default function SlotCard({ slot, onEdit, onDelete }: SlotCardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginBottom: 8,
   },
   row: {
@@ -59,8 +60,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   name: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.textBold,
+    color: C.ink,
     marginBottom: 8,
   },
   chips: {
@@ -72,7 +73,7 @@ const styles = StyleSheet.create({
     height: 28,
   },
   location: {
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 6,
   },
   actions: {

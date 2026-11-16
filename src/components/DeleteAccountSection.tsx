@@ -3,6 +3,7 @@ import { StyleSheet } from 'react-native';
 import { Button, Dialog, Portal, Text, TextInput, HelperText } from 'react-native-paper';
 import { useAuthStore } from '../stores/authStore';
 import { useSnackbarStore } from '../stores/snackbarStore';
+import { C } from '../config/tokens';
 
 const CONFIRM_WORD = 'SUPPRIMER';
 
@@ -38,7 +39,7 @@ export default function DeleteAccountSection() {
 
   return (
     <>
-      <Button mode="text" textColor="#B91C1C" icon="delete-outline" onPress={() => setOpen(true)} style={styles.trigger}>
+      <Button mode="text" textColor={C.danger} icon="delete-outline" onPress={() => setOpen(true)} style={styles.trigger}>
         Supprimer mon compte
       </Button>
 
@@ -72,7 +73,7 @@ export default function DeleteAccountSection() {
             </Button>
             <Button
               mode="contained"
-              buttonColor="#B91C1C"
+              buttonColor={C.danger}
               onPress={confirm}
               loading={deleting}
               disabled={deleting || typed.trim().toUpperCase() !== CONFIRM_WORD}
@@ -93,7 +94,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 14,
     lineHeight: 20,
-    color: '#334155',
+    color: C.ink,
     marginBottom: 10,
   },
 });

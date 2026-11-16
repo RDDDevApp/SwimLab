@@ -8,7 +8,7 @@ import Animated, {
   withTiming,
   Easing,
 } from 'react-native-reanimated';
-import { TEXT_COLORS, shadow } from '../config/tokens';
+import { C, FONTS, RADIUS, TOUCH_MIN } from '../config/tokens';
 
 interface Props {
   options: string[];
@@ -43,7 +43,7 @@ export default function SegmentedToggle({ options, selectedIndex, onChange }: Pr
   return (
     <View style={styles.track} onLayout={onLayout}>
       {segmentWidth > 0 && (
-        <Animated.View style={[styles.thumb, { width: segmentWidth - 4 }, thumbStyle]} />
+        <Animated.View style={[styles.thumb, { width: segmentWidth - 8 }, thumbStyle]} />
       )}
       {options.map((option, i) => (
         <Pressable
@@ -66,33 +66,32 @@ export default function SegmentedToggle({ options, selectedIndex, onChange }: Pr
 const styles = StyleSheet.create({
   track: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(148, 163, 184, 0.15)',
-    borderRadius: 12,
-    padding: 2,
+    backgroundColor: C.surfaceSunken,
+    borderRadius: RADIUS.pill,
+    padding: 4,
     position: 'relative',
   },
   thumb: {
     position: 'absolute',
-    top: 2,
-    left: 2,
-    bottom: 2,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    ...shadow(0.08, 6, 2, 2),
+    top: 4,
+    left: 4,
+    bottom: 4,
+    backgroundColor: C.primary,
+    borderRadius: RADIUS.pill,
   },
   segment: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 8,
+    justifyContent: 'center',
+    minHeight: TOUCH_MIN - 8,
     zIndex: 1,
   },
   label: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: TEXT_COLORS.secondary,
+    fontFamily: FONTS.textStrong,
+    fontSize: 14,
+    color: C.inkMuted,
   },
   labelActive: {
-    color: '#0891B2',
-    fontWeight: '800',
+    color: C.onPrimary,
   },
 });

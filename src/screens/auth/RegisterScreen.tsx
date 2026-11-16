@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Pressable } from 'react-native';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Pressable, Image } from 'react-native';
 import { TextInput, Button, Text, HelperText } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import GradientScreen from '../../components/GradientScreen';
 import GlassCard from '../../components/GlassCard';
 import { useAuthStore } from '../../stores/authStore';
 import { getInviteCodeFromUrl, normalizeInviteCode } from '../../utils/invite';
+import { C, FONTS } from '../../config/tokens';
 
 type Step = 0 | 1 | 2 | 3;
 const STEP_LABELS = ['Rôle', 'Club', 'Identité', 'Sécurité'];
@@ -101,7 +102,7 @@ export default function RegisterScreen({ navigation }: any) {
           {awaitingConfirmation ? (
             <GlassCard elevated>
               <View style={styles.confirmBody}>
-                <Ionicons name="mail-unread-outline" size={36} color="#0891B2" />
+                <Ionicons name="mail-unread-outline" size={36} color={C.primary} />
                 <Text style={styles.roleTitle}>Vérifie ta boîte mail</Text>
                 <Text style={styles.roleDesc}>
                   Un lien de confirmation a été envoyé à {email}. Clique dessus, puis connecte-toi.
@@ -115,6 +116,12 @@ export default function RegisterScreen({ navigation }: any) {
           ) : (
           <>
           <View style={styles.header}>
+            <Image
+              source={require('../../../assets/vague-swimlab.webp')}
+              style={styles.illustration}
+              accessibilityIgnoresInvertColors
+              alt=""
+            />
             <Text variant="displaySmall" style={styles.title}>
               SwimLab
             </Text>
@@ -135,7 +142,7 @@ export default function RegisterScreen({ navigation }: any) {
                   ]}
                 >
                   {i < step ? (
-                    <Ionicons name="checkmark" size={14} color="#fff" />
+                    <Ionicons name="checkmark" size={14} color={C.onPrimary} />
                   ) : (
                     <Text style={[styles.stepNum, i === step && styles.stepNumActive]}>
                       {i + 1}
@@ -157,8 +164,8 @@ export default function RegisterScreen({ navigation }: any) {
               </Text>
               <Pressable onPress={() => selectRole('swimmer')}>
                 <GlassCard elevated style={styles.roleCard}>
-                  <View style={[styles.roleIcon, { backgroundColor: 'rgba(8, 145, 178, 0.12)' }]}>
-                    <Ionicons name="water" size={28} color="#0891B2" />
+                  <View style={[styles.roleIcon, { backgroundColor: C.primarySoft }]}>
+                    <Ionicons name="water" size={28} color={C.primary} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.roleTitle}>Nageur / Nageuse</Text>
@@ -166,13 +173,13 @@ export default function RegisterScreen({ navigation }: any) {
                       Je rejoins mon club, je vois mes séances et je donne mes ressentis.
                     </Text>
                   </View>
-                  <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
+                  <Ionicons name="chevron-forward" size={20} color={C.inkMuted} />
                 </GlassCard>
               </Pressable>
               <Pressable onPress={() => selectRole('coach')}>
                 <GlassCard elevated style={styles.roleCard}>
-                  <View style={[styles.roleIcon, { backgroundColor: 'rgba(99, 102, 241, 0.12)' }]}>
-                    <Ionicons name="megaphone" size={26} color="#6366F1" />
+                  <View style={[styles.roleIcon, { backgroundColor: C.primarySoft }]}>
+                    <Ionicons name="megaphone" size={26} color={C.primary} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.roleTitle}>Coach</Text>
@@ -180,7 +187,7 @@ export default function RegisterScreen({ navigation }: any) {
                       Je crée mon club, je gère mes groupes et je planifie les entraînements.
                     </Text>
                   </View>
-                  <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
+                  <Ionicons name="chevron-forward" size={20} color={C.inkMuted} />
                 </GlassCard>
               </Pressable>
             </View>
@@ -320,9 +327,15 @@ export default function RegisterScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
+  illustration: {
+    width: 120,
+    height: 120,
+    borderRadius: 20,
+    marginBottom: 16,
+  },
   stepHint: {
     fontSize: 13,
-    color: '#64748b',
+    color: C.inkMuted,
     lineHeight: 19,
     marginTop: -8,
   },
@@ -344,11 +357,11 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   title: {
-    color: '#0891B2',
-    fontWeight: 'bold',
+    color: C.ink,
+    fontFamily: FONTS.display,
   },
   subtitle: {
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 8,
   },
   // Stepper
@@ -366,39 +379,39 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: 'rgba(148, 163, 184, 0.25)',
+    backgroundColor: C.surfaceSunken,
     alignItems: 'center',
     justifyContent: 'center',
   },
   stepDotActive: {
-    backgroundColor: '#0891B2',
+    backgroundColor: C.primary,
   },
   stepDotDone: {
-    backgroundColor: '#059669',
+    backgroundColor: C.success,
   },
   stepNum: {
     fontSize: 13,
-    fontWeight: '700',
-    color: '#64748b',
+    fontFamily: FONTS.textBold,
+    color: C.inkMuted,
   },
   stepNumActive: {
-    color: '#fff',
+    color: C.onPrimary,
   },
   stepLabel: {
     fontSize: 11,
-    fontWeight: '600',
-    color: '#94a3b8',
+    fontFamily: FONTS.textStrong,
+    color: C.inkMuted,
   },
   stepLabelActive: {
-    color: '#0891B2',
+    color: C.primary,
   },
   // Form
   form: {
     gap: 16,
   },
   stepTitle: {
-    color: '#1e293b',
-    fontWeight: '700',
+    color: C.ink,
+    fontFamily: FONTS.display,
   },
   roleCard: {
     flexDirection: 'row',
@@ -414,17 +427,17 @@ const styles = StyleSheet.create({
   },
   roleTitle: {
     fontSize: 16,
-    fontWeight: '700',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
   },
   roleDesc: {
     fontSize: 12,
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 2,
     lineHeight: 17,
   },
   input: {
-    backgroundColor: 'rgba(255,255,255,0.60)',
+    backgroundColor: C.surface,
   },
   button: {
     marginTop: 8,

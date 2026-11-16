@@ -4,16 +4,38 @@ import { NavigationContainer } from '@react-navigation/native';
 import { PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { useFonts, Sora_600SemiBold, Sora_700Bold } from '@expo-google-fonts/sora';
+import {
+  Figtree_400Regular,
+  Figtree_500Medium,
+  Figtree_600SemiBold,
+  Figtree_700Bold,
+} from '@expo-google-fonts/figtree';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AppNavigator } from './src/navigation';
 import { lightTheme } from './src/config/theme';
 import { queryClient, setupFocusManager } from './src/config/queryClient';
 import GlobalSnackbar from './src/components/GlobalSnackbar';
 import BackendStatusBanner from './src/components/BackendStatusBanner';
+import { C } from './src/config/tokens';
 
 export default function App() {
   useEffect(() => setupFocusManager(), []);
+  // Polices de la DA : Sora (titres, grands chiffres) et Figtree (texte)
+  const [fontsLoaded, fontError] = useFonts({
+    Sora_600SemiBold,
+    Sora_700Bold,
+    Figtree_400Regular,
+    Figtree_500Medium,
+    Figtree_600SemiBold,
+    Figtree_700Bold,
+  });
+
+  // Fond de la DA le temps du chargement ; en cas d'échec, on continue avec les polices système
+  if (!fontsLoaded && !fontError) {
+    return <View style={[styles.container, { backgroundColor: C.bg }]} />;
+  }
 
   return (
     <GestureHandlerRootView style={styles.container}>
@@ -24,7 +46,7 @@ export default function App() {
               <BackendStatusBanner />
               <AppNavigator />
               <GlobalSnackbar />
-              <StatusBar style="auto" />
+              <StatusBar style="dark" />
             </NavigationContainer>
           </PaperProvider>
         </SafeAreaProvider>
@@ -36,5 +58,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: C.bg,
   },
 });

@@ -1,81 +1,49 @@
 import React from 'react';
-import { View, StyleSheet, ViewStyle, Pressable, Platform } from 'react-native';
-import { BlurView } from 'expo-blur';
-import { GLASS, RADIUS, shadow } from '../config/tokens';
+import { View, StyleSheet, ViewStyle, Pressable, StyleProp } from 'react-native';
+import { C, RADIUS, SHADOW, SPACING } from '../config/tokens';
 
 interface Props {
   children: React.ReactNode;
+  /** Carte un peu plus présente (rayon des cartes vedettes). */
   elevated?: boolean;
   onPress?: () => void;
-  style?: ViewStyle;
-  /**
-   * Vrai flou (BlurView) derriere la carte — iOS uniquement, les cartes
-   * elevees l'activent par defaut. Android garde le fallback rgba (perf).
-   */
+  style?: StyleProp<ViewStyle>;
+  /** Ancien flou iOS : sans effet, la DA n'a ni verre ni flou. */
   blur?: boolean;
 }
 
-const BLUR_SUPPORTED = Platform.OS === 'ios';
-
-export default function GlassCard({ children, elevated, onPress, style, blur }: Props) {
-  const useBlur = BLUR_SUPPORTED && (blur ?? !!elevated);
-
-  const cardStyle = [
-    styles.card,
-    elevated && styles.elevated,
-    useBlur && styles.blurCard,
-    style,
-  ];
-
-  const inner = useBlur ? (
-    <>
-      <BlurView intensity={24} tint="light" style={StyleSheet.absoluteFill} />
-      {children}
-    </>
-  ) : (
-    children
-  );
+/**
+ * Carte de la DA « La vague » : fond `surface`, coins `radius-md`, détachée par
+ * `shadow-card` (jamais par une bordure). Le nom est historique.
+ */
+export default function GlassCard({ children, elevated, onPress, style }: Props) {
+  const cardStyle = [styles.card, elevated && styles.elevated, style];
 
   if (onPress) {
     return (
       <Pressable
         onPress={onPress}
-        style={({ pressed }) => [
-          ...cardStyle,
-          pressed && styles.pressed,
-        ]}
+        style={({ pressed }) => [...cardStyle, pressed && styles.pressed]}
       >
-        {inner}
+        {children}
       </Pressable>
     );
   }
 
-  return <View style={cardStyle}>{inner}</View>;
+  return <View style={cardStyle}>{children}</View>;
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: GLASS.card.backgroundColor,
-    borderColor: GLASS.card.borderColor,
-    borderWidth: 1,
-    borderRadius: RADIUS.lg,
-    padding: 16,
-    ...shadow(0.05, 16, 4, 3),
+    backgroundColor: C.surface,
+    borderRadius: RADIUS.md,
+    padding: SPACING.lg,
+    ...SHADOW.card,
   },
   elevated: {
-    backgroundColor: GLASS.elevated.backgroundColor,
-    borderColor: GLASS.elevated.borderColor,
-    borderRadius: RADIUS.xl,
-    ...shadow(0.1, 16, 4, 3),
-  },
-  blurCard: {
-    // Le BlurView absolu doit etre clippe par le rayon de la carte
-    overflow: 'hidden',
-    // La teinte rgba passe en leger par-dessus le flou
-    backgroundColor: 'rgba(255, 255, 255, 0.30)',
+    borderRadius: RADIUS.lg,
   },
   pressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.98 }],
+    transform: [{ scale: 0.97 }],
   },
 });
