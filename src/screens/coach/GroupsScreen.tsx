@@ -1,8 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, FAB, Card, Chip, IconButton, Portal, Dialog, Button, Paragraph } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
-import { useFocusEffect } from '@react-navigation/native';
+import { useRefreshOnFocus, useCoachGroups } from '../../hooks';
 import { Group, GROUP_LEVELS } from '../../types';
 import { groupService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
@@ -17,28 +17,10 @@ interface Props {
 export default function GroupsScreen({ navigation }: Props) {
   const { user } = useAuthStore();
   const showSnackbar = useSnackbarStore((s) => s.show);
-  const [groups, setGroups] = useState<Group[]>([]);
-  const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<Group | null>(null);
 
-  const loadGroups = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
-    try {
-      const data = await groupService.getByCoach(user.id);
-      setGroups(data);
-    } catch (err) {
-      console.error('Error loading groups:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadGroups();
-    }, [loadGroups]),
-  );
+  const { data: groups = [], isLoading: loading, isFetching, refetch: loadGroups } = useCoachGroups(user?.id);
+  useRefreshOnFocus(loadGroups);
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -71,7 +53,7 @@ export default function GroupsScreen({ navigation }: Props) {
           data={groups}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
-          refreshing={loading}
+          refreshing={isFetching}
           onRefresh={loadGroups}
           renderItem={({ item }) => (
             <Card

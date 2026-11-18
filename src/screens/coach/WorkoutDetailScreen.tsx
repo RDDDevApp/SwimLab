@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import {
   Text,
@@ -10,8 +10,7 @@ import {
   Paragraph,
 } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
-import { useFocusEffect } from '@react-navigation/native';
-import { Workout } from '../../types';
+import { useRefreshOnFocus, useWorkout } from '../../hooks';
 import { workoutService } from '../../services';
 import { useSnackbarStore } from '../../stores/snackbarStore';
 import WorkoutContentView from '../../components/workout/WorkoutContentView';
@@ -26,26 +25,9 @@ export default function WorkoutDetailScreen({ navigation, route }: Props) {
   const { workoutId } = route.params;
   const showSnackbar = useSnackbarStore((s) => s.show);
 
-  const [workout, setWorkout] = useState<Workout | null>(null);
-  const [loading, setLoading] = useState(true);
   const [showDelete, setShowDelete] = useState(false);
-
-  const loadWorkout = useCallback(async () => {
-    try {
-      const data = await workoutService.getById(workoutId);
-      setWorkout(data);
-    } catch (err) {
-      console.error('Error loading workout:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [workoutId]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadWorkout();
-    }, [loadWorkout]),
-  );
+  const { data: workout, isLoading: loading, refetch: loadWorkout } = useWorkout(workoutId);
+  useRefreshOnFocus(loadWorkout);
 
   const togglePublish = async () => {
     if (!workout) return;

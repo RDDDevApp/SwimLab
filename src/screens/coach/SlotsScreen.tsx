@@ -1,8 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, FAB, Portal, Dialog, Button, Paragraph } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
-import { useFocusEffect } from '@react-navigation/native';
+import { useRefreshOnFocus, useTrainingSlots } from '../../hooks';
 import { TrainingSlot } from '../../types';
 import { trainingSlotService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
@@ -19,32 +19,12 @@ interface Props {
 export default function SlotsScreen({ navigation, route }: Props) {
   const { user } = useAuthStore();
   const showSnackbar = useSnackbarStore((s) => s.show);
-  const [slots, setSlots] = useState<TrainingSlot[]>([]);
-  const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<TrainingSlot | null>(null);
 
   const groupId = route?.params?.groupId;
 
-  const loadSlots = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
-    try {
-      const data = groupId
-        ? await trainingSlotService.getByGroup(groupId)
-        : await trainingSlotService.getByCoach(user.id);
-      setSlots(data);
-    } catch (err) {
-      console.error('Error loading slots:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [user, groupId]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadSlots();
-    }, [loadSlots]),
-  );
+  const { data: slots = [], isLoading: loading, isFetching, refetch: loadSlots } = useTrainingSlots(user?.id, groupId);
+  useRefreshOnFocus(loadSlots);
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -89,7 +69,7 @@ export default function SlotsScreen({ navigation, route }: Props) {
             />
           )}
           contentContainerStyle={styles.list}
-          refreshing={loading}
+          refreshing={isFetching}
           onRefresh={loadSlots}
         />
       )}

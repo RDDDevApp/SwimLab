@@ -20,7 +20,7 @@ export interface ConsentInput {
 /** Date de naissance, accord parental et conditions acceptées de l'utilisateur connecté. */
 export const consentService = {
   async getMine(userId: string): Promise<MemberConsent | null> {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('member_consents')
       .select('user_id, birth_date, parent_email, parental_consent_at, terms_accepted_at, parent_notified_at')
       .eq('user_id', userId)
@@ -30,10 +30,9 @@ export const consentService = {
   },
 
   /** Complète les informations d'un compte créé avant la migration 023. */
-  // Table absente des types générés (supabase gen types) : accès non typé, comme soloService.
   async saveMine(userId: string, input: ConsentInput): Promise<void> {
     const now = new Date().toISOString();
-    const { error } = await (supabase as any).from('member_consents').upsert(
+    const { error } = await supabase.from('member_consents').upsert(
       {
         user_id: userId,
         birth_date: input.birthDate,
@@ -41,7 +40,7 @@ export const consentService = {
         parental_consent_at: input.parentalConsent ? now : null,
         ...(input.termsAccepted ? { terms_accepted_at: now } : {}),
         updated_at: now,
-      } as any,
+      },
       { onConflict: 'user_id' },
     );
     if (error) throw error;

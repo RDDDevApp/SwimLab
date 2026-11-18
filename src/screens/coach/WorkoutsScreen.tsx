@@ -1,8 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, FAB, Card, Chip, IconButton, Portal, Dialog, Button, Paragraph, Divider } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
-import { useFocusEffect } from '@react-navigation/native';
+import { useRefreshOnFocus, useCoachWorkouts } from '../../hooks';
 import { Workout, WorkoutBlock, BLOCK_TYPE_LABELS } from '../../types';
 import { workoutService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
@@ -18,29 +18,11 @@ interface Props {
 export default function WorkoutsScreen({ navigation }: Props) {
   const { user, clubId } = useAuthStore();
   const showSnackbar = useSnackbarStore((s) => s.show);
-  const [workouts, setWorkouts] = useState<Workout[]>([]);
-  const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<Workout | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const loadWorkouts = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
-    try {
-      const data = await workoutService.getByCoach(user.id);
-      setWorkouts(data);
-    } catch (err) {
-      console.error('Error loading workouts:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadWorkouts();
-    }, [loadWorkouts]),
-  );
+  const { data: workouts = [], isLoading: loading, isFetching, refetch: loadWorkouts } = useCoachWorkouts(user?.id);
+  useRefreshOnFocus(loadWorkouts);
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -232,7 +214,7 @@ export default function WorkoutsScreen({ navigation }: Props) {
           data={workouts}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
-          refreshing={loading}
+          refreshing={isFetching}
           onRefresh={loadWorkouts}
           renderItem={({ item }) => {
             const isExpanded = expandedId === item.id;

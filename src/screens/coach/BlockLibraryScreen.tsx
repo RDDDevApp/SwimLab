@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import {
   Text,
@@ -13,7 +13,7 @@ import {
   TextInput,
 } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
-import { useFocusEffect } from '@react-navigation/native';
+import { useRefreshOnFocus, useBlockLibrary } from '../../hooks';
 import {
   BlockLibraryRow,
   BlockType,
@@ -41,30 +41,12 @@ const BLOCK_TYPES = [
 export default function BlockLibraryScreen({ navigation }: Props) {
   const { user, clubId } = useAuthStore();
   const showSnackbar = useSnackbarStore((s) => s.show);
-  const [blocks, setBlocks] = useState<BlockLibraryRow[]>([]);
-  const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<BlockLibraryRow | null>(
     null,
   );
 
-  const loadBlocks = useCallback(async () => {
-    if (!clubId) return;
-    setLoading(true);
-    try {
-      const data = await blockLibraryService.getByClub(clubId);
-      setBlocks(data);
-    } catch (err) {
-      console.error('Error loading block library:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [clubId]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadBlocks();
-    }, [loadBlocks]),
-  );
+  const { data: blocks = [], isLoading: loading, isFetching, refetch: loadBlocks } = useBlockLibrary(clubId);
+  useRefreshOnFocus(loadBlocks);
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -154,7 +136,7 @@ export default function BlockLibraryScreen({ navigation }: Props) {
           data={blocks}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
-          refreshing={loading}
+          refreshing={isFetching}
           onRefresh={loadBlocks}
           renderItem={renderBlock}
         />

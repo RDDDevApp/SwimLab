@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Chip, Button } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
-import { Workout } from '../../types';
-import { workoutService } from '../../services';
+import { useWorkout } from '../../hooks';
 import WorkoutContentView from '../../components/workout/WorkoutContentView';
 import { C, FONTS } from '../../config/tokens';
 
@@ -15,25 +14,10 @@ interface Props {
 export default function WorkoutDetailScreen({ navigation, route }: Props) {
   const { workoutId, workoutTitle } = route.params;
 
-  const [workout, setWorkout] = useState<Workout | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [unavailable, setUnavailable] = useState(false);
-
-  useEffect(() => {
-    loadWorkout();
-  }, []);
-
-  const loadWorkout = async () => {
-    try {
-      const data = await workoutService.getById(workoutId);
-      setWorkout(data);
-    } catch {
-      // Séance pas encore dévoilée (programme secret) ou supprimée
-      setUnavailable(true);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Une erreur veut dire : séance pas encore dévoilée (programme secret) ou supprimée
+  const { data: workout, isLoading: loading, isError: unavailable } = useWorkout(workoutId, {
+    retry: false,
+  });
 
   if (loading || !workout) {
     return (
