@@ -95,7 +95,8 @@ nouveau coach) : tous en `@example.com`. Remise à zéro : `supabase/seed/demo_s
 1. Avant le pilote, en lots (une pull request par lot) :
    1. Notifications et IA sécurisées (`send-push`, `generate-workout`, migrations
       021-022), puis déploiement avec les secrets `ANTHROPIC_API_KEY` et `CRON_SECRET`.
-   2. Emails via **Brevo** (SMTP dans Supabase, modèles d'emails en français).
+   2. Emails via **Brevo** (SMTP dans Supabase, modèles d'emails en français) :
+      pas à pas pour Raudi dans `docs/guides/BREVO.md`.
    3. Nageurs mineurs : date de naissance à l'inscription ; sous 15 ans, case
       « un parent est d'accord » + email du parent informé ; page « Conditions et
       données personnelles ».
