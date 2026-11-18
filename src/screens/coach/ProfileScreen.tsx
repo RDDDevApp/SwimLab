@@ -12,7 +12,7 @@ import { clubService, profileService } from '../../services';
 import { Club } from '../../types';
 import { C, FONTS } from '../../config/tokens';
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ navigation }: any) {
   const { profile, user, clubId, signOut } = useAuthStore();
   const showSnackbar = useSnackbarStore((s) => s.show);
   const [club, setClub] = useState<Club | null>(null);
@@ -189,6 +189,14 @@ export default function ProfileScreen() {
           icon="logout"
         >
           Se déconnecter
+        </Button>
+
+        <Button
+          mode="text"
+          icon="shield-account-outline"
+          onPress={() => navigation.navigate('Legal')}
+        >
+          Conditions et données personnelles
         </Button>
 
         <DeleteAccountSection />

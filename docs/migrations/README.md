@@ -7,7 +7,7 @@ réplique locale : `npm run db:replica -- docs/migrations/<fichier>.sql` (voir
 
 ## État de la base de production (vérifié le 12 octobre 2026)
 
-Toutes les migrations du dépôt sont appliquées, jusqu'à la 022.
+Toutes les migrations du dépôt sont appliquées, jusqu'à la 023.
 
 | Migrations | Contenu |
 |---|---|
@@ -23,6 +23,7 @@ Toutes les migrations du dépôt sont appliquées, jusqu'à la 022.
 | 020 | Programme secret : un nageur ne lit une séance qu'après la fin, l'émargement ou si le coach l'a montrée (`workouts.show_before_session`) |
 | 021 | Journal des générations IA (`ai_generations`) : plafond de 10 séances générées par jour et par compte |
 | 022 | Rappels push planifiés (`pg_cron` + `pg_net`) qui appellent `send-push` (17 h et 19 h UTC). Secrets Vault : `project_url` (créé), `cron_secret` (à créer, même valeur que le secret `CRON_SECRET` des Edge Functions). Sans effet sur la réplique locale |
+| 023 | Consentements (`member_consents`, privée : seul le titulaire la lit) : date de naissance, email du parent sous 15 ans, accord parental, conditions acceptées ; remplie à l'inscription par le déclencheur `on_auth_user_created_consents` ; tâche horaire `notify-parent` |
 
 Données démo : [`supabase/seed/demo_seed.sql`](../../supabase/seed/demo_seed.sql), appliquées et rejouables.
 

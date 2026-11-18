@@ -124,9 +124,10 @@ nouveau coach) : tous en `@example.com`. Remise à zéro : `supabase/seed/demo_s
       Vault `cron_secret` (même valeur) ; supprimer la fonction de diagnostic
       `generate-workout-test` (tableau de bord).
    2. Emails via **Brevo** (SMTP dans Supabase, modèles d'emails en français).
-   3. Nageurs mineurs : date de naissance à l'inscription ; sous 15 ans, case
-      « un parent est d'accord » + email du parent informé ; page « Conditions et
-      données personnelles ».
+   3. Nageurs mineurs : **fait** (migration 023 appliquée : table privée
+      `member_consents`, déclencheur à l'inscription, tâche horaire `notify-parent`).
+      Reste : texte de `LegalScreen` validé par Raudi et `LEGAL_CONTACT_EMAIL` rempli ;
+      déployer `notify-parent` et ses secrets Brevo au lot 2.
    4. Build natif de test (EAS, APK Android) pour les notifications.
    5. Jour J : `EXPO_PUBLIC_DEMO_MODE` à `false` et suppression de la démo
       (gardée d'ici là pour tester).

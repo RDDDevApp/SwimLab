@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Pressable, Image } from 'react-native';
-import { TextInput, Button, Text, HelperText } from 'react-native-paper';
+import { TextInput, Button, Text, HelperText, Checkbox } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import GradientScreen from '../../components/GradientScreen';
 import GlassCard from '../../components/GlassCard';
 import { useAuthStore } from '../../stores/authStore';
 import { getInviteCodeFromUrl, normalizeInviteCode } from '../../utils/invite';
+import { parseBirthDate, needsParentalConsent } from '../../utils/age';
 import { C, FONTS } from '../../config/tokens';
 
 type Step = 0 | 1 | 2 | 3;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const STEP_LABELS = ['Rôle', 'Club', 'Identité', 'Sécurité'];
 
 /** Inscription multi-etapes : role -> club -> identite -> mot de passe, avec stepper. */
@@ -21,6 +23,11 @@ export default function RegisterScreen({ navigation }: any) {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
+  // Nageurs : date de naissance, et sous 15 ans l'accord d'un parent (migration 023)
+  const [birthDateText, setBirthDateText] = useState('');
+  const [parentEmail, setParentEmail] = useState('');
+  const [parentalConsent, setParentalConsent] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -34,15 +41,38 @@ export default function RegisterScreen({ navigation }: any) {
     setStep(1);
   };
 
+  const isSwimmer = role !== 'coach';
+  const birthDate = parseBirthDate(birthDateText);
+  const isMinor = isSwimmer && !!birthDate && needsParentalConsent(birthDate);
+
   const validateIdentity = () => {
     if (!firstName.trim() || !lastName.trim()) {
       setError('Indique ton prénom et ton nom.');
       return;
     }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-    if (!emailRegex.test(email)) {
+    if (!EMAIL_REGEX.test(email)) {
       setError('Saisis une adresse email valide.');
       return;
+    }
+    if (isSwimmer) {
+      if (!birthDate) {
+        setError('Indique ta date de naissance au format JJ/MM/AAAA.');
+        return;
+      }
+      if (isMinor) {
+        if (!EMAIL_REGEX.test(parentEmail)) {
+          setError("Indique l'adresse email d'un de tes parents.");
+          return;
+        }
+        if (parentEmail.trim().toLowerCase() === email.trim().toLowerCase()) {
+          setError("L'adresse du parent doit être différente de la tienne.");
+          return;
+        }
+        if (!parentalConsent) {
+          setError("Avant 15 ans, un de tes parents doit être d'accord. Coche la case quand c'est le cas.");
+          return;
+        }
+      }
     }
     setError('');
     setStep(3);
@@ -59,6 +89,10 @@ export default function RegisterScreen({ navigation }: any) {
   };
 
   const handleRegister = async () => {
+    if (!termsAccepted) {
+      setError('Lis et accepte les conditions pour créer ton compte.');
+      return;
+    }
     if (password.length < 6) {
       setError('Le mot de passe doit contenir au moins 6 caractères.');
       return;
@@ -74,6 +108,10 @@ export default function RegisterScreen({ navigation }: any) {
       lastName: lastName.trim(),
       role: role || 'swimmer',
       inviteCode: clubCode.trim() ? normalizeInviteCode(clubCode) : undefined,
+      birthDate: isSwimmer ? birthDate ?? undefined : undefined,
+      parentEmail: isMinor ? parentEmail.trim().toLowerCase() : undefined,
+      parentalConsent: isMinor ? parentalConsent : undefined,
+      termsAccepted,
     });
 
     if (signUpError) {
@@ -259,6 +297,54 @@ export default function RegisterScreen({ navigation }: any) {
                 autoComplete="email"
                 style={styles.input}
               />
+              {isSwimmer && (
+                <>
+                  <TextInput
+                    label="Date de naissance"
+                    placeholder="JJ/MM/AAAA"
+                    value={birthDateText}
+                    onChangeText={setBirthDateText}
+                    mode="outlined"
+                    keyboardType="numbers-and-punctuation"
+                    maxLength={10}
+                    style={styles.input}
+                  />
+                  <HelperText type="info" visible style={styles.help}>
+                    Elle reste privée : toi seul peux la voir.
+                  </HelperText>
+                </>
+              )}
+              {isMinor && (
+                <View style={styles.parentBox}>
+                  <Text style={styles.parentTitle}>Tu as moins de 15 ans</Text>
+                  <Text style={styles.parentText}>
+                    Un de tes parents doit être d'accord pour que tu utilises SwimLab. Il recevra un email
+                    qui lui explique l'app.
+                  </Text>
+                  <TextInput
+                    label="Email d'un de tes parents"
+                    value={parentEmail}
+                    onChangeText={setParentEmail}
+                    mode="outlined"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    style={styles.input}
+                  />
+                  <Pressable
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: parentalConsent }}
+                    onPress={() => setParentalConsent(!parentalConsent)}
+                    style={styles.checkRow}
+                  >
+                    <Checkbox.Android
+                      status={parentalConsent ? 'checked' : 'unchecked'}
+                      onPress={() => setParentalConsent(!parentalConsent)}
+                      color={C.primary}
+                    />
+                    <Text style={styles.checkText}>Un de mes parents est d'accord</Text>
+                  </Pressable>
+                </View>
+              )}
               {error ? (
                 <HelperText type="error" visible>
                   {error}
@@ -298,6 +384,23 @@ export default function RegisterScreen({ navigation }: any) {
                 secureTextEntry={!showPassword}
                 style={styles.input}
               />
+              <View style={styles.checkRow}>
+                <Checkbox.Android
+                  status={termsAccepted ? 'checked' : 'unchecked'}
+                  onPress={() => setTermsAccepted(!termsAccepted)}
+                  color={C.primary}
+                />
+                <Text style={styles.checkText}>
+                  J'accepte les{' '}
+                  <Text
+                    style={styles.link}
+                    accessibilityRole="link"
+                    onPress={() => navigation.navigate('Legal')}
+                  >
+                    conditions et la gestion de mes données
+                  </Text>
+                </Text>
+              </View>
               {error ? (
                 <HelperText type="error" visible>
                   {error}
@@ -327,6 +430,42 @@ export default function RegisterScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
+  help: {
+    marginTop: -8,
+  },
+  parentBox: {
+    backgroundColor: C.warningSoft,
+    borderRadius: 20,
+    padding: 16,
+    gap: 8,
+  },
+  parentTitle: {
+    fontFamily: FONTS.textBold,
+    fontSize: 16,
+    color: C.warning,
+  },
+  parentText: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: C.ink,
+  },
+  checkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: 48,
+    gap: 4,
+  },
+  checkText: {
+    flex: 1,
+    fontSize: 15,
+    lineHeight: 21,
+    color: C.ink,
+  },
+  link: {
+    color: C.link,
+    fontFamily: FONTS.textStrong,
+    textDecorationLine: 'underline',
+  },
   illustration: {
     width: 120,
     height: 120,

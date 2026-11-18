@@ -4,6 +4,7 @@ import { Text, Card, Button, Avatar, List, Switch, IconButton, Portal, Dialog } 
 import GradientScreen from '../../components/GradientScreen';
 import DemoAccountSwitcher from '../../components/DemoAccountSwitcher';
 import DeleteAccountSection from '../../components/DeleteAccountSection';
+import BirthDateCard from '../../components/BirthDateCard';
 import BadgeChip from '../../components/BadgeChip';
 import XPBar from '../../components/XPBar';
 import StreakFlame from '../../components/StreakFlame';
@@ -91,6 +92,9 @@ export default function SwimmerProfileScreen({ navigation }: { navigation: any }
             />
           </Card.Content>
         </Card>
+
+        {/* Comptes créés avant la migration 023 : date de naissance à compléter */}
+        {user?.id ? <BirthDateCard userId={user.id} email={user.email} /> : null}
 
         {club ? (
           <Card style={styles.card}>
@@ -240,6 +244,14 @@ export default function SwimmerProfileScreen({ navigation }: { navigation: any }
           icon="logout"
         >
           Se déconnecter
+        </Button>
+
+        <Button
+          mode="text"
+          icon="shield-account-outline"
+          onPress={() => navigation.navigate('Legal')}
+        >
+          Conditions et données personnelles
         </Button>
 
         <DeleteAccountSection />
