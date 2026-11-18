@@ -126,14 +126,22 @@ nouveau coach) : tous en `@example.com`. Remise à zéro : `supabase/seed/demo_s
       appliquées, essais réels OK). Reste à Raudi : secret `CRON_SECRET` + secret
       Vault `cron_secret` (même valeur) ; supprimer la fonction de diagnostic
       `generate-workout-test` (tableau de bord).
-   2. Emails via **Brevo** (SMTP dans Supabase, modèles d'emails en français).
+   2. Emails via **Brevo** (SMTP dans Supabase, modèles d'emails en français) :
+      pas à pas pour Raudi dans `docs/guides/BREVO.md`.
    3. Nageurs mineurs : **fait** (migration 023 appliquée : table privée
       `member_consents`, déclencheur à l'inscription, tâche horaire `notify-parent`).
       Reste : texte de `LegalScreen` validé par Raudi et `LEGAL_CONTACT_EMAIL` rempli ;
       déployer `notify-parent` et ses secrets Brevo au lot 2.
-   4. Build natif de test (EAS, APK Android) pour les notifications.
-   5. Jour J : `EXPO_PUBLIC_DEMO_MODE` à `false` et suppression de la démo
-      (gardée d'ici là pour tester).
+   4. Build natif de test : APK construit par GitHub Actions (workflow « Application
+      Android », `docs/guides/BUILD_ANDROID.md`), signé avec la clé de débogage, sans
+      compte. EAS (`eas build`) refuse de créer une clé de signature sans question
+      interactive : il servira au Play Store, lancé depuis ce conteneur. Reste pour les
+      notifications Android : projet Expo (`extra.eas.projectId` dans app.json) et
+      Firebase (`google-services.json`, clé FCM déposée dans Expo).
+   5. Jour J : pull request en brouillon « Jour J : retrait de la démo »
+      (`EXPO_PUBLIC_DEMO_MODE` à `false`) et suppression des comptes démo
+      (`supabase/seed/demo_reset.sql`), pas à pas dans `docs/guides/JOUR_J.md`.
+      Démo gardée d'ici là pour tester.
 2. DA « La vague » : thèmes Clair et Nuit appliqués. Reste éventuellement : icônes
    Material Community Icons (la DA les cite, l'app utilise Ionicons).
 3. TanStack Query : **fait**, tous les écrans qui chargent des données passent par
