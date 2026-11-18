@@ -9,13 +9,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
 import EmptyState from '../../components/EmptyState';
 import { exportWorkoutPdf } from '../../utils/workoutPdfExport';
-
-const BLOCK_COLORS: Record<string, string> = {
-  warmup: '#10B981',
-  main: '#0891B2',
-  cooldown: '#8B5CF6',
-  other: '#64748b',
-};
+import { C, FONTS, WORKOUT_TYPE_COLORS } from '../../config/tokens';
 
 interface Props {
   navigation: any;
@@ -113,7 +107,7 @@ export default function WorkoutsScreen({ navigation }: Props) {
         ) : null}
 
         {blocks.map((block, bIndex) => {
-          const color = BLOCK_COLORS[block.type] || BLOCK_COLORS.other;
+          const typeColors = WORKOUT_TYPE_COLORS[block.type] ?? WORKOUT_TYPE_COLORS.other;
           const blockDist = block.sub_blocks.reduce(
             (sum, sb) => sum + sb.distance * sb.repetitions,
             0,
@@ -122,10 +116,10 @@ export default function WorkoutsScreen({ navigation }: Props) {
           return (
             <View
               key={block.id || bIndex}
-              style={[styles.blockItem, { borderLeftColor: color }]}
+              style={styles.blockItem}
             >
               <View style={styles.blockHeader}>
-                <Text style={[styles.blockType, { color }]}>
+                <Text style={[styles.blockType, { color: typeColors.color, backgroundColor: typeColors.bg }]}>
                   {BLOCK_TYPE_LABELS[block.type as keyof typeof BLOCK_TYPE_LABELS] || block.type}
                 </Text>
                 {block.name ? (
@@ -220,7 +214,7 @@ export default function WorkoutsScreen({ navigation }: Props) {
             onPress={() => navigation.navigate('GenerateWorkout')}
             compact
             style={styles.headerBtn}
-            textColor="#7C3AED"
+            textColor={C.primary}
           >
             IA
           </Button>
@@ -278,7 +272,7 @@ export default function WorkoutsScreen({ navigation }: Props) {
                       <IconButton
                         icon="delete"
                         size={20}
-                        iconColor="#EF4444"
+                        iconColor={C.danger}
                         onPress={() => setDeleteTarget(item)}
                       />
                     </View>
@@ -315,6 +309,7 @@ export default function WorkoutsScreen({ navigation }: Props) {
 
       <FAB
         icon="plus"
+        color={C.onPrimary}
         style={styles.fab}
         onPress={() => navigation.navigate('CreateWorkout')}
       />
@@ -329,7 +324,7 @@ export default function WorkoutsScreen({ navigation }: Props) {
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setDeleteTarget(null)}>Annuler</Button>
-            <Button onPress={handleDelete} textColor="#EF4444">
+            <Button onPress={handleDelete} textColor={C.danger}>
               Supprimer
             </Button>
           </Dialog.Actions>
@@ -346,13 +341,13 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
   },
   headerButtons: {
     flexDirection: 'row',
@@ -360,13 +355,13 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   headerBtn: {
-    borderColor: 'rgba(255, 255, 255, 0.60)',
+    borderColor: 'transparent',
   },
   list: {
     padding: 16,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginBottom: 10,
   },
   cardHeader: {
@@ -384,8 +379,8 @@ const styles = StyleSheet.create({
     marginLeft: -8,
   },
   cardTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     flex: 1,
   },
   cardActions: {
@@ -402,10 +397,10 @@ const styles = StyleSheet.create({
     height: 26,
   },
   publishedChip: {
-    backgroundColor: '#D1FAE5',
+    backgroundColor: C.successSoft,
   },
   draftChip: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: C.warningSoft,
   },
   // Expanded content
   expandedContent: {
@@ -416,12 +411,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   expandDesc: {
-    color: '#0891b2',
+    color: C.primary,
     fontStyle: 'italic',
     marginBottom: 10,
   },
   blockItem: {
-    borderLeftWidth: 3,
     paddingLeft: 10,
     marginBottom: 10,
   },
@@ -432,21 +426,25 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   blockType: {
-    fontSize: 11,
-    fontWeight: '700',
-    textTransform: 'uppercase',
+    fontSize: 12,
+    fontFamily: FONTS.textStrong,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 999,
+    overflow: 'hidden',
+    alignSelf: 'flex-start',
   },
   blockName: {
-    color: '#1e293b',
-    fontWeight: '600',
+    color: C.ink,
+    fontFamily: FONTS.textStrong,
     flex: 1,
   },
   blockDist: {
-    color: '#0891B2',
-    fontWeight: 'bold',
+    color: C.primary,
+    fontFamily: FONTS.textBold,
   },
   subBlockLine: {
-    color: 'rgba(100,116,139,0.65)',
+    color: C.inkMuted,
     marginBottom: 2,
     paddingLeft: 4,
   },
@@ -457,10 +455,10 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   editBtn: {
-    backgroundColor: '#0891B2',
+    backgroundColor: C.primary,
   },
   pdfBtn: {
-    borderColor: '#0891B2',
+    borderColor: C.primary,
   },
   editBtnLabel: {
     fontSize: 12,
@@ -470,6 +468,7 @@ const styles = StyleSheet.create({
     margin: 16,
     right: 0,
     bottom: 0,
-    backgroundColor: '#0891B2',
+    backgroundColor: C.primary,
+    borderRadius: 999,
   },
 });

@@ -1,96 +1,109 @@
-import { MD3LightTheme, MD3DarkTheme, configureFonts } from 'react-native-paper';
+import { MD3LightTheme } from 'react-native-paper';
+import { C, FONTS } from './tokens';
 
-// SwimLab Brand Colors – slate/blue palette (mockup-aligned)
+/**
+ * Thème React Native Paper aligné sur la DA « La vague » (voir tokens.ts).
+ * Le thème « Nuit » viendra dans un second temps (PALETTE.dark).
+ */
+
+// Titres en Sora, tout le reste en Figtree. Pas de fontWeight : une famille par graisse.
+type Variant = keyof typeof MD3LightTheme.fonts;
+const FAMILY_BY_VARIANT: Record<Variant, string> = {
+  displayLarge: FONTS.display,
+  displayMedium: FONTS.display,
+  displaySmall: FONTS.display,
+  headlineLarge: FONTS.display,
+  headlineMedium: FONTS.display,
+  headlineSmall: FONTS.display,
+  titleLarge: FONTS.displaySemi,
+  titleMedium: FONTS.displaySemi,
+  titleSmall: FONTS.displaySemi,
+  labelLarge: FONTS.textStrong,
+  labelMedium: FONTS.textStrong,
+  labelSmall: FONTS.textStrong,
+  bodyLarge: FONTS.text,
+  bodyMedium: FONTS.text,
+  bodySmall: FONTS.text,
+  default: FONTS.text,
+};
+const fonts = Object.fromEntries(
+  (Object.keys(FAMILY_BY_VARIANT) as Variant[]).map((variant) => [
+    variant,
+    { ...MD3LightTheme.fonts?.[variant], fontFamily: FAMILY_BY_VARIANT[variant], fontWeight: 'normal' },
+  ]),
+) as typeof MD3LightTheme.fonts;
+
+// Couleurs historiques (theme.custom), remappées sur la DA.
 const colors = {
-  primary: {
-    turquoise: '#0891B2',
-    teal: '#0e7490',
-  },
-  secondary: {
-    pink: '#ec4899',
-    orange: '#D97706',
-  },
-  accent: {
-    yellow: '#eab308',
-    electricBlue: '#6366f1',
-  },
+  primary: { turquoise: C.primary, teal: C.onPrimarySoft },
+  secondary: { pink: C.rose, orange: C.mangue },
+  accent: { yellow: C.soleil, electricBlue: C.ocean },
   neutral: {
-    white: '#FFFFFF',
-    lightGray: '#F1F5F9',
-    gray: '#64748b',
-    darkGray: '#475569',
-    dark: '#1e293b',
-    black: '#0f172a',
+    white: C.surface,
+    lightGray: C.surfaceSunken,
+    gray: C.inkMuted,
+    darkGray: C.inkMuted,
+    dark: C.ink,
+    black: C.ink,
   },
-  semantic: {
-    success: '#059669',
-    warning: '#D97706',
-    error: '#DC2626',
-    info: '#2563EB',
-  },
+  semantic: { success: C.success, warning: C.warning, error: C.danger, info: C.primary },
   rpe: {
-    veryEasy: '#15803D',    // 6-8
-    easy: '#4D7C0F',         // 9-10
-    light: '#65A30D',        // 11-12
-    moderate: '#CA8A04',     // 13-14
-    hard: '#EA580C',         // 15-16
-    veryHard: '#DC2626',     // 17-18
-    maximal: '#991B1B',      // 19-20
+    veryEasy: C.rpe1, // 6-8
+    easy: C.rpe2, // 9-10
+    light: C.rpe3, // 11-12
+    moderate: C.rpe4, // 13-14
+    hard: C.rpe5, // 15-16
+    veryHard: C.rpe6, // 17-18
+    maximal: C.rpe7, // 19-20
   },
 };
 
-// Light Theme (primary – matches blue-50 gradient)
 export const lightTheme = {
   ...MD3LightTheme,
+  // Boutons MD3 : rayon = 5 × roundness. 5 → 25 px : un galet sur un bouton de 40 à 48 px.
+  roundness: 5,
+  fonts,
   colors: {
     ...MD3LightTheme.colors,
-    primary: colors.primary.turquoise,
-    primaryContainer: '#CFFAFE',
-    secondary: colors.secondary.pink,
-    secondaryContainer: '#FCE7F3',
-    tertiary: colors.secondary.orange,
-    tertiaryContainer: '#FEF3C7',
-    surface: colors.neutral.white,
-    surfaceVariant: colors.neutral.lightGray,
-    background: '#EFF6FF',
-    error: colors.semantic.error,
-    errorContainer: '#FEE2E2',
-    onPrimary: colors.neutral.white,
-    onPrimaryContainer: colors.primary.teal,
-    onSecondary: colors.neutral.white,
-    onSurface: colors.neutral.dark,
-    onSurfaceVariant: colors.neutral.darkGray,
-    onBackground: colors.neutral.dark,
-    outline: colors.neutral.gray,
-    outlineVariant: '#CBD5E1',
-  },
-  custom: colors,
-};
-
-// Dark Theme (kept for reference)
-export const darkTheme = {
-  ...MD3DarkTheme,
-  colors: {
-    ...MD3DarkTheme.colors,
-    primary: colors.primary.turquoise,
-    primaryContainer: colors.primary.teal,
-    secondary: colors.secondary.pink,
-    secondaryContainer: '#831843',
-    tertiary: colors.secondary.orange,
-    tertiaryContainer: '#92400E',
-    surface: '#1E293B',
-    surfaceVariant: '#334155',
-    background: colors.neutral.black,
-    error: '#F87171',
-    errorContainer: '#7F1D1D',
-    onPrimary: colors.neutral.black,
-    onPrimaryContainer: '#CFFAFE',
-    onSecondary: colors.neutral.black,
-    onSurface: colors.neutral.lightGray,
-    onSurfaceVariant: colors.neutral.gray,
-    onBackground: colors.neutral.lightGray,
-    outline: colors.neutral.darkGray,
-    outlineVariant: '#475569',
+    primary: C.primary,
+    onPrimary: C.onPrimary,
+    primaryContainer: C.primarySoft,
+    onPrimaryContainer: C.onPrimarySoft,
+    secondary: C.ocean,
+    onSecondary: C.onAbysse,
+    secondaryContainer: C.primarySoft,
+    onSecondaryContainer: C.onPrimarySoft,
+    tertiary: C.rose,
+    onTertiary: C.onVif,
+    tertiaryContainer: C.warningSoft,
+    onTertiaryContainer: C.ink,
+    background: C.bg,
+    onBackground: C.ink,
+    surface: C.surface,
+    onSurface: C.ink,
+    surfaceVariant: C.surfaceSunken,
+    onSurfaceVariant: C.inkMuted,
+    surfaceDisabled: C.surfaceSunken,
+    onSurfaceDisabled: C.inkMuted,
+    outline: C.lineStrong,
+    outlineVariant: C.line,
+    error: C.danger,
+    onError: C.onPrimary,
+    errorContainer: C.dangerSoft,
+    onErrorContainer: C.ink,
+    inverseSurface: C.abysse,
+    inverseOnSurface: C.onAbysse,
+    inversePrimary: C.soleil,
+    backdrop: C.scrim,
+    // Pas de teinte d'élévation MD3 : une carte reste blanche, l'ombre la détache.
+    elevation: {
+      level0: 'transparent',
+      level1: C.surface,
+      level2: C.surface,
+      level3: C.surface,
+      level4: C.surface,
+      level5: C.surface,
+    },
   },
   custom: colors,
 };
@@ -116,6 +129,7 @@ export const RPE_LABELS: Record<number, string> = {
   20: 'Maximal',
 };
 
+/** Couleur de fond d'un palier RPE (pastille, segment de jauge). */
 export const getRPEColor = (rpe: number): string => {
   if (rpe <= 8) return colors.rpe.veryEasy;
   if (rpe <= 10) return colors.rpe.easy;
@@ -125,3 +139,6 @@ export const getRPEColor = (rpe: number): string => {
   if (rpe <= 18) return colors.rpe.veryHard;
   return colors.rpe.maximal;
 };
+
+/** Couleur du chiffre posé sur `getRPEColor(rpe)` : bleu nuit jusqu'à 14, blanc au-delà. */
+export const getRPETextColor = (rpe: number): string => (rpe <= 14 ? C.onVif : C.onAbysse);

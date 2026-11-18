@@ -9,3 +9,7 @@ verify_jwt = true
 # l'app après l'émargement. La fonction vérifie elle-même l'un ou l'autre.
 [functions.send-push]
 verify_jwt = false
+
+# Email au parent d'un nageur de moins de 15 ans : appelée par pg_cron (x-cron-secret).
+[functions.notify-parent]
+verify_jwt = false

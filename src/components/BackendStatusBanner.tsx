@@ -3,6 +3,7 @@ import { View, StyleSheet, Pressable } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config/supabase';
+import { C, FONTS } from '../config/tokens';
 
 type Status = 'unknown' | 'ok' | 'unreachable';
 
@@ -46,7 +47,7 @@ export default function BackendStatusBanner() {
 
   return (
     <Pressable style={styles.banner} onPress={check}>
-      <Ionicons name="cloud-offline-outline" size={18} color="#fff" />
+      <Ionicons name="cloud-offline-outline" size={18} color={C.onPrimary} />
       <View style={{ flex: 1 }}>
         <Text style={styles.title}>Serveur injoignable</Text>
         <Text style={styles.subtitle}>
@@ -62,18 +63,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: '#DC2626',
+    backgroundColor: C.danger,
     paddingHorizontal: 14,
     paddingVertical: 10,
     paddingTop: 14,
   },
   title: {
-    color: '#fff',
-    fontWeight: '800',
+    color: C.onPrimary,
+    fontFamily: FONTS.display,
     fontSize: 13,
   },
   subtitle: {
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: C.onAbysse,
     fontSize: 11,
     lineHeight: 15,
   },

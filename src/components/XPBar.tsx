@@ -7,7 +7,7 @@ import Animated, {
   withTiming,
   Easing,
 } from 'react-native-reanimated';
-import { TEXT_COLORS } from '../config/tokens';
+import { TEXT_COLORS, C, FONTS } from '../config/tokens';
 
 interface Props {
   /** XP dans le niveau courant */
@@ -60,30 +60,30 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   levelPill: {
-    backgroundColor: 'rgba(8, 145, 178, 0.12)',
+    backgroundColor: C.primarySoft,
     borderRadius: 8,
     paddingHorizontal: 8,
     paddingVertical: 2,
   },
   levelText: {
     fontSize: 12,
-    fontWeight: '800',
-    color: '#0891B2',
+    fontFamily: FONTS.textBold,
+    color: C.primary,
   },
   xpText: {
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: FONTS.textStrong,
     color: TEXT_COLORS.secondary,
   },
   track: {
     height: 8,
-    backgroundColor: 'rgba(148, 163, 184, 0.20)',
+    backgroundColor: C.surfaceSunken,
     borderRadius: 4,
     overflow: 'hidden',
   },
   fill: {
     height: '100%',
     borderRadius: 4,
-    backgroundColor: '#0891B2',
+    backgroundColor: C.primary,
   },
 });

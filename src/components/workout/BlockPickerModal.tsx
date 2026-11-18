@@ -3,13 +3,7 @@ import { View, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { Text, Portal, Dialog, Button, Card, Chip, Searchbar } from 'react-native-paper';
 import { BlockLibraryRow, SubBlock, BLOCK_TYPE_LABELS } from '../../types';
 import { blockLibraryService } from '../../services';
-
-const BLOCK_COLORS: Record<string, string> = {
-  warmup: '#059669',
-  main: '#0891B2',
-  cooldown: '#7C3AED',
-  other: '#4B5563',
-};
+import { C, FONTS, WORKOUT_TYPE_COLORS } from '../../config/tokens';
 
 interface BlockPickerModalProps {
   visible: boolean;
@@ -67,20 +61,20 @@ export default function BlockPickerModal({
   };
 
   const renderItem = ({ item }: { item: BlockLibraryRow }) => {
-    const color = BLOCK_COLORS[item.type] || BLOCK_COLORS.other;
+    const typeColors = WORKOUT_TYPE_COLORS[item.type] ?? WORKOUT_TYPE_COLORS.other;
     const subBlocks = (item.content || []) as SubBlock[];
 
     return (
       <TouchableOpacity onPress={() => handleSelect(item)}>
-        <Card style={[styles.card, { borderLeftColor: color }]}>
+        <Card style={styles.card}>
           <Card.Content>
             <View style={styles.cardHeader}>
               <View style={styles.cardLeft}>
                 <Chip
                   compact
-                  style={[styles.typeChip, { backgroundColor: color + '18' }]}
+                  style={[styles.typeChip, { backgroundColor: typeColors.bg }]}
                 >
-                  <Text style={{ color, fontWeight: '600', fontSize: 11 }}>
+                  <Text style={{ color: typeColors.color, fontFamily: FONTS.textStrong, fontSize: 12 }}>
                     {BLOCK_TYPE_LABELS[item.type as keyof typeof BLOCK_TYPE_LABELS] || item.type}
                   </Text>
                 </Chip>
@@ -172,7 +166,7 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   searchbar: {
-    backgroundColor: 'rgba(241, 245, 249, 0.80)',
+    backgroundColor: C.surfaceSunken,
     elevation: 0,
   },
   searchInput: {
@@ -183,10 +177,9 @@ const styles = StyleSheet.create({
     maxHeight: 400,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginHorizontal: 16,
     marginVertical: 4,
-    borderLeftWidth: 4,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -205,19 +198,19 @@ const styles = StyleSheet.create({
     height: 24,
   },
   distChip: {
-    backgroundColor: 'rgba(14, 116, 144, 0.10)',
+    backgroundColor: C.primarySoft,
     height: 24,
   },
   cardTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
   },
   subBlockPreview: {
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 4,
   },
   subBlockCount: {
-    color: '#94a3b8',
+    color: C.inkMuted,
     marginTop: 2,
   },
   emptyState: {
@@ -225,11 +218,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyText: {
-    color: '#64748b',
+    color: C.inkMuted,
     textAlign: 'center',
   },
   emptySubtext: {
-    color: '#94a3b8',
+    color: C.inkMuted,
     textAlign: 'center',
     marginTop: 4,
   },

@@ -22,7 +22,6 @@ import GlassCard from '../../components/GlassCard';
 import SectionHeader from '../../components/SectionHeader';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import { useAuthStore } from '../../stores/authStore';
-import { HERO_GRADIENTS } from '../../config/gradients';
 import { getRPEColor } from '../../config/theme';
 import XPBar from '../../components/XPBar';
 import StreakFlame from '../../components/StreakFlame';
@@ -43,6 +42,7 @@ import { presenceService, SessionPresence } from '../../services/presenceService
 import { useSnackbarStore } from '../../stores/snackbarStore';
 import { Club } from '../../types';
 import { formatShortDate, toISODate } from '../../utils/dateHelpers';
+import { C, FONTS } from '../../config/tokens';
 
 type UpcomingWorkout = SwimmerUpcomingWorkout;
 
@@ -199,8 +199,8 @@ function SoloDashboardContent({
       <View style={styles.header}>
         <View style={{ flex: 1 }}>
           <View style={styles.brandPill}>
-            <Ionicons name="water-outline" size={14} color="#0D9488" />
-            <Text style={[styles.brandText, { color: '#0D9488' }]}>SwimLab</Text>
+            <Ionicons name="water-outline" size={14} color={C.primary} />
+            <Text style={[styles.brandText, { color: C.primary }]}>SwimLab</Text>
           </View>
           <Text style={styles.greeting}>Bonjour, {profile?.first_name}</Text>
           <Text style={styles.subtitle}>
@@ -235,7 +235,6 @@ function SoloDashboardContent({
       {/* Hero : prochaine seance planifiee ou CTA creation */}
       {nextSession ? (
         <HeroCard
-          gradientColors={HERO_GRADIENTS.solo.colors}
           badge={{
             icon: 'time-outline',
             text: formatShortDate(new Date(nextSession.scheduled_date + 'T00:00:00')),
@@ -264,7 +263,6 @@ function SoloDashboardContent({
         />
       ) : (
         <HeroCard
-          gradientColors={HERO_GRADIENTS.solo.colors}
           badge={{ icon: 'rocket-outline', text: 'Mode solo' }}
           title="Crée ta première séance"
           subtitle="Construis-la toi-même ou laisse le coach IA la générer pour toi."
@@ -287,7 +285,7 @@ function SoloDashboardContent({
           title="Nouvelle séance"
           subtitle="Éditeur manuel"
           icon="construct-outline"
-          iconColor="#0D9488"
+          iconColor={C.primary}
           onPress={() => navigation.navigate('CreateWorkout')}
           delay={500}
         />
@@ -295,7 +293,7 @@ function SoloDashboardContent({
           title="Coach IA"
           subtitle="Générer une séance"
           icon="sparkles-outline"
-          iconColor="#7C3AED"
+          iconColor={C.primary}
           onPress={() => navigation.navigate('GenerateWorkout')}
           delay={600}
         />
@@ -303,7 +301,7 @@ function SoloDashboardContent({
           title="Statistiques"
           subtitle="Mes performances"
           icon="pulse-outline"
-          iconColor="#0891B2"
+          iconColor={C.primary}
           onPress={() => navigation.navigate('SwimmerTabs', { screen: 'Stats' })}
           delay={700}
         />
@@ -311,7 +309,7 @@ function SoloDashboardContent({
           title="Historique"
           subtitle="Séances passées"
           icon="time-outline"
-          iconColor="#F59E0B"
+          iconColor={C.warning}
           onPress={() => navigation.navigate('SwimmerHistory')}
           delay={800}
         />
@@ -384,9 +382,9 @@ function SoloDashboardContent({
 
       {/* Rejoindre un club (discret, en bas) */}
       <Pressable style={styles.historyButton} onPress={() => navigation.navigate('JoinClub')}>
-        <Ionicons name="people-outline" size={18} color="#64748b" />
+        <Ionicons name="people-outline" size={18} color={C.inkMuted} />
         <Text style={styles.historyButtonText}>J'ai un code club — rejoindre mon club</Text>
-        <Ionicons name="chevron-forward-outline" size={16} color="#94a3b8" />
+        <Ionicons name="chevron-forward-outline" size={16} color={C.inkMuted} />
       </Pressable>
 
       {/* Dialog planification */}
@@ -488,8 +486,8 @@ function ClubDashboardContent({
       <View style={styles.header}>
         <View style={{ flex: 1 }}>
           <View style={styles.brandPill}>
-            <Ionicons name="water-outline" size={14} color="#0891B2" />
-            <Text style={[styles.brandText, { color: '#0891B2' }]}>SwimLab</Text>
+            <Ionicons name="water-outline" size={14} color={C.primary} />
+            <Text style={[styles.brandText, { color: C.primary }]}>SwimLab</Text>
           </View>
           <Text style={styles.greeting}>Salut, {profile?.first_name} !</Text>
           <Text style={styles.subtitle}>
@@ -525,7 +523,7 @@ function ClubDashboardContent({
           <View style={styles.pendingRow}>
             <IconButton
               icon="message-alert"
-              iconColor="#92400E"
+              iconColor={C.warning}
               size={24}
               style={{ margin: 0, marginRight: 4 }}
             />
@@ -546,7 +544,6 @@ function ClubDashboardContent({
         <ActivityIndicator style={{ paddingVertical: 40 }} />
       ) : nextWorkout ? (
         <HeroCard
-          gradientColors={HERO_GRADIENTS.swimmer.colors}
           badge={{
             icon: 'time-outline',
             text: formatShortDate(new Date(nextWorkout.assignment.scheduled_date + 'T00:00:00')),
@@ -584,7 +581,6 @@ function ClubDashboardContent({
         />
       ) : (
         <HeroCard
-          gradientColors={HERO_GRADIENTS.swimmer.colors}
           badge={{ icon: 'calendar-outline', text: 'Planning' }}
           title="Pas d'entraînement prévu"
           subtitle="Aucune séance programmée pour les prochains jours."
@@ -602,7 +598,7 @@ function ClubDashboardContent({
           title="Mes performances"
           subtitle="Stats détaillées"
           icon="trending-up-outline"
-          iconColor="#10B981"
+          iconColor={C.success}
           onPress={() => navigation.navigate('SwimmerTabs', { screen: 'Stats' })}
           delay={500}
         />
@@ -610,7 +606,7 @@ function ClubDashboardContent({
           title="Planning"
           subtitle="Mon calendrier"
           icon="calendar-outline"
-          iconColor="#3B82F6"
+          iconColor={C.primary}
           onPress={() => navigation.navigate('SwimmerTabs', { screen: 'Calendar' })}
           delay={600}
         />
@@ -618,7 +614,7 @@ function ClubDashboardContent({
           title="Historique"
           subtitle="Séances passées"
           icon="time-outline"
-          iconColor="#F59E0B"
+          iconColor={C.warning}
           onPress={() => navigation.navigate('SwimmerHistory')}
           delay={700}
         />
@@ -626,7 +622,7 @@ function ClubDashboardContent({
           title="Mon profil"
           subtitle="Club et réglages"
           icon="person-outline"
-          iconColor="#F43F5E"
+          iconColor={C.danger}
           onPress={() => navigation.navigate('SwimmerTabs', { screen: 'Profile' })}
           delay={800}
         />
@@ -635,7 +631,7 @@ function ClubDashboardContent({
       {/* Weekly Bar Chart - vraies distances de la semaine */}
       <WeeklyBarChart
         data={weekChart.data}
-        activeColor="#0891B2"
+        activeColor={C.primary}
         title="Ma semaine"
         label={`Volume cette semaine : ${weekChart.totalKm >= 10 ? Math.round(weekChart.totalKm) : weekChart.totalKm.toFixed(1)} km`}
       />
@@ -685,9 +681,9 @@ function ClubDashboardContent({
           style={styles.historyButton}
           onPress={() => navigation.navigate('SwimmerHistory')}
         >
-          <Ionicons name="time-outline" size={18} color="#64748b" />
+          <Ionicons name="time-outline" size={18} color={C.inkMuted} />
           <Text style={styles.historyButtonText}>Voir mon historique complet</Text>
-          <Ionicons name="chevron-forward-outline" size={16} color="#94a3b8" />
+          <Ionicons name="chevron-forward-outline" size={16} color={C.inkMuted} />
         </Pressable>
       )}
     </>
@@ -855,41 +851,38 @@ const styles = StyleSheet.create({
   },
   brandText: {
     fontSize: 12,
-    fontWeight: '800',
-    textTransform: 'uppercase',
+    fontFamily: FONTS.textBold,
     letterSpacing: 0.5,
   },
   greeting: {
     fontSize: 28,
-    fontWeight: '800',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginBottom: 4,
   },
   subtitle: {
-    color: '#64748b',
+    color: C.inkMuted,
     fontSize: 14,
     lineHeight: 20,
   },
   avatar: {
-    backgroundColor: '#ec4899',
+    backgroundColor: C.rose,
   },
   // Pending feedback
   pendingCard: {
-    backgroundColor: 'rgba(254, 243, 199, 0.85)',
-    borderLeftWidth: 4,
-    borderLeftColor: '#F59E0B',
+    backgroundColor: C.warningSoft,
   },
   pendingRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   pendingTitle: {
-    fontWeight: '700',
-    color: '#92400E',
+    fontFamily: FONTS.display,
+    color: C.warning,
     fontSize: 14,
   },
   pendingSubtitle: {
-    color: '#92400E',
+    color: C.warning,
     opacity: 0.8,
     fontSize: 12,
   },
@@ -916,23 +909,23 @@ const styles = StyleSheet.create({
     height: 26,
   },
   feedbackRpeText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: C.onPrimary,
+    fontFamily: FONTS.textBold,
     fontSize: 12,
   },
   feedbackWorkout: {
     fontSize: 13,
-    fontWeight: '600',
-    color: '#1e293b',
+    fontFamily: FONTS.textStrong,
+    color: C.ink,
   },
   feedbackNote: {
     fontSize: 12,
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 1,
   },
   feedbackDate: {
     fontSize: 11,
-    color: '#94a3b8',
+    color: C.inkMuted,
   },
   // Solo
   soloSessionRow: {
@@ -943,17 +936,17 @@ const styles = StyleSheet.create({
   },
   soloSessionTitle: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#1e293b',
+    fontFamily: FONTS.displaySemi,
+    color: C.ink,
   },
   soloSessionDate: {
     fontSize: 12,
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 1,
   },
   soloEmptyText: {
     fontSize: 13,
-    color: '#64748b',
+    color: C.inkMuted,
     fontStyle: 'italic',
   },
   dateChipsRow: {
@@ -971,14 +964,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     paddingVertical: 14,
-    backgroundColor: 'rgba(255, 255, 255, 0.30)',
+    backgroundColor: C.surface,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.50)',
+    borderColor: 'transparent',
   },
   historyButtonText: {
-    color: '#64748b',
+    color: C.inkMuted,
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: FONTS.textStrong,
   },
 });

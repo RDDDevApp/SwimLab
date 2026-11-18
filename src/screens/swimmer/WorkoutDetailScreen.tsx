@@ -5,6 +5,7 @@ import GradientScreen from '../../components/GradientScreen';
 import { Workout } from '../../types';
 import { workoutService } from '../../services';
 import WorkoutContentView from '../../components/workout/WorkoutContentView';
+import { C, FONTS } from '../../config/tokens';
 
 interface Props {
   navigation: any;
@@ -85,13 +86,13 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     paddingHorizontal: 16,
   },
   chipRow: {
@@ -105,7 +106,7 @@ const styles = StyleSheet.create({
     height: 26,
   },
   distanceChip: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     height: 26,
   },
   content: {
@@ -118,6 +119,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingText: {
-    color: '#64748b',
+    color: C.inkMuted,
   },
 });

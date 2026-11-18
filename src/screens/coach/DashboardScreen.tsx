@@ -12,9 +12,9 @@ import ProgressRing from '../../components/ProgressRing';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import { useAuthStore } from '../../stores/authStore';
 import { useCoachDashboard, useRefreshOnFocus, useRpeAlerts } from '../../hooks';
-import { HERO_GRADIENTS } from '../../config/gradients';
 import { getRPEColor } from '../../config/theme';
 import { formatShortDate } from '../../utils/dateHelpers';
+import { C, FONTS } from '../../config/tokens';
 
 function timeAgo(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -39,7 +39,7 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
         <View style={styles.errorWrap}>
           <GlassCard elevated>
             <View style={styles.errorBody}>
-              <Ionicons name="cloud-offline-outline" size={28} color="#B91C1C" />
+              <Ionicons name="cloud-offline-outline" size={28} color={C.danger} />
               <Text style={styles.errorTitle}>Le tableau de bord n'a pas pu se charger</Text>
               <Text style={styles.errorText}>
                 Vérifie ta connexion puis réessaie. Si le problème continue, préviens l'équipe SwimLab.
@@ -76,7 +76,7 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
         <View style={styles.header}>
           <View style={{ flex: 1 }}>
             <View style={styles.brandPill}>
-              <Ionicons name="water-outline" size={14} color="#0891B2" />
+              <Ionicons name="water-outline" size={14} color={C.primary} />
               <Text style={styles.brandText}>SwimLab</Text>
             </View>
             <Text style={styles.greeting}>Bonjour, {profile?.first_name}</Text>
@@ -94,7 +94,6 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
         {/* Hero Card - Next Session */}
         {nextSession ? (
           <HeroCard
-            gradientColors={HERO_GRADIENTS.coach.colors}
             badge={{ icon: 'ellipse', text: 'Prochaine séance' }}
             title={nextSession.title}
             subtitle={`${formatShortDate(new Date(nextSession.date + 'T00:00:00'))} · ${nextSession.groupName}`}
@@ -111,7 +110,6 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
           />
         ) : (
           <HeroCard
-            gradientColors={HERO_GRADIENTS.coach.colors}
             badge={{ icon: 'calendar-outline', text: 'Planning' }}
             title="Aucune séance planifiée"
             subtitle="Planifie ta prochaine séance d'entraînement."
@@ -127,7 +125,7 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
         {rpeAlerts.length > 0 && (
           <GlassCard style={styles.alertCard}>
             <View style={styles.alertHeader}>
-              <Ionicons name="warning-outline" size={18} color="#B45309" />
+              <Ionicons name="warning-outline" size={18} color={C.warning} />
               <Text style={styles.alertTitle}>Charge inhabituelle détectée</Text>
             </View>
             {rpeAlerts.slice(0, 3).map((alert) => (
@@ -150,12 +148,12 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
             style={styles.pendingBanner}
             onPress={() => navigation.navigate('CoachTabs', { screen: 'Calendar' })}
           >
-            <Ionicons name="chatbubble-ellipses-outline" size={18} color="#92400E" />
+            <Ionicons name="chatbubble-ellipses-outline" size={18} color={C.warning} />
             <Text style={styles.pendingText}>
               {pendingFeedbackCount} feedback{pendingFeedbackCount > 1 ? 's' : ''} en attente
               ce mois-ci
             </Text>
-            <Ionicons name="chevron-forward-outline" size={16} color="#92400E" />
+            <Ionicons name="chevron-forward-outline" size={16} color={C.warning} />
           </Pressable>
         )}
 
@@ -165,7 +163,7 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
             title="Analyses"
             subtitle="Stats détaillées"
             icon="pulse-outline"
-            iconColor="#0891B2"
+            iconColor={C.primary}
             onPress={() => navigation.navigate('CoachStats')}
             delay={500}
           />
@@ -173,7 +171,7 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
             title="Mes groupes"
             subtitle={`${data.groupCount} groupe${data.groupCount > 1 ? 's' : ''}`}
             icon="people-outline"
-            iconColor="#6366F1"
+            iconColor={C.primary}
             onPress={() => navigation.navigate('CoachTabs', { screen: 'Groups' })}
             delay={600}
           />
@@ -181,7 +179,7 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
             title="Planning"
             subtitle="Mon calendrier"
             icon="calendar-outline"
-            iconColor="#EC4899"
+            iconColor={C.danger}
             onPress={() => navigation.navigate('CoachTabs', { screen: 'Calendar' })}
             delay={700}
           />
@@ -189,7 +187,7 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
             title="Bibliothèque"
             subtitle="Blocs réutilisables"
             icon="library-outline"
-            iconColor="#EAB308"
+            iconColor={C.warning}
             onPress={() => navigation.navigate('BlockLibrary')}
             delay={800}
           />
@@ -207,10 +205,10 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
                 <View
                   style={[
                     styles.activityIcon,
-                    { backgroundColor: 'rgba(8, 145, 178, 0.12)' },
+                    { backgroundColor: C.primarySoft },
                   ]}
                 >
-                  <Ionicons name="chatbubble-outline" size={18} color="#0891B2" />
+                  <Ionicons name="chatbubble-outline" size={18} color={C.primary} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.activityName} numberOfLines={1}>
@@ -250,14 +248,14 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
               {monthly.attendancePct !== null && (
                 <ProgressRing
                   progress={monthly.attendancePct}
-                  color="#059669"
+                  color={C.success}
                   caption="Assiduité"
                 />
               )}
               {monthly.distancePct !== null && (
                 <ProgressRing
                   progress={monthly.distancePct}
-                  color="#0891B2"
+                  color={C.primary}
                   caption={`${monthly.distanceSwumKm.toFixed(1)} / ${monthly.distancePlannedKm.toFixed(1)} km`}
                 />
               )}
@@ -302,13 +300,13 @@ const styles = StyleSheet.create({
   },
   errorTitle: {
     fontSize: 16,
-    fontWeight: '800',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     textAlign: 'center',
   },
   errorText: {
     fontSize: 13,
-    color: '#64748b',
+    color: C.inkMuted,
     textAlign: 'center',
     marginBottom: 4,
   },
@@ -331,29 +329,28 @@ const styles = StyleSheet.create({
   },
   brandText: {
     fontSize: 12,
-    fontWeight: '800',
-    color: '#0891B2',
-    textTransform: 'uppercase',
+    fontFamily: FONTS.textBold,
+    color: C.primary,
     letterSpacing: 0.5,
   },
   greeting: {
     fontSize: 28,
-    fontWeight: '800',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginBottom: 4,
   },
   subtitle: {
-    color: '#64748b',
+    color: C.inkMuted,
     fontSize: 14,
     lineHeight: 20,
   },
   avatar: {
-    backgroundColor: '#6366F1',
+    backgroundColor: C.primary,
   },
   // Alerte RPE
   alertCard: {
-    backgroundColor: 'rgba(254, 243, 199, 0.75)',
-    borderColor: 'rgba(217, 119, 6, 0.30)',
+    backgroundColor: C.warningSoft,
+    borderColor: C.warning,
   },
   alertHeader: {
     flexDirection: 'row',
@@ -363,8 +360,8 @@ const styles = StyleSheet.create({
   },
   alertTitle: {
     fontSize: 14,
-    fontWeight: '800',
-    color: '#92400E',
+    fontFamily: FONTS.display,
+    color: C.warning,
   },
   alertRow: {
     flexDirection: 'row',
@@ -374,21 +371,21 @@ const styles = StyleSheet.create({
   },
   alertName: {
     fontSize: 13,
-    fontWeight: '600',
-    color: '#1e293b',
+    fontFamily: FONTS.textStrong,
+    color: C.ink,
   },
   alertChip: {
-    backgroundColor: 'rgba(217, 119, 6, 0.15)',
+    backgroundColor: C.warningSoft,
     height: 26,
   },
   alertChipText: {
-    color: '#92400E',
+    color: C.warning,
     fontSize: 11,
-    fontWeight: '700',
+    fontFamily: FONTS.textBold,
   },
   alertHint: {
     fontSize: 11,
-    color: '#92400E',
+    color: C.warning,
     opacity: 0.8,
     marginTop: 4,
     lineHeight: 15,
@@ -398,17 +395,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(254, 243, 199, 0.85)',
-    borderLeftWidth: 4,
-    borderLeftColor: '#F59E0B',
+    backgroundColor: C.warningSoft,
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 12,
   },
   pendingText: {
     flex: 1,
-    color: '#92400E',
-    fontWeight: '700',
+    color: C.warning,
+    fontFamily: FONTS.textBold,
     fontSize: 13,
   },
   // Quick actions
@@ -433,24 +428,24 @@ const styles = StyleSheet.create({
   },
   activityName: {
     fontSize: 13,
-    fontWeight: '600',
-    color: '#1e293b',
+    fontFamily: FONTS.textStrong,
+    color: C.ink,
   },
   activityDetail: {
     fontSize: 12,
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 1,
   },
   activityTime: {
     fontSize: 10,
-    color: '#94a3b8',
+    color: C.inkMuted,
   },
   rpeChip: {
     height: 24,
   },
   rpeChipText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: C.onPrimary,
+    fontFamily: FONTS.textBold,
     fontSize: 11,
   },
   // Challenge rings
@@ -462,8 +457,8 @@ const styles = StyleSheet.create({
   // Club card
   clubTitle: {
     fontSize: 16,
-    fontWeight: '700',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginBottom: 4,
   },
   codeRow: {
@@ -473,17 +468,17 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   codeLabel: {
-    color: '#64748b',
+    color: C.inkMuted,
     fontSize: 13,
   },
   codeChip: {
-    backgroundColor: 'rgba(14, 116, 144, 0.10)',
+    backgroundColor: C.primarySoft,
   },
   codeChipCoach: {
-    backgroundColor: 'rgba(139, 92, 246, 0.10)',
+    backgroundColor: C.primarySoft,
   },
   clubDesc: {
-    color: '#64748b',
+    color: C.inkMuted,
     fontSize: 13,
     marginTop: 8,
   },

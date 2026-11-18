@@ -15,7 +15,7 @@ import PressableScale from '../../components/PressableScale';
 import SectionHeader from '../../components/SectionHeader';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import CollapsibleHeader, { useCollapsibleHeader } from '../../components/CollapsibleHeader';
-import { WORKOUT_TYPE_COLORS } from '../../config/tokens';
+import { WORKOUT_TYPE_COLORS, C, FONTS } from '../../config/tokens';
 
 /**
  * Galerie dev-only du Design System 2.0.
@@ -70,8 +70,8 @@ export default function UIKitScreen({ navigation }: { navigation: any }) {
         <SectionHeader title="ProgressRing" />
         <View style={styles.row}>
           <ProgressRing progress={85} caption="Distance" />
-          <ProgressRing progress={62} color="#D97706" caption="Assiduité" />
-          <ProgressRing progress={100} color="#059669" caption="Terminé" size={72} />
+          <ProgressRing progress={62} color={C.warning} caption="Assiduité" />
+          <ProgressRing progress={100} color={C.success} caption="Terminé" size={72} />
         </View>
 
         <SectionHeader title="XPBar" />
@@ -95,7 +95,7 @@ export default function UIKitScreen({ navigation }: { navigation: any }) {
         </View>
 
         <SectionHeader title="AnimatedCountdown" />
-        <GlassCard style={{ backgroundColor: 'rgba(8, 145, 178, 0.85)' }}>
+        <GlassCard style={{ backgroundColor: C.primarySoft }}>
           <View style={styles.row}>
             <AnimatedCountdown target={in2h} />
             <AnimatedCountdown target={in3days} />
@@ -152,8 +152,8 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   cardText: {
-    color: '#1e293b',
-    fontWeight: '600',
+    color: C.ink,
+    fontFamily: FONTS.textStrong,
   },
   typePill: {
     flexDirection: 'row',
@@ -170,13 +170,13 @@ const styles = StyleSheet.create({
   },
   typeLabel: {
     fontSize: 12,
-    fontWeight: '700',
+    fontFamily: FONTS.textBold,
   },
   skeletonBox: {
     height: 420,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.5)',
+    borderColor: 'transparent',
     overflow: 'hidden',
   },
 });

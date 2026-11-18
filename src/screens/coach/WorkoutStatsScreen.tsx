@@ -4,6 +4,7 @@ import { Text, Card, Chip, Button, ProgressBar } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
 import { useAssignmentSessions, useRefreshOnFocus } from '../../hooks';
 import { getRPEColor, RPE_LABELS } from '../../config/theme';
+import { C, FONTS } from '../../config/tokens';
 
 interface Props {
   navigation: any;
@@ -75,7 +76,7 @@ export default function WorkoutStatsScreen({ navigation, route }: Props) {
                 </View>
                 <ProgressBar
                   progress={attendanceRate / 100}
-                  color="#10B981"
+                  color={C.success}
                   style={styles.progressBar}
                 />
 
@@ -215,17 +216,17 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     paddingHorizontal: 16,
   },
   subtitle: {
-    color: '#64748b',
+    color: C.inkMuted,
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
@@ -234,12 +235,12 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   statsCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginBottom: 16,
   },
   sectionTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginBottom: 12,
   },
   statRow: {
@@ -249,17 +250,17 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   statLabel: {
-    color: '#64748b',
+    color: C.inkMuted,
   },
   statValue: {
-    color: '#1e293b',
-    fontWeight: '600',
+    color: C.ink,
+    fontFamily: FONTS.textStrong,
   },
   progressBar: {
     height: 6,
     borderRadius: 3,
     marginTop: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.50)',
+    backgroundColor: C.surface,
   },
   minMaxRow: {
     flexDirection: 'row',
@@ -267,28 +268,28 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   minMax: {
-    color: '#64748b',
+    color: C.inkMuted,
   },
   rpeChip: {
     height: 26,
   },
   rpeChipText: {
-    color: '#1e293b',
-    fontWeight: 'bold',
+    color: C.ink,
+    fontFamily: FONTS.textBold,
     fontSize: 12,
   },
   waitingText: {
-    color: '#F59E0B',
+    color: C.warning,
     fontStyle: 'italic',
     marginTop: 8,
   },
   listTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginBottom: 8,
   },
   feedbackCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginBottom: 8,
   },
   feedbackHeader: {
@@ -297,32 +298,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   swimmerName: {
-    color: '#1e293b',
-    fontWeight: '600',
+    color: C.ink,
+    fontFamily: FONTS.textStrong,
   },
   feedbackBadges: {
     flexDirection: 'row',
     gap: 6,
   },
   alertChip: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: C.warningSoft,
     height: 26,
   },
   alertText: {
-    color: '#92400E',
+    color: C.warning,
     fontSize: 11,
   },
   rpeLabel: {
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 2,
   },
   commentText: {
-    color: '#0891b2',
+    color: C.primary,
     marginTop: 8,
     fontStyle: 'italic',
   },
   pendingCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginBottom: 6,
   },
   pendingRow: {
@@ -331,21 +332,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   pendingName: {
-    color: '#64748b',
+    color: C.inkMuted,
   },
   pendingChip: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: C.warningSoft,
     height: 26,
   },
   absentCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginBottom: 6,
   },
   absentName: {
-    color: '#64748b',
+    color: C.inkMuted,
   },
   absentChip: {
-    backgroundColor: '#FEE2E2',
+    backgroundColor: C.dangerSoft,
     height: 26,
   },
 });

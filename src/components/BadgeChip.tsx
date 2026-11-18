@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
-import { BADGE_TIERS, BadgeTier, TEXT_COLORS } from '../config/tokens';
+import { BADGE_TIERS, BadgeTier, TEXT_COLORS, C, FONTS } from '../config/tokens';
 
 interface Props {
   name: string;
@@ -18,17 +18,17 @@ export default function BadgeChip({ name, tier, icon = 'trophy', locked }: Props
 
   return (
     <View style={[styles.container, locked && styles.locked]}>
-      <View style={[styles.iconCircle, { backgroundColor: locked ? 'rgba(148,163,184,0.15)' : tierConfig.bg }]}>
+      <View style={[styles.iconCircle, { backgroundColor: locked ? C.surfaceSunken : tierConfig.bg }]}>
         <Ionicons
           name={locked ? 'lock-closed' : icon}
           size={20}
-          color={locked ? '#94a3b8' : tierConfig.color}
+          color={locked ? C.inkMuted : tierConfig.color}
         />
       </View>
       <Text style={[styles.name, locked && styles.lockedText]} numberOfLines={2}>
         {name}
       </Text>
-      <Text style={[styles.tier, { color: locked ? '#94a3b8' : tierConfig.color }]}>
+      <Text style={[styles.tier, { color: locked ? C.inkMuted : tierConfig.color }]}>
         {tierConfig.label}
       </Text>
     </View>
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: FONTS.textStrong,
     color: TEXT_COLORS.primary,
     textAlign: 'center',
   },
@@ -62,8 +62,7 @@ const styles = StyleSheet.create({
   },
   tier: {
     fontSize: 10,
-    fontWeight: '800',
-    textTransform: 'uppercase',
+    fontFamily: FONTS.textBold,
     letterSpacing: 0.5,
   },
 });

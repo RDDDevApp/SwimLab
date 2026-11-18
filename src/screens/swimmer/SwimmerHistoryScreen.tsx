@@ -6,7 +6,8 @@ import { useAuthStore } from '../../stores/authStore';
 import { useSwimmerHistory, useRefreshOnFocus } from '../../hooks';
 import EmptyState from '../../components/EmptyState';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
-
+import { C, FONTS } from '../../config/tokens';
+import { getRPEColor, getRPETextColor } from '../../config/theme';
 function formatDate(dateStr: string): string {
   if (!dateStr) return '';
   const d = new Date(dateStr + 'T00:00:00');
@@ -18,9 +19,7 @@ function formatDate(dateStr: string): string {
 }
 
 function getRpeColor(rpe: number): { bg: string; text: string } {
-  if (rpe <= 12) return { bg: '#D1FAE5', text: '#065F46' };
-  if (rpe <= 15) return { bg: '#FEF3C7', text: '#92400E' };
-  return { bg: '#FEE2E2', text: '#991B1B' };
+  return { bg: getRPEColor(rpe), text: getRPETextColor(rpe) };
 }
 
 interface Props {
@@ -177,26 +176,26 @@ const styles = StyleSheet.create({
   header: {
     padding: 8,
     paddingBottom: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     paddingHorizontal: 16,
   },
   countChip: {
     alignSelf: 'flex-start',
     marginLeft: 16,
     marginTop: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
   },
   list: {
     padding: 16,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginBottom: 10,
   },
   absentCard: {
@@ -209,28 +208,28 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   date: {
-    color: '#64748b',
-    fontWeight: '600',
+    color: C.inkMuted,
+    fontFamily: FONTS.textStrong,
   },
   presentBadge: {
-    backgroundColor: '#D1FAE5',
+    backgroundColor: C.successSoft,
     height: 26,
   },
   presentText: {
-    color: '#065F46',
+    color: C.success,
     fontSize: 11,
   },
   absentBadge: {
-    backgroundColor: '#FEE2E2',
+    backgroundColor: C.dangerSoft,
     height: 26,
   },
   absentText: {
-    color: '#991B1B',
+    color: C.danger,
     fontSize: 11,
   },
   workoutTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginBottom: 6,
   },
   chipRow: {
@@ -240,13 +239,13 @@ const styles = StyleSheet.create({
   },
   chip: {
     height: 26,
-    backgroundColor: 'rgba(255, 255, 255, 0.50)',
+    backgroundColor: C.surface,
   },
   rpeChip: {
     height: 26,
   },
   feedback: {
-    color: '#64748b',
+    color: C.inkMuted,
     fontStyle: 'italic',
     marginTop: 8,
   },

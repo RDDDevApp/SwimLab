@@ -4,6 +4,7 @@ import { Text, Card, Button, Avatar, List, Switch, IconButton, Portal, Dialog } 
 import GradientScreen from '../../components/GradientScreen';
 import DemoAccountSwitcher from '../../components/DemoAccountSwitcher';
 import DeleteAccountSection from '../../components/DeleteAccountSection';
+import BirthDateCard from '../../components/BirthDateCard';
 import BadgeChip from '../../components/BadgeChip';
 import XPBar from '../../components/XPBar';
 import StreakFlame from '../../components/StreakFlame';
@@ -15,6 +16,7 @@ import { computeEarnedBadges } from '../../services/gamificationService';
 import { BADGE_CATALOG } from '../../config/badges';
 import { XP_RULES } from '../../config/gamification';
 import { Club } from '../../types';
+import { C, FONTS } from '../../config/tokens';
 
 export default function SwimmerProfileScreen({ navigation }: { navigation: any }) {
   const { profile, user, clubId, signOut } = useAuthStore();
@@ -78,29 +80,32 @@ export default function SwimmerProfileScreen({ navigation }: { navigation: any }
               title="Email"
               description={user?.email}
               left={(props) => <List.Icon {...props} icon="email" />}
-              titleStyle={{ color: '#1e293b' }}
-              descriptionStyle={{ color: '#64748b' }}
+              titleStyle={{ color: C.ink }}
+              descriptionStyle={{ color: C.inkMuted }}
             />
             <List.Item
               title="Membre depuis"
               description={new Date(profile?.created_at || '').toLocaleDateString('fr-FR')}
               left={(props) => <List.Icon {...props} icon="calendar" />}
-              titleStyle={{ color: '#1e293b' }}
-              descriptionStyle={{ color: '#64748b' }}
+              titleStyle={{ color: C.ink }}
+              descriptionStyle={{ color: C.inkMuted }}
             />
           </Card.Content>
         </Card>
 
+        {/* Comptes créés avant la migration 023 : date de naissance à compléter */}
+        {user?.id ? <BirthDateCard userId={user.id} email={user.email} /> : null}
+
         {club ? (
           <Card style={styles.card}>
             <Card.Content>
-              <Text variant="titleMedium" style={{ color: '#1e293b' }}>Mon club</Text>
+              <Text variant="titleMedium" style={{ color: C.ink }}>Mon club</Text>
               <List.Item
                 title={club.name}
                 description={club.description || undefined}
                 left={(props) => <List.Icon {...props} icon="shield-outline" />}
-                titleStyle={{ color: '#1e293b' }}
-                descriptionStyle={{ color: '#64748b' }}
+                titleStyle={{ color: C.ink }}
+                descriptionStyle={{ color: C.inkMuted }}
               />
             </Card.Content>
           </Card>
@@ -128,13 +133,13 @@ export default function SwimmerProfileScreen({ navigation }: { navigation: any }
         {groupNames.length > 0 && (
           <Card style={styles.card}>
             <Card.Content>
-              <Text variant="titleMedium" style={{ color: '#1e293b' }}>Mes groupes</Text>
+              <Text variant="titleMedium" style={{ color: C.ink }}>Mes groupes</Text>
               {groupNames.map((name) => (
                 <List.Item
                   key={name}
                   title={name}
                   left={(props) => <List.Icon {...props} icon="account-group" />}
-                  titleStyle={{ color: '#1e293b' }}
+                  titleStyle={{ color: C.ink }}
                 />
               ))}
             </Card.Content>
@@ -146,7 +151,7 @@ export default function SwimmerProfileScreen({ navigation }: { navigation: any }
           <Card style={styles.card}>
             <Card.Content>
               <View style={styles.badgesHeader}>
-                <Text variant="titleMedium" style={{ color: '#1e293b' }}>
+                <Text variant="titleMedium" style={{ color: C.ink }}>
                   Ma progression
                 </Text>
                 <IconButton
@@ -187,13 +192,13 @@ export default function SwimmerProfileScreen({ navigation }: { navigation: any }
 
         <Card style={styles.card}>
           <Card.Content>
-            <Text variant="titleMedium" style={{ color: '#1e293b' }}>Notifications</Text>
+            <Text variant="titleMedium" style={{ color: C.ink }}>Notifications</Text>
             <List.Item
               title="Rappels d'entraînement"
               description="1 h avant chaque séance"
               left={(props) => <List.Icon {...props} icon="bell-outline" />}
-              titleStyle={{ color: '#1e293b' }}
-              descriptionStyle={{ color: '#64748b' }}
+              titleStyle={{ color: C.ink }}
+              descriptionStyle={{ color: C.inkMuted }}
               right={() => (
                 <Switch
                   value={profile?.notification_reminder ?? true}
@@ -211,8 +216,8 @@ export default function SwimmerProfileScreen({ navigation }: { navigation: any }
               title="Demandes de feedback"
               description="Après chaque émargement"
               left={(props) => <List.Icon {...props} icon="comment-outline" />}
-              titleStyle={{ color: '#1e293b' }}
-              descriptionStyle={{ color: '#64748b' }}
+              titleStyle={{ color: C.ink }}
+              descriptionStyle={{ color: C.inkMuted }}
               right={() => (
                 <Switch
                   value={profile?.notification_feedback ?? true}
@@ -235,10 +240,18 @@ export default function SwimmerProfileScreen({ navigation }: { navigation: any }
           mode="outlined"
           onPress={signOut}
           style={styles.logoutButton}
-          textColor="#EF4444"
+          textColor={C.danger}
           icon="logout"
         >
           Se déconnecter
+        </Button>
+
+        <Button
+          mode="text"
+          icon="shield-account-outline"
+          onPress={() => navigation.navigate('Legal')}
+        >
+          Conditions et données personnelles
         </Button>
 
         <DeleteAccountSection />
@@ -281,34 +294,32 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
   },
   avatar: {
-    backgroundColor: '#ec4899',
+    backgroundColor: C.rose,
   },
   name: {
     marginTop: 16,
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.textBold,
+    color: C.ink,
   },
   role: {
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 4,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginBottom: 16,
   },
   joinCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginBottom: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: '#06B6D4',
   },
   joinTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginBottom: 4,
   },
   joinSubtitle: {
-    color: '#64748b',
+    color: C.inkMuted,
     marginBottom: 12,
   },
   joinBtn: {
@@ -316,7 +327,7 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     marginTop: 16,
-    borderColor: '#EF4444',
+    borderColor: C.danger,
   },
   // Gamification
   badgesHeader: {
@@ -331,7 +342,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   badgesTitle: {
-    color: '#1e293b',
+    color: C.ink,
     marginTop: 16,
     marginBottom: 12,
   },
@@ -342,12 +353,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   xpInfoLine: {
-    color: '#1e293b',
+    color: C.ink,
     fontSize: 14,
     marginBottom: 6,
   },
   xpInfoHint: {
-    color: '#64748b',
+    color: C.inkMuted,
     fontSize: 12,
     marginTop: 8,
     lineHeight: 17,

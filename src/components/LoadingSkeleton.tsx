@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
+import { C } from '../config/tokens';
 
 type Variant = 'default' | 'dashboard' | 'calendarWeek' | 'list';
 
@@ -74,7 +75,7 @@ export default function LoadingSkeleton({ variant = 'default' }: Props) {
   );
 }
 
-const SKELETON_BG = 'rgba(255, 255, 255, 0.50)';
+const SKELETON_BG = C.onAbysse;
 
 const styles = StyleSheet.create({
   container: {

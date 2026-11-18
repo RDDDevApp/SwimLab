@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TextInput, IconButton, Text } from 'react-native-paper';
 import { SubBlock } from '../../types';
+import { C, FONTS } from '../../config/tokens';
 
 interface SubBlockEditorProps {
   subBlock: SubBlock;
@@ -25,7 +26,7 @@ export default function SubBlockEditor({
         <IconButton
           icon="close"
           size={16}
-          iconColor="#DC2626"
+          iconColor={C.danger}
           onPress={onRemove}
           style={styles.removeBtn}
         />
@@ -81,12 +82,12 @@ export default function SubBlockEditor({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'rgba(255, 255, 255, 0.35)',
+    backgroundColor: C.surface,
     borderRadius: 8,
     padding: 10,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.50)',
+    borderColor: 'transparent',
   },
   topRow: {
     flexDirection: 'row',
@@ -95,8 +96,8 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   totalLabel: {
-    color: '#0891B2',
-    fontWeight: 'bold',
+    color: C.primary,
+    fontFamily: FONTS.textBold,
     fontSize: 13,
   },
   removeBtn: {
@@ -110,14 +111,14 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.60)',
+    backgroundColor: C.surface,
   },
   flex1: {
     flex: 1,
   },
   multiply: {
-    color: '#64748b',
-    fontWeight: 'bold',
+    color: C.inkMuted,
+    fontFamily: FONTS.textBold,
     fontSize: 16,
   },
   repInput: {
@@ -127,6 +128,6 @@ const styles = StyleSheet.create({
     width: 80,
   },
   descInput: {
-    backgroundColor: 'rgba(255, 255, 255, 0.60)',
+    backgroundColor: C.surface,
   },
 });

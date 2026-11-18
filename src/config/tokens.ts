@@ -1,93 +1,160 @@
-import { Platform } from 'react-native';
+import { Platform, TextStyle } from 'react-native';
 
 /**
- * Design tokens SwimLab — Design System 2.0
+ * Design tokens SwimLab — DA « La vague » (novembre 2026).
  *
- * Source unique pour l'espacement, les rayons, les surfaces glass et les
- * couleurs semantiques des types de seance. Utilises par les composants du
- * kit (GlassCard, SegmentedToggle, ProgressRing...) et les ecrans refondus.
+ * Source : l'artefact « SwimLab Design System »
+ * (https://claude.ai/artifact/6BwZAeMxRjq5g3SfvU2s1F, project/tokens.json).
+ * Règles d'usage : son README (fonds calmes, couleur vive là où il se passe
+ * quelque chose, vagues pleines sans dégradé, tout ce qui se touche en galet).
+ *
+ * Aucune couleur en dur dans les écrans : toujours passer par `C.<nom>`.
+ * Le thème « Nuit » (PALETTE.dark) est prêt mais pas encore branché.
  */
 
+const light = {
+  bg: '#f1f7fc',
+  surface: '#ffffff',
+  surfaceSunken: '#e1edf7',
+  line: '#c9dbea',
+  lineStrong: '#5f7da3',
+  ink: '#06184a',
+  inkMuted: '#465a82',
+  primary: '#044fb3',
+  onPrimary: '#ffffff',
+  primarySoft: '#dcebfb',
+  onPrimarySoft: '#033f91',
+  link: '#044fb3',
+  focus: '#b3186a',
+  success: '#04645c',
+  successSoft: '#d3f5ee',
+  warning: '#8a4b00',
+  warningSoft: '#fdf0c4',
+  danger: '#b3134f',
+  dangerSoft: '#fde0ea',
+  /** Voile derrière une feuille ou une fenêtre (abysse à 50 %). */
+  scrim: 'rgba(1, 35, 110, 0.5)',
+};
+
+const dark: typeof light = {
+  bg: '#030d33',
+  surface: '#0a1f5c',
+  surfaceSunken: '#010720',
+  line: '#1c3580',
+  lineStrong: '#6f8fd0',
+  ink: '#f0f7ff',
+  inkMuted: '#a9bfe6',
+  primary: '#3fd0e6',
+  onPrimary: '#030d33',
+  primarySoft: '#12307f',
+  onPrimarySoft: '#d3ecff',
+  link: '#6fdcf0',
+  focus: '#fddc3c',
+  success: '#4ce9b7',
+  successSoft: '#063f4f',
+  warning: '#fddc3c',
+  warningSoft: '#4a3a06',
+  danger: '#ff8fb4',
+  dangerSoft: '#541334',
+  scrim: 'rgba(0, 0, 0, 0.6)',
+};
+
+/** Couleurs de marque : identiques dans les deux thèmes. */
+const brand = {
+  abysse: '#01236e',
+  onAbysse: '#ffffff',
+  ocean: '#044fb3',
+  lagon: '#01b2c0',
+  turquoise: '#04d9c7',
+  soleil: '#fddc3c',
+  mangue: '#f5a31f',
+  rose: '#ee3d80',
+  /** Texte et icônes sur lagon, turquoise, soleil, mangue, rose : jamais du blanc. */
+  onVif: '#06184a',
+  focusOnAbysse: '#fddc3c',
+  // Effort ressenti : de l'eau claire (facile) à la prune sombre (maximal)
+  rpe1: '#b9f1e6',
+  rpe2: '#5fdccd',
+  rpe3: '#16b6c6',
+  rpe4: '#ec7f22',
+  rpe5: '#d12c6e',
+  rpe6: '#a81b68',
+  rpe7: '#5c0f4a',
+} as const;
+
+export const PALETTE = {
+  light: { ...light, ...brand },
+  dark: { ...dark, ...brand },
+};
+
+/** Couleurs du thème courant (clair). */
+export const C = PALETTE.light;
+export type ColorName = keyof typeof C;
+
+// ─── Typographie ────────────────────────────────────────────────────────────
+// Sora pour les titres et les grands chiffres, Figtree pour tout le reste.
+// Une famille par graisse (chargées dans App.tsx) : pas de fontWeight avec elles,
+// sinon Android et le web inventent un faux gras.
+
+export const FONTS = {
+  displaySemi: 'Sora_600SemiBold',
+  display: 'Sora_700Bold',
+  text: 'Figtree_400Regular',
+  textMedium: 'Figtree_500Medium',
+  textStrong: 'Figtree_600SemiBold',
+  textBold: 'Figtree_700Bold',
+} as const;
+
+export const TYPE = {
+  display: { fontFamily: FONTS.display, fontSize: 40, lineHeight: 44, letterSpacing: -0.8 },
+  title1: { fontFamily: FONTS.display, fontSize: 28, lineHeight: 34, letterSpacing: -0.28 },
+  title2: { fontFamily: FONTS.displaySemi, fontSize: 20, lineHeight: 26 },
+  title3: { fontFamily: FONTS.displaySemi, fontSize: 16, lineHeight: 22 },
+  body: { fontFamily: FONTS.text, fontSize: 16, lineHeight: 24 },
+  bodyStrong: { fontFamily: FONTS.textStrong, fontSize: 16, lineHeight: 24 },
+  caption: { fontFamily: FONTS.text, fontSize: 14, lineHeight: 20 },
+  label: { fontFamily: FONTS.textStrong, fontSize: 12, lineHeight: 16, letterSpacing: 0.48 },
+} satisfies Record<string, TextStyle>;
+
+/** Chiffres alignés (chronos, tableaux) : ils ne bougent pas quand ils changent. */
+export const TABULAR: TextStyle = { fontVariant: ['tabular-nums'] };
+
+// ─── Espace, formes, ombres ─────────────────────────────────────────────────
+
 export const SPACING = {
-  xs: 4,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 24,
-  xxl: 32,
+  xs: 4, // space-1 : entre une icône et son texte
+  sm: 8, // space-2 : entre deux pastilles
+  md: 12, // space-3 : entre deux lignes d'une carte
+  lg: 16, // space-4 : marge des écrans et des cartes
+  xl: 24, // space-6 : entre deux cartes, intérieur des cartes vedettes
+  xxl: 32, // space-8 : entre deux grandes parties
 } as const;
 
 export const RADIUS = {
-  sm: 12,
-  md: 16,
-  lg: 20,
-  xl: 24,
+  sm: 12, // champs, vignettes
+  md: 20, // cartes
+  lg: 28, // cartes vedettes, feuilles
+  xl: 28,
+  pill: 999, // tout ce qui se touche
 } as const;
 
-/** Presets de surfaces glassmorphism (sur fond gradient blue-50) */
-export const GLASS = {
-  card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
-    borderColor: 'rgba(255, 255, 255, 0.60)',
-  },
-  elevated: {
-    backgroundColor: 'rgba(255, 255, 255, 0.50)',
-    borderColor: 'rgba(255, 255, 255, 0.60)',
-  },
-  subtle: {
-    backgroundColor: 'rgba(255, 255, 255, 0.30)',
-    borderColor: 'rgba(255, 255, 255, 0.50)',
-  },
-  input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.60)',
-  },
-} as const;
-
-/** Couleurs semantiques par type de bloc/seance (alignees prototype Figma V1) */
-export const WORKOUT_TYPE_COLORS: Record<
-  string,
-  { color: string; bg: string; label: string }
-> = {
-  endurance: { color: '#0891B2', bg: 'rgba(8, 145, 178, 0.12)', label: 'Endurance' },
-  sprint: { color: '#D97706', bg: 'rgba(217, 119, 6, 0.12)', label: 'Sprint' },
-  technique: { color: '#7C3AED', bg: 'rgba(124, 58, 237, 0.12)', label: 'Technique' },
-  recovery: { color: '#059669', bg: 'rgba(5, 150, 105, 0.12)', label: 'Récupération' },
-  // Types de blocs (editeur de seances)
-  warmup: { color: '#059669', bg: 'rgba(5, 150, 105, 0.12)', label: 'Échauffement' },
-  main: { color: '#0891B2', bg: 'rgba(8, 145, 178, 0.12)', label: 'Corps de séance' },
-  cooldown: { color: '#7C3AED', bg: 'rgba(124, 58, 237, 0.12)', label: 'Récupération' },
-  other: { color: '#64748B', bg: 'rgba(100, 116, 139, 0.12)', label: 'Autre' },
-} as const;
-
-/** Tiers de badges gamification (Phase 5) */
-export const BADGE_TIERS = {
-  bronze: { color: '#B45309', bg: 'rgba(180, 83, 9, 0.15)', label: 'Bronze' },
-  silver: { color: '#64748B', bg: 'rgba(100, 116, 139, 0.15)', label: 'Argent' },
-  gold: { color: '#CA8A04', bg: 'rgba(202, 138, 4, 0.15)', label: 'Or' },
-  diamond: { color: '#0891B2', bg: 'rgba(8, 145, 178, 0.15)', label: 'Diamant' },
-} as const;
-
-export type BadgeTier = keyof typeof BADGE_TIERS;
-
-/** Textes neutres */
-export const TEXT_COLORS = {
-  primary: '#1e293b',
-  secondary: '#64748b',
-  muted: '#94a3b8',
-} as const;
+/** Hauteur minimale de tout ce qui se touche (on utilise l'app les mains mouillées). */
+export const TOUCH_MIN = 48;
 
 /**
  * Ombre cross-platform : `boxShadow` sur web (les props shadow* y sont
- * depreciees par react-native-web), shadow* + elevation sur natif.
+ * dépréciées par react-native-web), shadow* + elevation sur natif.
+ * Teinte par défaut : abysse.
  */
 export function shadow(
   opacity: number,
   radius: number,
   offsetY = 4,
   elevation = 3,
-  color = '30, 41, 59', // slate-800 en RGB
+  color = '1, 35, 110',
 ) {
-  if (Platform.OS === 'web') {
+  // Platform peut manquer quand les tests simulent react-native
+  if (Platform?.OS === 'web') {
     return {
       boxShadow: `0px ${offsetY}px ${radius}px rgba(${color}, ${opacity})`,
     } as const;
@@ -100,3 +167,54 @@ export function shadow(
     elevation,
   } as const;
 }
+
+/** Ombres de la DA : une carte se détache par son ombre, pas par une bordure. */
+export const SHADOW = {
+  card: shadow(0.1, 20, 6, 3),
+  float: shadow(0.22, 32, 12, 8),
+} as const;
+
+/** Surface de carte standard (remplace l'ancien effet de verre). */
+export const CARD = {
+  backgroundColor: C.surface,
+  borderRadius: RADIUS.md,
+  ...SHADOW.card,
+} as const;
+
+// ─── Couleurs métier ────────────────────────────────────────────────────────
+
+/**
+ * Pastilles de type de séance ou de bloc : `bg` est la couleur de la pastille,
+ * `color` celle du libellé et de l'icône posés dessus. Toujours avec le nom.
+ */
+export const WORKOUT_TYPE_COLORS: Record<
+  string,
+  { color: string; bg: string; label: string }
+> = {
+  endurance: { color: C.onVif, bg: C.lagon, label: 'Endurance' },
+  sprint: { color: C.onVif, bg: C.mangue, label: 'Sprint' },
+  technique: { color: C.onVif, bg: C.rose, label: 'Technique' },
+  recovery: { color: C.onVif, bg: C.turquoise, label: 'Récupération' },
+  // Types de blocs (éditeur de séances)
+  warmup: { color: C.onVif, bg: C.turquoise, label: 'Échauffement' },
+  main: { color: C.onVif, bg: C.lagon, label: 'Corps de séance' },
+  cooldown: { color: C.onVif, bg: C.turquoise, label: 'Récupération' },
+  other: { color: C.onPrimarySoft, bg: C.primarySoft, label: 'Autre' },
+} as const;
+
+/** Paliers de badges : `color` pour le texte et l'icône, `bg` pour le fond. */
+export const BADGE_TIERS = {
+  bronze: { color: C.warning, bg: C.warningSoft, label: 'Bronze' },
+  silver: { color: C.inkMuted, bg: C.surfaceSunken, label: 'Argent' },
+  gold: { color: C.onVif, bg: C.soleil, label: 'Or' },
+  diamond: { color: C.onVif, bg: C.lagon, label: 'Diamant' },
+} as const;
+
+export type BadgeTier = keyof typeof BADGE_TIERS;
+
+/** Textes neutres (ancien nom, gardé pour les écrans existants). */
+export const TEXT_COLORS = {
+  primary: C.ink,
+  secondary: C.inkMuted,
+  muted: C.inkMuted,
+} as const;
