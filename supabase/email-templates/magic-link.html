@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ton lien de connexion</title>
+</head>
+<body style="margin:0;padding:0;background:#f1f7fc;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f1f7fc;">
+  <tr><td align="center" style="padding:24px 16px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:20px;overflow:hidden;">
+      <tr><td style="background:#01236e;padding:24px 24px 0 24px;">
+        <p style="margin:0;font-family:'Sora',Arial,Helvetica,sans-serif;font-size:24px;line-height:30px;font-weight:700;color:#ffffff;">SwimLab</p>
+        <p style="margin:4px 0 0 0;font-family:'Figtree',Arial,Helvetica,sans-serif;font-size:14px;line-height:20px;color:#ffffff;">Chaque longueur compte.</p>
+      </td></tr>
+      <!-- Vagues pleines (bandes de couleur unie, sans dégradé) -->
+      <tr><td style="background:#01236e;padding:16px 0 0 0;line-height:0;font-size:0;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+          <td style="height:8px;background:#044fb3;width:40%;"></td>
+          <td style="height:8px;background:#01b2c0;width:25%;"></td>
+          <td style="height:8px;background:#fddc3c;width:20%;"></td>
+          <td style="height:8px;background:#ee3d80;width:15%;"></td>
+        </tr></table>
+      </td></tr>
+      <tr><td style="padding:24px;font-family:'Figtree',Arial,Helvetica,sans-serif;color:#06184a;">
+        <h1 style="margin:0 0 12px 0;font-family:'Sora',Arial,Helvetica,sans-serif;font-size:22px;line-height:28px;font-weight:700;color:#06184a;">Connexion à SwimLab</h1>
+        <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;color:#06184a;">Voici ton lien pour te connecter, valable une heure.</p>
+        <table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px 0 0 0;"><tr>
+          <td style="background:#044fb3;border-radius:999px;">
+            <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:14px 28px;font-family:'Figtree',Arial,Helvetica,sans-serif;font-size:16px;line-height:20px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:999px;">Me connecter</a>
+          </td></tr></table>
+        <p style="margin:24px 0 0 0;font-size:14px;line-height:20px;color:#465a82;">Tu n'as rien demandé ? Ignore cet email : personne ne peut se connecter sans ce lien.</p>
+        <p style="margin:16px 0 0 0;font-size:13px;line-height:18px;color:#465a82;">Le bouton ne marche pas ? Copie ce lien dans ton navigateur :<br><a href="{{ .ConfirmationURL }}" style="color:#044fb3;word-break:break-all;">{{ .ConfirmationURL }}</a></p>
+      </td></tr>
+    </table>
+    <p style="margin:16px 0 0 0;font-family:'Figtree',Arial,Helvetica,sans-serif;font-size:12px;line-height:16px;color:#465a82;">Tu reçois cet email parce que ton adresse a été utilisée sur SwimLab.</p>
+  </td></tr>
+</table>
+</body>
+</html>
