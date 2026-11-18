@@ -7,6 +7,7 @@ import { groupService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
 import PickerSelect from '../../components/PickerSelect';
+import { C, FONTS } from '../../config/tokens';
 
 interface Props {
   navigation: any;
@@ -120,13 +121,13 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
@@ -135,7 +136,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
   },
   saveButton: {
     marginTop: 16,

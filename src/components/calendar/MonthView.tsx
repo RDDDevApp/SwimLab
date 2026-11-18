@@ -3,6 +3,7 @@ import { View, StyleSheet, Pressable } from 'react-native';
 import { Text } from 'react-native-paper';
 import { TrainingSlot, WorkoutAssignment } from '../../types';
 import { isToday, toISODate, getDayOfWeek } from '../../utils/dateHelpers';
+import { C, FONTS } from '../../config/tokens';
 
 interface MonthViewProps {
   dates: Date[];
@@ -29,10 +30,10 @@ const getDotsForDay = (
     const assignment = assignments.find(
       (a) => a.training_slot_id === slot.id && a.scheduled_date === dateStr,
     );
-    if (!assignment) return 'rgba(100,116,139,0.20)';
-    if (!assignment.attendance_marked) return '#2563EB';
-    if (rpeMap?.[assignment.id] != null) return '#059669';
-    return '#EA580C';
+    if (!assignment) return C.inkMuted;
+    if (!assignment.attendance_marked) return C.primary;
+    if (rpeMap?.[assignment.id] != null) return C.success;
+    return C.warning;
   });
 };
 
@@ -108,8 +109,8 @@ export default function MonthView({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
-    borderColor: 'rgba(255, 255, 255, 0.60)',
+    backgroundColor: C.surface,
+    borderColor: 'transparent',
     borderWidth: 1,
     borderRadius: 20,
     margin: 12,
@@ -125,8 +126,8 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   headerText: {
-    color: '#64748b',
-    fontWeight: '600',
+    color: C.inkMuted,
+    fontFamily: FONTS.textStrong,
     fontSize: 12,
   },
   weekRow: {
@@ -140,19 +141,19 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   todayCell: {
-    backgroundColor: 'rgba(14, 116, 144, 0.10)',
+    backgroundColor: C.primarySoft,
   },
   dayNumber: {
-    fontWeight: '500',
-    color: '#1e293b',
+    fontFamily: FONTS.textMedium,
+    color: C.ink,
     fontSize: 14,
   },
   otherMonthDay: {
-    color: 'rgba(100,116,139,0.25)',
+    color: C.inkMuted,
   },
   todayNumber: {
-    color: '#0891B2',
-    fontWeight: 'bold',
+    color: C.primary,
+    fontFamily: FONTS.textBold,
   },
   dotsRow: {
     flexDirection: 'row',

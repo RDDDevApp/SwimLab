@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
+import { C, FONTS } from '../config/tokens';
 
 interface Props {
   /** Date/heure cible de la seance */
@@ -23,7 +24,7 @@ function formatRemaining(ms: number): string {
 }
 
 /** Compte a rebours vers la prochaine seance (J-x puis H:MM puis minutes). */
-export default function AnimatedCountdown({ target, color = '#fff' }: Props) {
+export default function AnimatedCountdown({ target, color = C.onPrimary }: Props) {
   const [remaining, setRemaining] = useState(() => target.getTime() - Date.now());
 
   useEffect(() => {
@@ -49,6 +50,6 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 13,
-    fontWeight: '800',
+    fontFamily: FONTS.textBold,
   },
 });

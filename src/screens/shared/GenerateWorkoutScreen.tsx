@@ -7,7 +7,7 @@ import AnimatedBackground from '../../components/AnimatedBackground';
 import GlassCard from '../../components/GlassCard';
 import SegmentedToggle from '../../components/SegmentedToggle';
 import { aiService, GenerateWorkoutParams } from '../../services/aiService';
-import { WORKOUT_TYPE_COLORS, TEXT_COLORS } from '../../config/tokens';
+import { WORKOUT_TYPE_COLORS, TEXT_COLORS, C, FONTS } from '../../config/tokens';
 
 const OBJECTIVES = [
   { key: 'endurance', icon: 'infinite-outline' },
@@ -68,7 +68,7 @@ export default function GenerateWorkoutScreen({ navigation }: { navigation: any 
           Retour
         </Button>
         <View style={styles.titleRow}>
-          <Ionicons name="sparkles" size={22} color="#7C3AED" />
+          <Ionicons name="sparkles" size={22} color={C.primary} />
           <Text variant="titleLarge" style={styles.title}>
             Générer une séance
           </Text>
@@ -78,7 +78,7 @@ export default function GenerateWorkoutScreen({ navigation }: { navigation: any 
       <ScrollView contentContainerStyle={styles.form}>
         {loading ? (
           <GlassCard elevated style={styles.loadingCard}>
-            <ActivityIndicator size="large" color="#7C3AED" />
+            <ActivityIndicator size="large" color={C.primary} />
             <Text style={styles.loadingTitle}>Le coach IA réfléchit…</Text>
             <Text style={styles.loadingHint}>
               Structure, volumes et intervalles adaptés à ton niveau : quelques secondes.
@@ -96,16 +96,18 @@ export default function GenerateWorkoutScreen({ navigation }: { navigation: any 
                     key={o.key}
                     style={[
                       styles.objectiveChip,
-                      { backgroundColor: active ? cfg.color : cfg.bg },
+                      active
+                        ? { backgroundColor: cfg.bg, borderColor: cfg.bg }
+                        : { backgroundColor: C.surface, borderColor: C.lineStrong },
                     ]}
                     onPress={() => setObjective(o.key)}
                   >
                     <Ionicons
                       name={o.icon as any}
                       size={16}
-                      color={active ? '#fff' : cfg.color}
+                      color={active ? cfg.color : C.ink}
                     />
-                    <Text style={[styles.objectiveText, { color: active ? '#fff' : cfg.color }]}>
+                    <Text style={[styles.objectiveText, { color: active ? cfg.color : C.ink }]}>
                       {cfg.label}
                     </Text>
                   </Pressable>
@@ -172,7 +174,7 @@ export default function GenerateWorkoutScreen({ navigation }: { navigation: any 
               icon="creation"
               onPress={handleGenerate}
               style={styles.generateBtn}
-              buttonColor="#7C3AED"
+              buttonColor={C.primary}
               contentStyle={{ paddingVertical: 6 }}
             >
               Générer ma séance
@@ -190,9 +192,9 @@ export default function GenerateWorkoutScreen({ navigation }: { navigation: any 
 const styles = StyleSheet.create({
   header: {
     padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   titleRow: {
     flexDirection: 'row',
@@ -202,8 +204,8 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
   },
   form: {
     padding: 16,
@@ -212,7 +214,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: FONTS.textBold,
     color: TEXT_COLORS.primary,
     marginTop: 16,
     marginBottom: 8,
@@ -226,36 +228,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 9,
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    minHeight: 44,
   },
   objectiveText: {
     fontSize: 13,
-    fontWeight: '700',
+    fontFamily: FONTS.textBold,
   },
   pill: {
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 9,
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    backgroundColor: C.surface,
     borderWidth: 1,
-    borderColor: 'rgba(148, 163, 184, 0.35)',
+    borderColor: C.line,
   },
   pillActive: {
-    backgroundColor: '#0891B2',
-    borderColor: '#0891B2',
+    backgroundColor: C.primary,
+    borderColor: C.primary,
   },
   pillText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: FONTS.textStrong,
     color: TEXT_COLORS.secondary,
   },
   pillTextActive: {
-    color: '#fff',
+    color: C.onPrimary,
   },
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.60)',
+    backgroundColor: C.surface,
   },
   generateBtn: {
     marginTop: 24,
@@ -275,7 +278,7 @@ const styles = StyleSheet.create({
   },
   loadingTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: FONTS.display,
     color: TEXT_COLORS.primary,
   },
   loadingHint: {

@@ -25,17 +25,11 @@ import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
 import EmptyState from '../../components/EmptyState';
 import PickerSelect from '../../components/PickerSelect';
+import { C, FONTS, WORKOUT_TYPE_COLORS } from '../../config/tokens';
 
 interface Props {
   navigation: any;
 }
-
-const BLOCK_COLORS: Record<string, string> = {
-  warmup: '#10B981',
-  main: '#0891B2',
-  cooldown: '#8B5CF6',
-  other: '#64748b',
-};
 
 const BLOCK_TYPES = [
   { value: 'warmup', label: 'Échauffement' },
@@ -85,19 +79,19 @@ export default function BlockLibraryScreen({ navigation }: Props) {
   };
 
   const renderBlock = ({ item }: { item: BlockLibraryRow }) => {
-    const color = BLOCK_COLORS[item.type] || BLOCK_COLORS.other;
+    const typeColors = WORKOUT_TYPE_COLORS[item.type] ?? WORKOUT_TYPE_COLORS.other;
     const subBlocks: SubBlock[] = item.content || [];
 
     return (
-      <Card style={[styles.card, { borderLeftColor: color }]}>
+      <Card style={styles.card}>
         <Card.Content>
           <View style={styles.cardHeader}>
             <View style={styles.cardLeft}>
               <Chip
                 compact
-                style={[styles.typeChip, { backgroundColor: color + '20' }]}
+                style={[styles.typeChip, { backgroundColor: typeColors.bg }]}
               >
-                <Text style={{ color, fontWeight: '600', fontSize: 11 }}>
+                <Text style={{ color: typeColors.color, fontFamily: FONTS.textStrong, fontSize: 12 }}>
                   {BLOCK_TYPE_LABELS[item.type as keyof typeof BLOCK_TYPE_LABELS] || item.type}
                 </Text>
               </Chip>
@@ -112,7 +106,7 @@ export default function BlockLibraryScreen({ navigation }: Props) {
               <IconButton
                 icon="delete"
                 size={20}
-                iconColor="#EF4444"
+                iconColor={C.danger}
                 onPress={() => setDeleteTarget(item)}
               />
             </View>
@@ -179,7 +173,7 @@ export default function BlockLibraryScreen({ navigation }: Props) {
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setDeleteTarget(null)}>Annuler</Button>
-            <Button onPress={handleDelete} textColor="#EF4444">
+            <Button onPress={handleDelete} textColor={C.danger}>
               Supprimer
             </Button>
           </Dialog.Actions>
@@ -197,17 +191,17 @@ const styles = StyleSheet.create({
   header: {
     padding: 16,
     paddingTop: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     paddingHorizontal: 8,
   },
   subtitle: {
-    color: '#64748b',
+    color: C.inkMuted,
     paddingHorizontal: 8,
     marginTop: 4,
   },
@@ -215,9 +209,8 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginBottom: 10,
-    borderLeftWidth: 4,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -229,8 +222,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   cardTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
   },
   cardActions: {
     flexDirection: 'row',
@@ -241,17 +234,17 @@ const styles = StyleSheet.create({
     height: 26,
   },
   distanceChip: {
-    backgroundColor: 'rgba(14, 116, 144, 0.10)',
+    backgroundColor: C.primarySoft,
     height: 26,
   },
   subBlockList: {
     marginTop: 8,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.50)',
+    borderTopColor: 'transparent',
   },
   subBlockText: {
-    color: '#0891b2',
+    color: C.primary,
     marginBottom: 2,
   },
 });

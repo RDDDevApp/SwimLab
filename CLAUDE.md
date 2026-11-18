@@ -59,6 +59,23 @@ Supabase. Vue d'ensemble, stack et commandes : [README.md](./README.md).
 - Majuscule au premier mot seulement dans les titres (« Mes groupes », « RPE moyen »).
 - Messages d'erreur : une phrase simple qui dit quoi faire (« Réessaie dans quelques minutes. »).
 
+## Direction artistique « La vague » (novembre 2026)
+
+- Référence : l'artefact « SwimLab Design System »
+  (https://claude.ai/artifact/6BwZAeMxRjq5g3SfvU2s1F), son README et `tokens.json`.
+  Dans le code : `src/config/tokens.ts` (`C`, `TYPE`, `FONTS`, `SPACING`, `RADIUS`,
+  `SHADOW`) et `src/config/theme.ts` (thème Paper, couleurs RPE).
+- **Aucune couleur en dur** : toujours `C.<nom>`. Pas de dégradé, pas de verre ni de
+  flou, pas de carte à liseré gauche, pas d'emoji, pas de texte tout en capitales.
+- Fonds calmes (`C.bg`, cartes `C.surface` + `SHADOW.card`) ; couleur vive seulement
+  là où il se passe quelque chose. Texte sur couleur vive : `C.onVif`, jamais blanc.
+- Une seule carte vedette `C.abysse` par écran (`HeroCard`, vagues `Waves` en bas,
+  jamais sous le texte). Tout ce qui se touche est un galet (`RADIUS.pill`), 48 px min.
+- Polices : Sora (titres, grands chiffres) et Figtree (texte), une famille par
+  graisse (`FONTS.*`), jamais `fontWeight` avec elles.
+- Pastilles de type : `WORKOUT_TYPE_COLORS` ; RPE : `getRPEColor` + `getRPETextColor`.
+- Thème « Nuit » prêt dans `PALETTE.dark`, pas encore branché (prochaine étape DA).
+
 ## Pièges déjà rencontrés
 
 - **Les tests Jest simulent Supabase** : ils ne voient ni les règles de sécurité (RLS)
@@ -113,10 +130,12 @@ nouveau coach) : tous en `@example.com`. Remise à zéro : `supabase/seed/demo_s
    4. Build natif de test (EAS, APK Android) pour les notifications.
    5. Jour J : `EXPO_PUBLIC_DEMO_MODE` à `false` et suppression de la démo
       (gardée d'ici là pour tester).
-2. Migrer les 14 écrans encore en chargement manuel vers TanStack Query ; générer
+2. DA « La vague » : thème clair appliqué ; reste le thème « Nuit » (suivre le réglage
+   du téléphone, vérifier chaque écran deux fois).
+3. Migrer les 14 écrans encore en chargement manuel vers TanStack Query ; générer
    les types depuis la base (`supabase gen types`) pour supprimer les `any`.
-3. Tests des services récents (absences, solo, IA, notifications, bibliothèque) et
+4. Tests des services récents (absences, solo, IA, notifications, bibliothèque) et
    des parcours émargement / feedback.
-4. Décision en attente : dépôt public sous licence MIT (code réutilisable par tous).
+5. Décision en attente : dépôt public sous licence MIT (code réutilisable par tous).
 
 Audit complet du 11 octobre 2026 : https://claude.ai/artifact/6QEgXoxWRsq4TCYEqm4C2p
