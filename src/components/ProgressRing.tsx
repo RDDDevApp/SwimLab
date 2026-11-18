@@ -8,7 +8,7 @@ import Animated, {
   withTiming,
   Easing,
 } from 'react-native-reanimated';
-import { TEXT_COLORS } from '../config/tokens';
+import { C, FONTS, TABULAR, TYPE } from '../config/tokens';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -29,15 +29,17 @@ interface Props {
 export default function ProgressRing({
   progress,
   size = 84,
-  strokeWidth = 8,
-  color = '#0891B2',
-  trackColor = 'rgba(148, 163, 184, 0.20)',
+  strokeWidth = 12,
+  color,
+  trackColor = C.surfaceSunken,
   label,
   caption,
 }: Props) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const clamped = Math.max(0, Math.min(100, progress));
+  // Objectif atteint : l'anneau passe en soleil
+  const strokeColor = color ?? (clamped >= 100 ? C.soleil : C.lagon);
 
   const animated = useSharedValue(0);
 
@@ -68,7 +70,7 @@ export default function ProgressRing({
             cx={size / 2}
             cy={size / 2}
             r={radius}
-            stroke={color}
+            stroke={strokeColor}
             strokeWidth={strokeWidth}
             fill="none"
             strokeLinecap="round"
@@ -99,13 +101,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   label: {
-    fontWeight: '800',
-    color: TEXT_COLORS.primary,
+    fontFamily: FONTS.display,
+    color: C.ink,
+    ...TABULAR,
   },
   caption: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: TEXT_COLORS.secondary,
+    ...TYPE.label,
+    color: C.inkMuted,
     textAlign: 'center',
   },
 });

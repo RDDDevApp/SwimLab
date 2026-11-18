@@ -20,13 +20,13 @@ donne son ressenti (RPE) et suit sa progression.
 Pour tous : mot de passe oublié, suppression de compte, connexion rapide aux comptes
 démo (`EXPO_PUBLIC_DEMO_MODE`).
 
-Pas encore en service : la génération par IA et les notifications push (Edge
-Functions à déployer, voir « Déploiement »).
+La génération par IA est en service (10 séances par jour et par compte). Les
+notifications push attendent le build mobile (lot 4 du pilote).
 
 ## Stack
 
 - **App** : Expo SDK 54, React Native 0.81, React 19, TypeScript 5.9 (iOS, Android, web)
-- **UI** : React Native Paper, design system maison (`src/config/tokens.ts`, `src/components/`)
+- **UI** : React Native Paper, DA « La vague » (`src/config/tokens.ts`, `src/components/`), polices Sora et Figtree
 - **Données** : TanStack Query (cache serveur), Zustand (session, snackbar)
 - **Navigation** : React Navigation 7
 - **Backend** : Supabase (Postgres + RLS, Auth, Edge Functions)
@@ -128,8 +128,11 @@ git push -u origin feature/feedback-parents
   `https://rdddevapp.github.io/SwimLab/` (liens de confirmation et de mot de passe oublié).
   Les emails passent par le service gratuit de Supabase (quelques envois par heure) :
   prévoir un vrai service d'envoi (SMTP) avant le pilote.
-- **Edge Functions** : `supabase functions deploy generate-workout` et `send-push`
-  (secret `ANTHROPIC_API_KEY` à définir dans Supabase pour l'IA).
+- **Edge Functions** (déployées) : `generate-workout` (secret `ANTHROPIC_API_KEY`) et
+  `send-push` (secret `CRON_SECRET`, même valeur que le secret Vault `cron_secret` lu
+  par les tâches planifiées de la migration 022). Réglages `verify_jwt` dans
+  `supabase/config.toml`. Redéploiement : `supabase functions deploy <nom>`, ou
+  l'éditeur de code du tableau de bord Supabase.
 
 ## Skills Claude Code
 

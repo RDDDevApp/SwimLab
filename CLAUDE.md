@@ -39,6 +39,14 @@ Supabase. Vue d'ensemble, stack et commandes : [README.md](./README.md).
 - Appliquer : avec le connecteur Supabase s'il répond (il se déconnecte souvent),
   sinon envoyer le fichier SQL à Raudi pour le SQL Editor (bouton « Run » **sans
   sélection** : « Run selected » n'exécute que le texte sélectionné).
+- Le connecteur attend une confirmation humaine pour les instructions destructrices
+  (`DELETE`, `DROP`, y compris `DROP POLICY IF EXISTS`) et finit en délai dépassé
+  sans rien appliquer. Passer ces fichiers par le SQL Editor de Raudi, ou exécuter
+  les autres instructions une par une et vérifier ensuite l'état réel.
+- Le déploiement d'Edge Functions par le connecteur a été en panne (« internal
+  error ») du 12 au 22 octobre 2026, puis est revenu. En cas de panne : réessayer
+  plus tard, ou éditeur de code du tableau de bord (Edge Functions → la fonction →
+  Code → Deploy updates). Le connecteur ne sait pas supprimer une fonction.
 - Après application, vérifier contre la vraie API REST avec un compte démo
   (`/auth/v1/token?grant_type=password` puis `/rest/v1/...`).
 - Mettre à jour `docs/migrations/README.md` (tableau d'état) à chaque migration.
@@ -50,6 +58,26 @@ Supabase. Vue d'ensemble, stack et commandes : [README.md](./README.md).
 - **Accents obligatoires**, majuscules accentuées comprises (« Échauffement », « À venir »).
 - Majuscule au premier mot seulement dans les titres (« Mes groupes », « RPE moyen »).
 - Messages d'erreur : une phrase simple qui dit quoi faire (« Réessaie dans quelques minutes. »).
+
+## Direction artistique « La vague » (novembre 2026)
+
+- Référence : l'artefact « SwimLab Design System »
+  (https://claude.ai/artifact/6BwZAeMxRjq5g3SfvU2s1F), son README et `tokens.json`.
+  Dans le code : `src/config/tokens.ts` (`C`, `TYPE`, `FONTS`, `SPACING`, `RADIUS`,
+  `SHADOW`) et `src/config/theme.ts` (thème Paper, couleurs RPE).
+- **Aucune couleur en dur** : toujours `C.<nom>`. Pas de dégradé, pas de verre ni de
+  flou, pas de carte à liseré gauche, pas d'emoji, pas de texte tout en capitales.
+- Fonds calmes (`C.bg`, cartes `C.surface` + `SHADOW.card`) ; couleur vive seulement
+  là où il se passe quelque chose. Texte sur couleur vive : `C.onVif`, jamais blanc.
+- Une seule carte vedette `C.abysse` par écran (`HeroCard`, vagues `Waves` en bas,
+  jamais sous le texte). Tout ce qui se touche est un galet (`RADIUS.pill`), 48 px min.
+- Polices : Sora (titres, grands chiffres) et Figtree (texte), une famille par
+  graisse (`FONTS.*`), jamais `fontWeight` avec elles.
+- Pastilles de type : `WORKOUT_TYPE_COLORS` ; RPE : `getRPEColor` + `getRPETextColor`.
+- Thème « Clair » ou « Nuit » choisi au lancement selon le réglage du téléphone
+  (`IS_DARK` dans tokens.ts) ; vérifier chaque nouvel écran dans les deux
+  (Playwright : `colorScheme: 'dark'`). Un changement de réglage s'applique au
+  prochain lancement.
 
 ## Pièges déjà rencontrés
 
@@ -93,19 +121,25 @@ nouveau coach) : tous en `@example.com`. Remise à zéro : `supabase/seed/demo_s
 ## Chantiers ouverts (par priorité)
 
 1. Avant le pilote, en lots (une pull request par lot) :
-   1. Notifications et IA sécurisées (`send-push`, `generate-workout`, migrations
-      021-022), puis déploiement avec les secrets `ANTHROPIC_API_KEY` et `CRON_SECRET`.
+   1. Notifications et IA sécurisées : **en service** (fonctions déployées,
+      `generate-workout` en version 3 le 22 octobre 2026, migrations 021-022
+      appliquées, essais réels OK). Reste à Raudi : secret `CRON_SECRET` + secret
+      Vault `cron_secret` (même valeur) ; supprimer la fonction de diagnostic
+      `generate-workout-test` (tableau de bord).
    2. Emails via **Brevo** (SMTP dans Supabase, modèles d'emails en français).
-   3. Nageurs mineurs : date de naissance à l'inscription ; sous 15 ans, case
-      « un parent est d'accord » + email du parent informé ; page « Conditions et
-      données personnelles ».
+   3. Nageurs mineurs : **fait** (migration 023 appliquée : table privée
+      `member_consents`, déclencheur à l'inscription, tâche horaire `notify-parent`).
+      Reste : texte de `LegalScreen` validé par Raudi et `LEGAL_CONTACT_EMAIL` rempli ;
+      déployer `notify-parent` et ses secrets Brevo au lot 2.
    4. Build natif de test (EAS, APK Android) pour les notifications.
    5. Jour J : `EXPO_PUBLIC_DEMO_MODE` à `false` et suppression de la démo
       (gardée d'ici là pour tester).
-2. Migrer les 14 écrans encore en chargement manuel vers TanStack Query ; générer
+2. DA « La vague » : thèmes Clair et Nuit appliqués. Reste éventuellement : icônes
+   Material Community Icons (la DA les cite, l'app utilise Ionicons).
+3. Migrer les 14 écrans encore en chargement manuel vers TanStack Query ; générer
    les types depuis la base (`supabase gen types`) pour supprimer les `any`.
-3. Tests des services récents (absences, solo, IA, notifications, bibliothèque) et
+4. Tests des services récents (absences, solo, IA, notifications, bibliothèque) et
    des parcours émargement / feedback.
-4. Décision en attente : dépôt public sous licence MIT (code réutilisable par tous).
+5. Décision en attente : dépôt public sous licence MIT (code réutilisable par tous).
 
 Audit complet du 11 octobre 2026 : https://claude.ai/artifact/6QEgXoxWRsq4TCYEqm4C2p

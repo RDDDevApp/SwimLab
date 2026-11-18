@@ -1,94 +1,56 @@
 import React from 'react';
-import { View, StyleSheet, Pressable, Platform } from 'react-native';
+import { View, StyleSheet, Pressable } from 'react-native';
 import { Text } from 'react-native-paper';
-import { getRPEColor, RPE_LABELS } from '../config/theme';
+import { getRPEColor, getRPETextColor, RPE_LABELS } from '../config/theme';
+import { C, FONTS, RADIUS, SPACING, TABULAR, TYPE } from '../config/tokens';
 
 interface RPESliderProps {
   value: number;
   onChange: (value: number) => void;
 }
 
-/** Glow colore dynamique, boxShadow sur web (shadow* deprecies par RN-web) */
-function glow(color: string, radius: number, elevation = 0) {
-  if (Platform.OS === 'web') {
-    return { boxShadow: `0px 0px ${radius}px ${color}66` } as const;
-  }
-  return {
-    shadowColor: color,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.4,
-    shadowRadius: radius,
-    ...(elevation ? { elevation } : {}),
-  } as const;
-}
-
+/**
+ * Échelle RPE de la DA : chaque valeur est un galet coloré par son palier, de
+ * l'eau claire (facile) à la prune sombre (maximal). Le chiffre est toujours
+ * écrit ; la valeur choisie est entourée d'un anneau `ink` et nommée en dessous.
+ */
 export default function RPESlider({ value, onChange }: RPESliderProps) {
-  const color = getRPEColor(value);
   const label = RPE_LABELS[value] || '';
-
   const rpeValues = Array.from({ length: 15 }, (_, i) => i + 6);
 
   return (
     <View style={styles.container}>
       <View style={styles.valueDisplay}>
-        <Text style={[styles.valueText, { color }]}>
-          {value}
-        </Text>
-        <Text style={[styles.label, { color }]}>
-          {label}
-        </Text>
-      </View>
-
-      <View style={styles.barTrack}>
-        <View
-          style={[
-            styles.barFill,
-            {
-              width: `${((value - 6) / 14) * 100}%`,
-              backgroundColor: color,
-            },
-            glow(color, 8),
-          ]}
-        />
+        <Text style={styles.valueText}>{value}</Text>
+        <Text style={styles.label}>{label}</Text>
       </View>
 
       <View style={styles.scaleRow}>
         {rpeValues.map((rpeVal) => {
           const isSelected = rpeVal === value;
-          const bgColor = getRPEColor(rpeVal);
-
           return (
             <Pressable
               key={rpeVal}
+              accessibilityRole="button"
+              accessibilityState={{ selected: isSelected }}
+              accessibilityLabel={`${rpeVal}, ${RPE_LABELS[rpeVal]}`}
               onPress={() => onChange(rpeVal)}
-              style={[
+              style={({ pressed }) => [
                 styles.scaleButton,
-                {
-                  backgroundColor: isSelected ? bgColor : 'rgba(255, 255, 255, 0.40)',
-                  borderColor: isSelected ? bgColor : 'rgba(0,0,0,0.08)',
-                },
-                isSelected && {
-                  ...glow(bgColor, 10, 5),
-                  transform: [{ scale: 1.15 }],
-                },
+                { backgroundColor: getRPEColor(rpeVal) },
+                isSelected && styles.selected,
+                pressed && styles.pressed,
               ]}
             >
-              <Text
-                style={[
-                  styles.scaleText,
-                  { color: isSelected ? '#FFFFFF' : '#64748b' },
-                ]}
-              >
-                {rpeVal}
-              </Text>
+              <Text style={[styles.scaleText, { color: getRPETextColor(rpeVal) }]}>{rpeVal}</Text>
             </Pressable>
           );
         })}
       </View>
 
       <View style={styles.legendRow}>
-        <Text style={styles.legendLeft}>Repos</Text>
-        <Text style={styles.legendRight}>Maximal</Text>
+        <Text style={styles.legend}>Repos</Text>
+        <Text style={styles.legend}>Maximal</Text>
       </View>
     </View>
   );
@@ -96,67 +58,58 @@ export default function RPESlider({ value, onChange }: RPESliderProps) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'rgba(255,255,255,0.45)',
-    borderColor: 'rgba(0,0,0,0.08)',
-    borderWidth: 1,
-    borderRadius: 20,
-    padding: 20,
+    backgroundColor: C.surface,
+    borderRadius: RADIUS.md,
+    padding: SPACING.lg,
   },
   valueDisplay: {
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: SPACING.lg,
   },
   valueText: {
-    fontWeight: '800',
+    ...TYPE.display,
     fontSize: 52,
+    lineHeight: 58,
+    color: C.ink,
+    ...TABULAR,
   },
   label: {
-    fontWeight: '700',
-    marginTop: 4,
-    fontSize: 16,
-  },
-  barTrack: {
-    height: 6,
-    backgroundColor: 'rgba(0,0,0,0.06)',
-    borderRadius: 3,
-    overflow: 'hidden',
-    marginBottom: 16,
-  },
-  barFill: {
-    height: '100%',
-    borderRadius: 3,
+    ...TYPE.bodyStrong,
+    color: C.ink,
+    marginTop: SPACING.xs,
   },
   scaleRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    gap: 8,
+    gap: SPACING.sm,
   },
   scaleButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    borderWidth: 1,
+    width: 44,
+    height: 44,
+    borderRadius: RADIUS.pill,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  selected: {
+    borderWidth: 3,
+    borderColor: C.ink,
+  },
+  pressed: {
+    transform: [{ scale: 0.97 }],
+  },
   scaleText: {
-    fontWeight: '700',
-    fontSize: 13,
+    fontFamily: FONTS.textBold,
+    fontSize: 15,
+    ...TABULAR,
   },
   legendRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 14,
+    marginTop: SPACING.md,
   },
-  legendLeft: {
-    color: '#059669',
-    fontWeight: '600',
-    fontSize: 13,
-  },
-  legendRight: {
-    color: '#DC2626',
-    fontWeight: '600',
-    fontSize: 13,
+  legend: {
+    ...TYPE.caption,
+    color: C.inkMuted,
   },
 });

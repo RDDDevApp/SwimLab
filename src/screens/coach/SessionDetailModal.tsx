@@ -18,16 +18,18 @@ import { useSnackbarStore } from '../../stores/snackbarStore';
 import { formatTime } from '../../utils/dateHelpers';
 import WorkoutContentView from '../../components/workout/WorkoutContentView';
 
+import { Ionicons } from '@expo/vector-icons';
+import { C, FONTS } from '../../config/tokens';
+import { getRPEColor, getRPETextColor } from '../../config/theme';
 interface Props {
   navigation: any;
   route: any;
 }
 
-const getRpeColor = (rpe: number) => {
-  if (rpe <= 12) return { bg: '#D1FAE5', text: '#065F46' };
-  if (rpe <= 15) return { bg: '#FEF3C7', text: '#92400E' };
-  return { bg: '#FEE2E2', text: '#991B1B' };
-};
+const getRpeColor = (rpe: number) => ({
+  bg: getRPEColor(rpe),
+  text: getRPETextColor(rpe),
+});
 
 export default function SessionDetailModal({ navigation, route }: Props) {
   const { slot, date, assignment: initialAssignment, workoutTitle: initialTitle } = route.params;
@@ -210,7 +212,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
               /* No assignment - show empty state with assign button */
               <View style={styles.emptySlotView}>
                 <View style={styles.emptySlotIcon}>
-                  <Text style={styles.emptySlotIconText}>📋</Text>
+                  <Ionicons name="clipboard-outline" size={28} color={C.onPrimarySoft} />
                 </View>
                 <Text variant="titleMedium" style={styles.emptySlotTitle}>
                   Aucune séance assignée
@@ -410,13 +412,13 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: C.scrim,
   },
   sheetWrapper: {
     justifyContent: 'flex-end',
   },
   sheet: {
-    backgroundColor: '#F0F7F4',
+    backgroundColor: C.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '92%',
@@ -425,7 +427,7 @@ const styles = StyleSheet.create({
   handleBar: {
     width: 40,
     height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.60)',
+    backgroundColor: C.surface,
     borderRadius: 2,
     alignSelf: 'center',
     marginTop: 12,
@@ -439,17 +441,17 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.50)',
+    borderBottomColor: 'transparent',
   },
   headerLeft: {
     flex: 1,
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
   },
   subtitle: {
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 2,
   },
   infoRow: {
@@ -459,7 +461,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   infoChip: {
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: C.surface,
   },
   closeBtn: {
     margin: -4,
@@ -470,8 +472,8 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   sectionTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginBottom: 12,
   },
   // Empty slot view
@@ -483,21 +485,18 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: C.primarySoft,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
   },
-  emptySlotIconText: {
-    fontSize: 28,
-  },
   emptySlotTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginBottom: 4,
   },
   emptySlotSubtitle: {
-    color: '#64748b',
+    color: C.inkMuted,
     textAlign: 'center',
     marginBottom: 20,
   },
@@ -513,17 +512,17 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   emptyText: {
-    color: '#64748b',
+    color: C.inkMuted,
   },
   workoutCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.60)',
+    borderColor: 'transparent',
   },
   selectedCard: {
     borderWidth: 2,
-    borderColor: '#0891B2',
+    borderColor: C.primary,
   },
   cardContent: {
     flexDirection: 'row',
@@ -534,8 +533,8 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   cardTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
   },
   cardMeta: {
     flexDirection: 'row',
@@ -545,15 +544,15 @@ const styles = StyleSheet.create({
   },
   typeChip: {
     height: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: C.surface,
   },
   distanceChip: {
     height: 24,
-    backgroundColor: 'rgba(14, 116, 144, 0.10)',
+    backgroundColor: C.primarySoft,
   },
   distance: {
-    color: '#0891B2',
-    fontWeight: '600',
+    color: C.primary,
+    fontFamily: FONTS.textStrong,
   },
   assignBtn: {
     marginTop: 12,
@@ -571,15 +570,15 @@ const styles = StyleSheet.create({
   },
   lockedBadge: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: C.surface,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: 8,
   },
   lockedText: {
-    color: '#64748b',
-    fontWeight: '600',
+    color: C.inkMuted,
+    fontFamily: FONTS.textStrong,
     fontSize: 13,
   },
   // Stats
@@ -590,18 +589,18 @@ const styles = StyleSheet.create({
   },
   statItem: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.35)',
+    backgroundColor: C.surface,
     borderRadius: 10,
     padding: 12,
     alignItems: 'center',
   },
   statLabel: {
-    color: '#64748b',
-    fontWeight: '500',
+    color: C.inkMuted,
+    fontFamily: FONTS.textMedium,
   },
   statValue: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.textBold,
+    color: C.ink,
     marginTop: 2,
   },
   // Workout recap
@@ -612,8 +611,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   recapTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginBottom: 6,
   },
   recapChips: {
