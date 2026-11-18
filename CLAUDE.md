@@ -100,8 +100,10 @@ nouveau coach) : tous en `@example.com`. Remise à zéro : `supabase/seed/demo_s
       « un parent est d'accord » + email du parent informé ; page « Conditions et
       données personnelles ».
    4. Build natif de test (EAS, APK Android) pour les notifications.
-   5. Jour J : `EXPO_PUBLIC_DEMO_MODE` à `false` et suppression de la démo
-      (gardée d'ici là pour tester).
+   5. Jour J : pull request en brouillon « Jour J : retrait de la démo »
+      (`EXPO_PUBLIC_DEMO_MODE` à `false`) et suppression des comptes démo
+      (`supabase/seed/demo_reset.sql`), pas à pas dans `docs/guides/JOUR_J.md`.
+      Démo gardée d'ici là pour tester.
 2. Migrer les 14 écrans encore en chargement manuel vers TanStack Query ; générer
    les types depuis la base (`supabase gen types`) pour supprimer les `any`.
 3. Tests des services récents (absences, solo, IA, notifications, bibliothèque) et
