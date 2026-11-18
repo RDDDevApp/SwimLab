@@ -1,9 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { View, StyleSheet, ScrollView, Dimensions, RefreshControl } from 'react-native';
 import { Text, Button, ActivityIndicator } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import GradientScreen from '../../components/GradientScreen';
-import { useFocusEffect } from '@react-navigation/native';
+import { queryKeys, useRefreshOnFocus } from '../../hooks';
+import { WorkoutAssignment } from '../../types';
 import { BarChart, LineChart } from 'react-native-chart-kit';
 import { useAuthStore } from '../../stores/authStore';
 import { C, FONTS, RADIUS, SHADOW, SPACING } from '../../config/tokens';
@@ -98,156 +100,153 @@ interface Props {
   navigation: any;
 }
 
+type Series = { labels: string[]; data: number[] };
+
+interface CoachStats {
+  swimmerCount: number;
+  workoutCount: number;
+  groupCount: number;
+  totalKm: number;
+  sessionCount: number;
+  avgRpe: number | null;
+  attendanceRate: number;
+  weeklyVolume: Series;
+  groupDistribution: Series;
+  rpeByWeek: Series;
+}
+
+const EMPTY_SERIES: Series = { labels: [], data: [] };
+
+/** Statistiques des 12 dernières semaines sur tous les groupes du coach. */
+async function fetchCoachStats(coachId: string): Promise<CoachStats> {
+  const [groups, workouts] = await Promise.all([
+    groupService.getByCoach(coachId),
+    workoutService.getByCoach(coachId),
+  ]);
+
+  // Nageurs et répartition par groupe (requêtes en parallèle)
+  const swimmerIds = new Set<string>();
+  const memberLists = await Promise.all(
+    groups.map((g) => groupService.getMembers(g.id).catch(() => null)),
+  );
+  const groupDist: { name: string; count: number }[] = [];
+  groups.forEach((group, i) => {
+    const members = memberLists[i];
+    if (!members) return;
+    members.forEach((m) => swimmerIds.add(m.id));
+    groupDist.push({ name: group.name, count: members.length });
+  });
+
+  // Créneaux de tous les groupes en une requête (anti N+1)
+  let allSlotIds: string[] = [];
+  if (groups.length > 0) {
+    try {
+      allSlotIds = (await trainingSlotService.getByGroups(groups.map((g) => g.id))).map((s) => s.id);
+    } catch {}
+  }
+
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - 84); // 12 semaines
+  const startStr = startDate.toISOString().split('T')[0];
+  const endStr = endDate.toISOString().split('T')[0];
+
+  let assignments: WorkoutAssignment[] = [];
+  if (allSlotIds.length > 0) {
+    try {
+      assignments = await workoutAssignmentService.getByDateRange(allSlotIds, startStr, endStr);
+    } catch {}
+  }
+
+  let totalSessions = 0;
+  let attendedSessions = 0;
+  let rpeSum = 0;
+  let rpeCount = 0;
+  let distanceTotal = 0;
+  const weeklyVolumeMap: Record<string, number> = {};
+  const weeklyRpeMap: Record<string, { sum: number; count: number }> = {};
+
+  // Bilans des séances en parallèle ; une séance en échec est ignorée
+  const allStats = await Promise.all(
+    assignments.map((a) => workoutSessionService.getFeedbackStats(a.id).catch(() => null)),
+  );
+  assignments.forEach((assignment, i) => {
+    const stats = allStats[i];
+    if (!stats) return;
+    totalSessions += stats.total_swimmers;
+    attendedSessions += stats.attended_count;
+    if (stats.average_rpe !== null) {
+      rpeSum += stats.average_rpe * stats.attended_count;
+      rpeCount += stats.attended_count;
+    }
+
+    // Volume par semaine : distance de la séance × nageurs présents
+    const weekStart = getWeekStart(assignment.scheduled_date);
+    const dist =
+      (workouts.find((w) => w.id === assignment.workout_id)?.total_distance || 0) *
+      stats.attended_count;
+    weeklyVolumeMap[weekStart] = (weeklyVolumeMap[weekStart] || 0) + dist;
+    distanceTotal += dist;
+
+    if (stats.average_rpe !== null) {
+      if (!weeklyRpeMap[weekStart]) weeklyRpeMap[weekStart] = { sum: 0, count: 0 };
+      weeklyRpeMap[weekStart].sum += stats.average_rpe;
+      weeklyRpeMap[weekStart].count += 1;
+    }
+  });
+
+  const sortedWeeks = Object.keys(weeklyVolumeMap).sort();
+  const sortedRpeWeeks = Object.keys(weeklyRpeMap).sort();
+
+  return {
+    swimmerCount: swimmerIds.size,
+    workoutCount: workouts.length,
+    groupCount: groups.length,
+    totalKm: Math.round(distanceTotal / 1000),
+    sessionCount: attendedSessions,
+    avgRpe: rpeCount > 0 ? Math.round((rpeSum / rpeCount) * 10) / 10 : null,
+    attendanceRate: totalSessions > 0 ? Math.round((attendedSessions / totalSessions) * 100) : 0,
+    weeklyVolume: {
+      labels: sortedWeeks.map(getWeekLabel),
+      data: sortedWeeks.map((k) => Math.round(weeklyVolumeMap[k] / 1000)),
+    },
+    groupDistribution: {
+      labels: groupDist.map((g) => (g.name.length > 8 ? g.name.substring(0, 8) + '.' : g.name)),
+      data: groupDist.map((g) => g.count),
+    },
+    rpeByWeek: {
+      labels: sortedRpeWeeks.map(getWeekLabel),
+      data: sortedRpeWeeks.map(
+        (k) => Math.round((weeklyRpeMap[k].sum / weeklyRpeMap[k].count) * 10) / 10,
+      ),
+    },
+  };
+}
+
 export default function CoachStatsScreen({ navigation }: Props) {
   const { user } = useAuthStore();
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-
-  // Stats data
-  const [swimmerCount, setSwimmerCount] = useState(0);
-  const [workoutCount, setWorkoutCount] = useState(0);
-  const [groupCount, setGroupCount] = useState(0);
-  const [totalKm, setTotalKm] = useState(0);
-  const [sessionCount, setSessionCount] = useState(0);
-  const [avgRpe, setAvgRpe] = useState<number | null>(null);
-  const [attendanceRate, setAttendanceRate] = useState(0);
-
-  // Chart data
-  const [weeklyVolume, setWeeklyVolume] = useState<{ labels: string[]; data: number[] }>({ labels: [], data: [] });
-  const [groupDistribution, setGroupDistribution] = useState<{ labels: string[]; data: number[] }>({ labels: [], data: [] });
-  const [rpeByWeek, setRpeByWeek] = useState<{ labels: string[]; data: number[] }>({ labels: [], data: [] });
-
-  const loadData = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
-    try {
-      const [groups, workouts] = await Promise.all([
-        groupService.getByCoach(user.id),
-        workoutService.getByCoach(user.id),
-      ]);
-
-      setGroupCount(groups.length);
-      setWorkoutCount(workouts.length);
-
-      // Collect swimmers and group distribution
-      const swimmerIds = new Set<string>();
-      const groupDist: { name: string; count: number }[] = [];
-      for (const group of groups) {
-        try {
-          const members = await groupService.getMembers(group.id);
-          members.forEach((m) => swimmerIds.add(m.id));
-          groupDist.push({ name: group.name, count: members.length });
-        } catch {}
-      }
-      setSwimmerCount(swimmerIds.size);
-      setGroupDistribution({
-        labels: groupDist.map((g) => g.name.length > 8 ? g.name.substring(0, 8) + '.' : g.name),
-        data: groupDist.map((g) => g.count),
-      });
-
-      // Get slots for assignments
-      const allSlotIds: string[] = [];
-      for (const group of groups) {
-        try {
-          const slots = await trainingSlotService.getByGroup(group.id);
-          slots.forEach((s) => allSlotIds.push(s.id));
-        } catch {}
-      }
-
-      // Get assignments for recent period (last 12 weeks)
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - 84); // 12 weeks
-      const startStr = startDate.toISOString().split('T')[0];
-      const endStr = endDate.toISOString().split('T')[0];
-
-      let assignments: any[] = [];
-      if (allSlotIds.length > 0) {
-        try {
-          assignments = await workoutAssignmentService.getByDateRange(
-            allSlotIds,
-            startStr,
-            endStr,
-          );
-        } catch {}
-      }
-
-      // Get feedback stats and compute metrics
-      let totalSessions = 0;
-      let attendedSessions = 0;
-      let rpeSum = 0;
-      let rpeCount = 0;
-      let distanceTotal = 0;
-
-      const weeklyVolumeMap: Record<string, number> = {};
-      const weeklyRpeMap: Record<string, { sum: number; count: number }> = {};
-
-      for (const assignment of assignments) {
-        try {
-          const stats = await workoutSessionService.getFeedbackStats(assignment.id);
-          totalSessions += stats.total_swimmers;
-          attendedSessions += stats.attended_count;
-          if (stats.average_rpe !== null) {
-            rpeSum += stats.average_rpe * stats.attended_count;
-            rpeCount += stats.attended_count;
-          }
-
-          // Weekly volume from workout distance
-          const weekStart = getWeekStart(assignment.scheduled_date);
-          const weekLabel = getWeekLabel(assignment.scheduled_date);
-          const dist = assignment.workout_id
-            ? (workouts.find((w) => w.id === assignment.workout_id)?.total_distance || 0) * stats.attended_count
-            : 0;
-          weeklyVolumeMap[weekStart] = (weeklyVolumeMap[weekStart] || 0) + dist;
-          distanceTotal += dist;
-
-          // Weekly RPE
-          if (stats.average_rpe !== null) {
-            if (!weeklyRpeMap[weekStart]) weeklyRpeMap[weekStart] = { sum: 0, count: 0 };
-            weeklyRpeMap[weekStart].sum += stats.average_rpe;
-            weeklyRpeMap[weekStart].count += 1;
-          }
-        } catch {}
-      }
-
-      setSessionCount(attendedSessions);
-      setTotalKm(Math.round(distanceTotal / 1000));
-      setAttendanceRate(totalSessions > 0 ? Math.round((attendedSessions / totalSessions) * 100) : 0);
-      setAvgRpe(rpeCount > 0 ? Math.round((rpeSum / rpeCount) * 10) / 10 : null);
-
-      // Build weekly volume chart data
-      const sortedWeeks = Object.keys(weeklyVolumeMap).sort();
-      setWeeklyVolume({
-        labels: sortedWeeks.map(getWeekLabel),
-        data: sortedWeeks.map((k) => Math.round(weeklyVolumeMap[k] / 1000)),
-      });
-
-      // Build RPE by week chart data
-      const sortedRpeWeeks = Object.keys(weeklyRpeMap).sort();
-      setRpeByWeek({
-        labels: sortedRpeWeeks.map(getWeekLabel),
-        data: sortedRpeWeeks.map((k) =>
-          Math.round((weeklyRpeMap[k].sum / weeklyRpeMap[k].count) * 10) / 10,
-        ),
-      });
-    } catch (err) {
-      console.error('Error loading coach stats:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await loadData();
-    setRefreshing(false);
-  }, [loadData]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadData();
-    }, [loadData]),
-  );
+  const { data, isLoading: loading, isRefetching, refetch } = useQuery({
+    queryKey: queryKeys.coachStats(user?.id ?? ''),
+    queryFn: () => fetchCoachStats(user!.id),
+    enabled: !!user,
+  });
+  useRefreshOnFocus(refetch);
+  const refreshing = isRefetching;
+  const onRefresh = () => {
+    refetch();
+  };
+  const {
+    swimmerCount = 0,
+    workoutCount = 0,
+    groupCount = 0,
+    totalKm = 0,
+    sessionCount = 0,
+    avgRpe = null,
+    attendanceRate = 0,
+    weeklyVolume = EMPTY_SERIES,
+    groupDistribution = EMPTY_SERIES,
+    rpeByWeek = EMPTY_SERIES,
+  } = data ?? {};
 
   const now = new Date();
   const currentMonth = now.toLocaleDateString('fr-FR', {

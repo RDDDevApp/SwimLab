@@ -1,4 +1,5 @@
-import React, { useState, useCallback } from 'react';
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { View, StyleSheet, FlatList } from 'react-native';
 import {
   Text,
@@ -7,7 +8,7 @@ import {
   Button,
 } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
-import { useFocusEffect } from '@react-navigation/native';
+import { queryKeys, useRefreshOnFocus } from '../../hooks';
 import {
   workoutAssignmentService,
   workoutService,
@@ -45,109 +46,71 @@ interface Props {
   navigation: any;
 }
 
-export default function WorkoutHistoryScreen({ navigation }: Props) {
-  const { user, clubId } = useAuthStore();
-  const [items, setItems] = useState<HistoryItem[]>([]);
-  const [loading, setLoading] = useState(true);
+/** Séances émargées des 90 derniers jours, sur tous les groupes du coach. */
+async function fetchCoachHistory(coachId: string): Promise<HistoryItem[]> {
+  const groups = await groupService.getByCoach(coachId);
+  if (!groups.length) return [];
+  const groupName = new Map(groups.map((g) => [g.id, g.name]));
 
-  const loadData = useCallback(async () => {
-    if (!user || !clubId) return;
-    setLoading(true);
-    try {
-      // Get all groups for this coach
-      const groups = await groupService.getByCoach(user.id);
-      if (!groups.length) {
-        setItems([]);
-        return;
-      }
+  // Créneaux de tous les groupes en une requête (anti N+1)
+  const allSlots = await trainingSlotService.getByGroups(groups.map((g) => g.id));
+  if (!allSlots.length) return [];
 
-      // Get all slots
-      const allSlots = [];
-      for (const group of groups) {
-        const slots = await trainingSlotService.getByGroup(group.id);
-        for (const slot of slots) {
-          allSlots.push({ ...slot, groupName: group.name });
-        }
-      }
-      if (!allSlots.length) {
-        setItems([]);
-        return;
-      }
+  const today = toISODate(new Date());
+  const ago90 = new Date();
+  ago90.setDate(ago90.getDate() - 90);
 
-      // Get past assignments (last 90 days)
-      const today = new Date();
-      const ago90 = new Date();
-      ago90.setDate(today.getDate() - 90);
-      const slotIds = allSlots.map((s) => s.id);
-
-      const assignments = await workoutAssignmentService.getByDateRange(
-        slotIds,
-        toISODate(ago90),
-        toISODate(today),
-      );
-
-      // Only keep past assignments with attendance marked
-      const pastAssignments = assignments.filter(
-        (a) =>
-          a.scheduled_date <= toISODate(today) && a.attendance_marked,
-      );
-
-      if (!pastAssignments.length) {
-        setItems([]);
-        return;
-      }
-
-      // Get workout details
-      const workoutIds = [
-        ...new Set(pastAssignments.map((a) => a.workout_id)),
-      ];
-      const workouts = new Map<string, any>();
-      for (const wId of workoutIds) {
-        try {
-          const w = await workoutService.getById(wId);
-          workouts.set(wId, w);
-        } catch {}
-      }
-
-      // Get feedback stats (batch RPE)
-      const assignmentIds = pastAssignments.map((a) => a.id);
-      const rpeMap =
-        await workoutSessionService.getAverageRpeByAssignments(assignmentIds);
-
-      // Build items
-      const result: HistoryItem[] = [];
-      for (const a of pastAssignments) {
-        const slot = allSlots.find((s) => s.id === a.training_slot_id);
-        const workout = workouts.get(a.workout_id);
-
-        result.push({
-          assignmentId: a.id,
-          scheduledDate: a.scheduled_date,
-          workoutTitle: workout?.title || 'Séance',
-          workoutType: workout?.type || 'other',
-          totalDistance: workout?.total_distance || null,
-          groupName: slot?.groupName || '',
-          attendedCount: 0, // will load if needed
-          totalSwimmers: 0,
-          averageRpe: rpeMap[a.id] ?? null,
-        });
-      }
-
-      // Sort by date descending
-      result.sort((a, b) => b.scheduledDate.localeCompare(a.scheduledDate));
-      setItems(result);
-    } catch (err) {
-      console.error('Error loading coach history:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [user, clubId]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadData();
-    }, [loadData]),
+  const assignments = await workoutAssignmentService.getByDateRange(
+    allSlots.map((s) => s.id),
+    toISODate(ago90),
+    today,
   );
+  const pastAssignments = assignments.filter((a) => a.scheduled_date <= today && a.attendance_marked);
+  if (!pastAssignments.length) return [];
+
+  // Séances en une requête ; un échec laisse le titre par défaut
+  let workouts = new Map<string, { title: string; type: string | null; total_distance: number | null }>();
+  try {
+    const list = await workoutService.getByIds([...new Set(pastAssignments.map((a) => a.workout_id))]);
+    workouts = new Map(list.map((w) => [w.id, w]));
+  } catch {}
+
+  const rpeMap = await workoutSessionService.getAverageRpeByAssignments(
+    pastAssignments.map((a) => a.id),
+  );
+
+  return pastAssignments
+    .map((a) => {
+      const slot = allSlots.find((s) => s.id === a.training_slot_id);
+      const workout = workouts.get(a.workout_id);
+      return {
+        assignmentId: a.id,
+        scheduledDate: a.scheduled_date,
+        workoutTitle: workout?.title || 'Séance',
+        workoutType: workout?.type || 'other',
+        totalDistance: workout?.total_distance || null,
+        groupName: (slot && groupName.get(slot.group_id)) || '',
+        attendedCount: 0,
+        totalSwimmers: 0,
+        averageRpe: rpeMap[a.id] ?? null,
+      };
+    })
+    .sort((x, y) => y.scheduledDate.localeCompare(x.scheduledDate));
+}
+
+export default function WorkoutHistoryScreen({ navigation }: Props) {
+  const { user } = useAuthStore();
+  const {
+    data: items = [],
+    isLoading: loading,
+    isFetching,
+    refetch: loadData,
+  } = useQuery({
+    queryKey: queryKeys.coachHistory(user?.id ?? ''),
+    queryFn: () => fetchCoachHistory(user!.id),
+    enabled: !!user,
+  });
+  useRefreshOnFocus(loadData);
 
   function getRpeColor(rpe: number): { bg: string; text: string } {
     return { bg: getRPEColor(rpe), text: getRPETextColor(rpe) };
@@ -180,7 +143,7 @@ export default function WorkoutHistoryScreen({ navigation }: Props) {
           data={items}
           keyExtractor={(item) => item.assignmentId}
           contentContainerStyle={styles.list}
-          refreshing={loading}
+          refreshing={isFetching}
           onRefresh={loadData}
           renderItem={({ item }) => (
             <Card

@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { View, StyleSheet, ScrollView, Pressable, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { Text, Button, TextInput, Chip, IconButton } from 'react-native-paper';
-import { Workout } from '../../types';
-import { workoutService, workoutSessionService } from '../../services';
+import { workoutSessionService } from '../../services';
+import { useWorkout } from '../../hooks';
 import { useSnackbarStore } from '../../stores/snackbarStore';
 import { formatTime } from '../../utils/dateHelpers';
 import WorkoutContentView from '../../components/workout/WorkoutContentView';
@@ -56,32 +57,15 @@ export default function SessionDetailModal({ navigation, route }: Props) {
 
   const showSnackbar = useSnackbarStore((s) => s.show);
 
-  const [workout, setWorkout] = useState<Workout | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  // Séance encore secrète : rien à charger
+  const { data: workout = null, isLoading } = useWorkout(revealed ? assignment.workout_id : undefined);
+  const loading = revealed && isLoading;
   const [session, setSession] = useState(initialSession);
   const [rpe, setRpe] = useState(13);
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
-
-  useEffect(() => {
-    loadWorkout();
-  }, []);
-
-  const loadWorkout = async () => {
-    if (!revealed) {
-      setLoading(false);
-      return;
-    }
-    try {
-      const data = await workoutService.getById(assignment.workout_id);
-      setWorkout(data);
-    } catch (err) {
-      console.error('Error loading workout:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDismiss = () => {
     navigation.goBack();
@@ -97,6 +81,8 @@ export default function SessionDetailModal({ navigation, route }: Props) {
       });
       setFeedbackSubmitted(true);
       setSession({ ...session, rpe_score: rpe, feedback_text: comment.trim(), completed_at: new Date().toISOString() });
+      // Calendrier, historique et statistiques du nageur à jour au prochain affichage
+      queryClient.invalidateQueries({ queryKey: ['swimmer'] });
       showSnackbar('Merci pour ton feedback !', 'success');
     } catch (err: any) {
       showSnackbar(err.message || 'Erreur lors de l\'envoi', 'error');

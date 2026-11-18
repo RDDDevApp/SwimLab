@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '../../hooks';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, Checkbox, Button, Card, Chip, HelperText, Modal, Portal, RadioButton } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
@@ -21,66 +23,72 @@ interface Props {
   route: any;
 }
 
+const EMPTY_PROFILES: Profile[] = [];
+const EMPTY_COACHES: (Profile & { is_creator: boolean })[] = [];
+const EMPTY_PRESENCE: Record<string, SessionPresence> = {};
+
+/** Nageurs et coachs du groupe, et présences annoncées pour la séance (migration 014). */
+async function fetchAttendanceData(groupId: string, assignmentId: string) {
+  const [members, coaches] = await Promise.all([
+    groupService.getMembers(groupId),
+    groupCoachService.getCoachProfiles(groupId),
+  ]);
+  let declared: SessionPresence[] = [];
+  try {
+    declared = await presenceService.getByAssignment(assignmentId);
+  } catch {}
+  const presenceMap: Record<string, SessionPresence> = {};
+  for (const p of declared) presenceMap[p.swimmer_id] = p;
+  return { members, coaches, presenceMap };
+}
+
 export default function AttendanceScreen({ navigation, route }: Props) {
   const { assignmentId, groupId, workoutTitle } = route.params;
   const { user, clubId } = useAuthStore();
   const showSnackbar = useSnackbarStore((s) => s.show);
+  const queryClient = useQueryClient();
 
-  const [swimmers, setSwimmers] = useState<Profile[]>([]);
   const [guestSwimmers, setGuestSwimmers] = useState<Profile[]>([]);
   const [attendedIds, setAttendedIds] = useState<Set<string>>(new Set());
-  const [presenceMap, setPresenceMap] = useState<Record<string, SessionPresence>>({});
-  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   // Multi-coach: coach selection
-  const [coaches, setCoaches] = useState<(Profile & { is_creator: boolean })[]>([]);
   const [selectedCoachId, setSelectedCoachId] = useState<string>('');
 
   // Guest swimmer modal
   const [showGuestModal, setShowGuestModal] = useState(false);
   const [availableGuests, setAvailableGuests] = useState<Profile[]>([]);
 
+  // Liste du groupe, coachs et présences annoncées : chargés une fois à l'ouverture.
+  // Pas de rechargement au retour sur l'écran : il effacerait les cases déjà cochées.
+  const { data } = useQuery({
+    queryKey: queryKeys.attendance(assignmentId),
+    queryFn: () => fetchAttendanceData(groupId, assignmentId),
+    staleTime: 0,
+  });
+  const swimmers = data?.members ?? EMPTY_PROFILES;
+  const coaches = data?.coaches ?? EMPTY_COACHES;
+  const presenceMap = data?.presenceMap ?? EMPTY_PRESENCE;
+
+  // Pré-remplissage, une seule fois : tout le monde coché sauf les absences signalées
+  const prefilled = useRef(false);
   useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
-    try {
-      const [members, groupCoaches] = await Promise.all([
-        groupService.getMembers(groupId),
-        groupCoachService.getCoachProfiles(groupId),
-      ]);
-      setSwimmers(members);
-      setCoaches(groupCoaches);
-
-      // Pre-remplissage depuis les presences declarees (migration 014) :
-      // tout le monde coche par defaut, sauf les absences signalees
-      let declared: SessionPresence[] = [];
-      try {
-        declared = await presenceService.getByAssignment(assignmentId);
-      } catch {}
-      const map: Record<string, SessionPresence> = {};
-      for (const p of declared) map[p.swimmer_id] = p;
-      setPresenceMap(map);
-
-      const absentIds = new Set(
-        declared.filter((p) => p.status === 'absent').map((p) => p.swimmer_id),
-      );
-      setAttendedIds(new Set(members.map((m) => m.id).filter((id) => !absentIds.has(id))));
-      // Pre-select current user as coach if they are a coach of the group
-      if (user && groupCoaches.some((c) => c.id === user.id)) {
-        setSelectedCoachId(user.id);
-      } else if (groupCoaches.length === 1) {
-        setSelectedCoachId(groupCoaches[0].id);
-      }
-    } catch (err) {
-      console.error('Error loading attendance data:', err);
-    } finally {
-      setLoading(false);
+    if (!data || prefilled.current) return;
+    prefilled.current = true;
+    const absentIds = new Set(
+      Object.values(data.presenceMap)
+        .filter((p) => p.status === 'absent')
+        .map((p) => p.swimmer_id),
+    );
+    setAttendedIds(new Set(data.members.map((m) => m.id).filter((id) => !absentIds.has(id))));
+    // Coach présélectionné : soi-même si on encadre le groupe, sinon le seul coach
+    if (user && data.coaches.some((c) => c.id === user.id)) {
+      setSelectedCoachId(user.id);
+    } else if (data.coaches.length === 1) {
+      setSelectedCoachId(data.coaches[0].id);
     }
-  };
+  }, [data, user]);
 
   const toggleSwimmer = (swimmerId: string) => {
     setAttendedIds((prev) => {
@@ -156,6 +164,9 @@ export default function AttendanceScreen({ navigation, route }: Props) {
       // Notification « feedback demandé » aux nageurs présents (sans bloquer l'émargement)
       notificationService.requestFeedback(assignmentId).catch(() => {});
 
+      // Calendrier, tableau de bord et statistiques du coach à jour au retour
+      queryClient.invalidateQueries({ queryKey: ['coach'] });
+      queryClient.invalidateQueries({ queryKey: ['sessions'] });
       showSnackbar('Émargement validé', 'success');
       navigation.goBack();
     } catch (err: any) {

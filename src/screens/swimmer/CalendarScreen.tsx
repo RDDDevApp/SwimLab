@@ -1,8 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { Text, IconButton } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
-import { useFocusEffect } from '@react-navigation/native';
+import { queryKeys, useRefreshOnFocus } from '../../hooks';
 import { WorkoutAssignment, WorkoutSession, TrainingSlot } from '../../types';
 import {
   groupService,
@@ -34,127 +35,112 @@ interface Props {
   navigation: any;
 }
 
+/** Créneaux des groupes du nageur et séances de la semaine, avec la règle du programme secret. */
+async function fetchSwimmerWeek(
+  swimmerId: string,
+  startDate: string,
+  endDate: string,
+): Promise<{ items: EnrichedAssignment[]; slots: TrainingSlot[] }> {
+  const groups = await groupService.getBySwimmer(swimmerId);
+  if (!groups.length) return { items: [], slots: [] };
+
+  // Creneaux de tous les groupes en 1 requete (anti N+1)
+  const allSlots = await trainingSlotService.getByGroups(groups.map((g) => g.id));
+  if (!allSlots.length) return { items: [], slots: allSlots };
+
+  const slotIds = allSlots.map((s) => s.id);
+
+  // Try RPC first (bypasses RLS chain), then direct query as fallback
+  let assignments: WorkoutAssignment[] = [];
+  try {
+    assignments = await workoutAssignmentService.getByDateRangeRpc(
+      slotIds,
+      startDate,
+      endDate,
+    );
+  } catch (rpcErr) {
+    // RPC not available - migration 004 not applied, try direct query
+    console.log('RPC not available (apply migration 004):', rpcErr);
+    try {
+      assignments = await workoutAssignmentService.getByDateRange(
+        slotIds,
+        startDate,
+        endDate,
+      );
+    } catch (assignErr) {
+      console.error('Assignment fetch error:', assignErr);
+    }
+  }
+
+  let sessions: WorkoutSession[] = [];
+  try {
+    sessions = await workoutSessionService.getBySwimmer(swimmerId);
+  } catch (sessErr) {
+    console.error('Session fetch error:', sessErr);
+  }
+
+  // Workouts en batch (anti N+1)
+  const workoutIds = [...new Set(assignments.map((a) => a.workout_id))];
+  let workoutById = new Map<
+    string,
+    { title: string; type: string | null; total_distance: number | null; show_before_session?: boolean }
+  >();
+  try {
+    const workouts = await workoutService.getByIds(workoutIds);
+    workoutById = new Map(workouts.map((w) => [w.id, w]));
+  } catch {}
+
+  const enriched: EnrichedAssignment[] = [];
+  for (const assignment of assignments) {
+    const slot = allSlots.find((s) => s.id === assignment.training_slot_id);
+    if (!slot) continue;
+    const workout = workoutById.get(assignment.workout_id);
+
+    const session = sessions.find(
+      (s) => s.workout_assignment_id === assignment.id,
+    ) || null;
+
+    const revealed = isSessionRevealed({
+      scheduledDate: assignment.scheduled_date,
+      startTime: slot.start_time,
+      durationMinutes: slot.duration_minutes,
+      attendanceMarked: assignment.attendance_marked,
+      showBeforeSession: workout?.show_before_session,
+    });
+
+    enriched.push({
+      assignment,
+      // Programme secret jusqu'à la fin de la séance : ni titre, ni type, ni volume
+      workoutTitle: revealed ? workout?.title || 'Séance' : 'Programme secret',
+      workoutType: revealed ? workout?.type || 'other' : 'other',
+      totalDistance: revealed ? (workout?.total_distance ?? null) : null,
+      slotName: slot.name,
+      slot,
+      session,
+      revealed,
+    });
+  }
+
+  return { items: enriched, slots: allSlots };
+}
+
 export default function SwimmerCalendarScreen({ navigation }: Props) {
   const { user } = useAuthStore();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [items, setItems] = useState<EnrichedAssignment[]>([]);
-  const [slots, setSlots] = useState<TrainingSlot[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const weekDates = getWeekDates(currentDate);
+  const startDate = toISODate(weekDates[0]);
+  const endDate = toISODate(weekDates[6]);
 
-  const loadData = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const groups = await groupService.getBySwimmer(user.id);
-      if (!groups.length) {
-        setItems([]);
-        setSlots([]);
-        return;
-      }
-
-      // Creneaux de tous les groupes en 1 requete (anti N+1)
-      const allSlots = await trainingSlotService.getByGroups(groups.map((g) => g.id));
-      setSlots(allSlots);
-
-      if (!allSlots.length) {
-        setItems([]);
-        return;
-      }
-
-      const dates = getWeekDates(currentDate);
-      const startDate = toISODate(dates[0]);
-      const endDate = toISODate(dates[6]);
-      const slotIds = allSlots.map((s) => s.id);
-
-      // Try RPC first (bypasses RLS chain), then direct query as fallback
-      let assignments: WorkoutAssignment[] = [];
-      try {
-        assignments = await workoutAssignmentService.getByDateRangeRpc(
-          slotIds,
-          startDate,
-          endDate,
-        );
-      } catch (rpcErr) {
-        // RPC not available - migration 004 not applied, try direct query
-        console.log('RPC not available (apply migration 004):', rpcErr);
-        try {
-          assignments = await workoutAssignmentService.getByDateRange(
-            slotIds,
-            startDate,
-            endDate,
-          );
-        } catch (assignErr) {
-          console.error('Assignment fetch error:', assignErr);
-        }
-      }
-
-      let sessions: WorkoutSession[] = [];
-      try {
-        sessions = await workoutSessionService.getBySwimmer(user.id);
-      } catch (sessErr) {
-        console.error('Session fetch error:', sessErr);
-      }
-
-      // Workouts en batch (anti N+1)
-      const workoutIds = [...new Set(assignments.map((a) => a.workout_id))];
-      let workoutById = new Map<
-        string,
-        { title: string; type: string | null; total_distance: number | null; show_before_session?: boolean }
-      >();
-      try {
-        const workouts = await workoutService.getByIds(workoutIds);
-        workoutById = new Map(workouts.map((w) => [w.id, w]));
-      } catch {}
-
-      const enriched: EnrichedAssignment[] = [];
-      for (const assignment of assignments) {
-        const slot = allSlots.find((s) => s.id === assignment.training_slot_id);
-        if (!slot) continue;
-        const workout = workoutById.get(assignment.workout_id);
-
-        const session = sessions.find(
-          (s) => s.workout_assignment_id === assignment.id,
-        ) || null;
-
-        const revealed = isSessionRevealed({
-          scheduledDate: assignment.scheduled_date,
-          startTime: slot.start_time,
-          durationMinutes: slot.duration_minutes,
-          attendanceMarked: assignment.attendance_marked,
-          showBeforeSession: workout?.show_before_session,
-        });
-
-        enriched.push({
-          assignment,
-          // Programme secret jusqu'à la fin de la séance : ni titre, ni type, ni volume
-          workoutTitle: revealed ? workout?.title || 'Séance' : 'Programme secret',
-          workoutType: revealed ? workout?.type || 'other' : 'other',
-          totalDistance: revealed ? (workout?.total_distance ?? null) : null,
-          slotName: slot.name,
-          slot,
-          session,
-          revealed,
-        });
-      }
-
-      setItems(enriched);
-    } catch (err) {
-      console.error('Error loading swimmer calendar:', err);
-      setError('Erreur de chargement du calendrier');
-    } finally {
-      setLoading(false);
-    }
-  }, [user, currentDate]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadData();
-    }, [loadData]),
-  );
+  const { data, isError, refetch } = useQuery({
+    queryKey: queryKeys.swimmerWeek(user?.id ?? '', startDate),
+    queryFn: () => fetchSwimmerWeek(user!.id, startDate, endDate),
+    enabled: !!user,
+    placeholderData: keepPreviousData,
+  });
+  useRefreshOnFocus(refetch);
+  const { items = [], slots = [] } = data ?? {};
+  const error = isError ? 'Erreur de chargement du calendrier' : null;
 
   const goToPrevWeek = () => {
     const d = new Date(currentDate);

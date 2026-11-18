@@ -80,7 +80,13 @@ export default function GroupsScreen({ navigation }: Props) {
                       {GROUP_LEVELS[item.level as keyof typeof GROUP_LEVELS]}
                     </Chip>
                   )}
-                  <Chip compact icon="clock-outline" style={styles.chip}>
+                  <Chip
+                    compact
+                    icon="clock-outline"
+                    style={styles.chip}
+                    onPress={() => navigation.navigate('Slots', { groupId: item.id })}
+                    accessibilityLabel={`Voir les créneaux du groupe ${item.name}`}
+                  >
                     Voir créneaux
                   </Chip>
                 </View>

@@ -136,14 +136,18 @@ nouveau coach) : tous en `@example.com`. Remise à zéro : `supabase/seed/demo_s
       (gardée d'ici là pour tester).
 2. DA « La vague » : thèmes Clair et Nuit appliqués. Reste éventuellement : icônes
    Material Community Icons (la DA les cite, l'app utilise Ionicons).
-3. TanStack Query : 9 écrans à plusieurs requêtes restent en chargement manuel
-   (calendriers coach et nageur, statistiques coach et nageur, émargement, détails de
-   séance x2, détail de groupe, historique des séances). Les écrans simples passent par
-   `src/hooks/useCoachData.ts`. Types : `src/types/supabase.generated.ts` est généré
-   depuis la base (connecteur Supabase, `generate_typescript_types`), à régénérer après
-   chaque migration ; `database.types.ts` l'affine (rôles, contenu JSON des séances).
-4. Tests : services récents et parcours émargement / feedback faits
-   (`src/__tests__/flows`). Restent les tests d'écrans (aucun pour l'instant).
+3. TanStack Query : **fait**, tous les écrans qui chargent des données passent par
+   `useQuery` (clés dans `src/hooks/queryKeys.ts`, rechargement au retour sur l'écran
+   avec `useRefreshOnFocus`). Après une écriture, invalider le préfixe concerné
+   (`['coach']`, `['swimmer']`, `['sessions']`). L'émargement charge une seule fois
+   (pas de rechargement qui effacerait les cases cochées). Types :
+   `src/types/supabase.generated.ts` est généré depuis la base (connecteur Supabase,
+   `generate_typescript_types`), à régénérer après chaque migration ;
+   `database.types.ts` l'affine (rôles, contenu JSON des séances).
+4. Tests : `npm test` lance deux familles (`jest.config.js`) : « unit » (services,
+   utilitaires, parcours, React Native simulé par `src/__stubs__`) et « screens »
+   (écrans rendus avec Testing Library, `src/__tests__/screens`, aide `renderScreen`).
+   Écrans couverts : ressenti, émargement, mes groupes. À étendre au fil des écrans.
 5. Décision en attente : dépôt public sous licence MIT (code réutilisable par tous).
 
 Audit complet du 11 octobre 2026 : https://claude.ai/artifact/6QEgXoxWRsq4TCYEqm4C2p

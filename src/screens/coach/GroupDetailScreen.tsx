@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import {
   Text,
@@ -13,8 +13,9 @@ import {
   Checkbox,
 } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
-import { useFocusEffect } from '@react-navigation/native';
-import { Profile, Group, GROUP_LEVELS } from '../../types';
+import { useQuery } from '@tanstack/react-query';
+import { queryKeys, useRefreshOnFocus } from '../../hooks';
+import { Profile, GROUP_LEVELS } from '../../types';
 import { groupService, groupCoachService, profileService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
@@ -31,11 +32,6 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
   const { user, clubId } = useAuthStore();
   const showSnackbar = useSnackbarStore((s) => s.show);
 
-  const [group, setGroup] = useState<Group | null>(null);
-  const [members, setMembers] = useState<Profile[]>([]);
-  const [coaches, setCoaches] = useState<(Profile & { is_creator: boolean })[]>([]);
-  const [loading, setLoading] = useState(true);
-
   // Add swimmer modal
   const [showAddModal, setShowAddModal] = useState(false);
   const [clubSwimmers, setClubSwimmers] = useState<Profile[]>([]);
@@ -51,29 +47,26 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
   // Remove member
   const [removeTarget, setRemoveTarget] = useState<Profile | null>(null);
 
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [groupData, memberData, coachData] = await Promise.all([
+  const {
+    data,
+    isLoading: loading,
+    isFetching,
+    refetch: loadData,
+  } = useQuery({
+    queryKey: queryKeys.groupDetail(groupId),
+    queryFn: async () => {
+      const [group, members, coaches] = await Promise.all([
         groupService.getById(groupId),
         groupService.getMembers(groupId),
         groupCoachService.getCoachProfiles(groupId),
       ]);
-      setGroup(groupData);
-      setMembers(memberData);
-      setCoaches(coachData);
-    } catch (err) {
-      console.error('Error loading group detail:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [groupId]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadData();
-    }, [loadData]),
-  );
+      return { group, members, coaches };
+    },
+  });
+  useRefreshOnFocus(loadData);
+  const group = data?.group ?? null;
+  const members = data?.members ?? [];
+  const coaches = data?.coaches ?? [];
 
   const openAddModal = async () => {
     if (!clubId) return;
@@ -109,7 +102,7 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
         await groupService.addMember(groupId, swimmerId);
       }
       setShowAddModal(false);
-      showSnackbar(`${selectedIds.size} nageur(s) ajoute(s)`, 'success');
+      showSnackbar(`${selectedIds.size} nageur(s) ajouté(s)`, 'success');
       loadData();
     } catch (err) {
       showSnackbar('Erreur lors de l\'ajout', 'error');
@@ -164,7 +157,7 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
         await groupCoachService.addCoach(groupId, coachId);
       }
       setShowAddCoachModal(false);
-      showSnackbar(`${selectedCoachIds.size} coach(es) ajoute(s)`, 'success');
+      showSnackbar(`${selectedCoachIds.size} coach(s) ajouté(s)`, 'success');
       loadData();
     } catch (err: any) {
       showSnackbar(err.message || "Erreur lors de l'ajout", 'error');
@@ -254,7 +247,7 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
           data={members}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
-          refreshing={loading}
+          refreshing={isFetching}
           onRefresh={loadData}
           renderItem={({ item }) => (
             <Card style={styles.memberCard}>

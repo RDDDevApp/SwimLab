@@ -1,11 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { View, StyleSheet, ScrollView, Pressable, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { Text, Button, Card, Chip, RadioButton, IconButton } from 'react-native-paper';
-import { useFocusEffect } from '@react-navigation/native';
-import {
-  Workout,
-  WorkoutAssignment,
-} from '../../types';
+import { queryKeys, useCoachWorkouts, useRefreshOnFocus } from '../../hooks';
+import { WorkoutAssignment } from '../../types';
 import {
   groupService,
   workoutService,
@@ -31,66 +29,52 @@ const getRpeColor = (rpe: number) => ({
   text: getRPETextColor(rpe),
 });
 
+/** Séance, état de l'émargement et bilan des ressentis d'une séance attribuée. */
+async function fetchAssignmentDetail(assignmentId: string, workoutId: string) {
+  const [workout, assignment] = await Promise.all([
+    workoutService.getById(workoutId).catch(() => null),
+    workoutAssignmentService.getById(assignmentId).catch(() => null),
+  ]);
+  let feedbackStats: GroupFeedbackStats | null = null;
+  if (assignment?.attendance_marked) {
+    feedbackStats = await workoutSessionService.getFeedbackStats(assignmentId).catch(() => null);
+  }
+  return { workout, assignment, feedbackStats };
+}
+
 export default function SessionDetailModal({ navigation, route }: Props) {
   const { slot, date, assignment: initialAssignment, workoutTitle: initialTitle } = route.params;
   const { user } = useAuthStore();
   const showSnackbar = useSnackbarStore((s) => s.show);
 
-  const [assignment, setAssignment] = useState<WorkoutAssignment | null>(initialAssignment);
-  const [groupName, setGroupName] = useState('');
-  const [workout, setWorkout] = useState<Workout | null>(null);
-  const [publishedWorkouts, setPublishedWorkouts] = useState<Workout[]>([]);
+  // Séance attribuée au créneau ce jour-là : celle reçue en ouvrant, ou celle qu'on vient d'attribuer
+  const [current, setCurrent] = useState<WorkoutAssignment | null>(initialAssignment);
   const [selectedWorkoutId, setSelectedWorkoutId] = useState('');
-  const [feedbackStats, setFeedbackStats] = useState<GroupFeedbackStats | null>(null);
-  const [loading, setLoading] = useState(true);
   const [assigning, setAssigning] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
 
-  const loadData = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
-    try {
-      // Load group name
-      const group = await groupService.getById(slot.group_id);
-      setGroupName(group.name);
+  const groupQuery = useQuery({
+    queryKey: queryKeys.group(slot.group_id),
+    queryFn: () => groupService.getById(slot.group_id),
+  });
+  const groupName = groupQuery.data?.name ?? '';
 
-      if (assignment) {
-        // Load full workout details
-        try {
-          const w = await workoutService.getById(assignment.workout_id);
-          setWorkout(w);
-        } catch {}
+  // Détail de la séance attribuée : séance, émargement à jour et bilan des ressentis
+  const detailQuery = useQuery({
+    queryKey: queryKeys.sessionDetail(current?.id ?? ''),
+    queryFn: () => fetchAssignmentDetail(current!.id, current!.workout_id),
+    enabled: !!current,
+  });
+  useRefreshOnFocus(detailQuery.refetch);
 
-        // Re-fetch assignment to check if attendance_marked changed
-        try {
-          const fresh = await workoutAssignmentService.getById(assignment.id);
-          setAssignment(fresh);
+  // Séances publiées, pour en attribuer une quand le créneau est vide
+  const workoutsQuery = useCoachWorkouts(current ? undefined : user?.id);
+  const publishedWorkouts = (workoutsQuery.data ?? []).filter((w) => w.is_published);
 
-          // Load feedback stats if marked
-          if (fresh.attendance_marked) {
-            try {
-              const stats = await workoutSessionService.getFeedbackStats(fresh.id);
-              setFeedbackStats(stats);
-            } catch {}
-          }
-        } catch {}
-      } else {
-        // Load published workouts for assignment picker
-        const allWorkouts = await workoutService.getByCoach(user.id);
-        setPublishedWorkouts(allWorkouts.filter((w) => w.is_published));
-      }
-    } catch (err) {
-      console.error('Error loading session detail:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [user, slot, assignment?.id]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadData();
-    }, [loadData]),
-  );
+  const assignment = current ? (detailQuery.data?.assignment ?? current) : null;
+  const workout = current ? (detailQuery.data?.workout ?? null) : null;
+  const feedbackStats = current ? (detailQuery.data?.feedbackStats ?? null) : null;
+  const loading = current ? detailQuery.isLoading : workoutsQuery.isLoading;
 
   const handleDismiss = () => {
     navigation.goBack();
@@ -105,10 +89,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
         training_slot_id: slot.id,
         scheduled_date: date,
       });
-      setAssignment(newAssignment);
-      const w = await workoutService.getById(selectedWorkoutId);
-      setWorkout(w);
-      setPublishedWorkouts([]);
+      setCurrent(newAssignment);
       showSnackbar('Séance assignée', 'success');
     } catch (err: any) {
       showSnackbar(err.message || 'Erreur lors de l\'attribution', 'error');
@@ -121,15 +102,8 @@ export default function SessionDetailModal({ navigation, route }: Props) {
     if (!assignment) return;
     try {
       await workoutAssignmentService.delete(assignment.id);
-      setAssignment(null);
-      setWorkout(null);
-      setFeedbackStats(null);
+      setCurrent(null);
       setShowPicker(true);
-      // Load published workouts for picker
-      if (user) {
-        const allWorkouts = await workoutService.getByCoach(user.id);
-        setPublishedWorkouts(allWorkouts.filter((w) => w.is_published));
-      }
       showSnackbar('Assignation supprimée', 'info');
     } catch (err: any) {
       showSnackbar(err.message || 'Erreur', 'error');

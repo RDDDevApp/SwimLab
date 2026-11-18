@@ -1,13 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions, RefreshControl } from 'react-native';
 import { Text, SegmentedButtons } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import GradientScreen from '../../components/GradientScreen';
-import { useFocusEffect } from '@react-navigation/native';
+import { useRefreshOnFocus, useSwimmerHistory } from '../../hooks';
 import { BarChart, LineChart } from 'react-native-chart-kit';
 import { useAuthStore } from '../../stores/authStore';
-import { workoutSessionService } from '../../services';
-import type { SwimmerHistoryEntry } from '../../services';
 import EmptyState from '../../components/EmptyState';
 import { C, FONTS, RADIUS, SHADOW, SPACING } from '../../config/tokens';
 
@@ -122,35 +120,13 @@ interface Props {
 
 export default function SwimmerStatsScreen({ navigation }: Props) {
   const { user } = useAuthStore();
-  const [history, setHistory] = useState<SwimmerHistoryEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [period, setPeriod] = useState<Period>('8w');
-
-  const loadData = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
-    try {
-      const data = await workoutSessionService.getSwimmerHistory(user.id);
-      setHistory(data);
-    } catch (err) {
-      console.error('Error loading swimmer history:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await loadData();
-    setRefreshing(false);
-  }, [loadData]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadData();
-    }, [loadData]),
-  );
+  const { data: history = [], isLoading: loading, isRefetching: refreshing, refetch } =
+    useSwimmerHistory(user?.id);
+  useRefreshOnFocus(refetch);
+  const onRefresh = () => {
+    refetch();
+  };
 
   const weeksCount = period === '4w' ? 4 : period === '8w' ? 8 : 12;
   const cutoffDate = new Date();

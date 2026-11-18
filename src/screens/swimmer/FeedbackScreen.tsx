@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { View, StyleSheet, ScrollView, Pressable, KeyboardAvoidingView, Platform } from 'react-native';
 import { Text, Button, TextInput, HelperText, IconButton } from 'react-native-paper';
 import * as Haptics from 'expo-haptics';
@@ -101,6 +102,7 @@ export default function FeedbackScreen({ navigation, route }: Props) {
   const [technique, setTechnique] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const queryClient = useQueryClient();
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -119,6 +121,8 @@ export default function FeedbackScreen({ navigation, route }: Props) {
         await workoutSessionService.submitFeedback(sessionId, payload);
         showSnackbar('Merci pour ton feedback ! +20 XP', 'success');
       }
+      // Accueil, calendrier et statistiques du nageur à jour au retour
+      queryClient.invalidateQueries({ queryKey: ['swimmer'] });
       // Micro-celebration : haptic de succes
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
       navigation.goBack();
