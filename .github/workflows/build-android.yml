@@ -11,8 +11,6 @@ name: Application Android
 
 on:
   workflow_dispatch:
-  push:
-    branches: [chore/build-android]
 
 concurrency:
   group: build-android-${{ github.ref }}
