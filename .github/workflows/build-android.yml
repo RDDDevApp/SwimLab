@@ -30,7 +30,6 @@ jobs:
       EXPO_PUBLIC_APP_ENV: preview
       # Panneau de connexion aux comptes de démo ; passer à 'false' avant le pilote
       EXPO_PUBLIC_DEMO_MODE: 'true'
-      NODE_ENV: production
     steps:
       - uses: actions/checkout@v4
 
