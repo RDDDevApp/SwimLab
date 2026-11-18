@@ -210,6 +210,7 @@ function SoloDashboardContent({
           </Text>
         </View>
         <Avatar.Text
+          color={C.onVif}
           size={48}
           label={`${profile?.first_name?.[0] || ''}${profile?.last_name?.[0] || ''}`}
           style={styles.avatar}
@@ -495,6 +496,7 @@ function ClubDashboardContent({
           </Text>
         </View>
         <Avatar.Text
+          color={C.onVif}
           size={48}
           label={`${profile?.first_name?.[0] || ''}${profile?.last_name?.[0] || ''}`}
           style={styles.avatar}

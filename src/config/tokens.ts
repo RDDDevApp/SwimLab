@@ -1,4 +1,4 @@
-import { Platform, TextStyle } from 'react-native';
+import { Appearance, Platform, TextStyle } from 'react-native';
 
 /**
  * Design tokens SwimLab — DA « La vague » (novembre 2026).
@@ -9,7 +9,9 @@ import { Platform, TextStyle } from 'react-native';
  * quelque chose, vagues pleines sans dégradé, tout ce qui se touche en galet).
  *
  * Aucune couleur en dur dans les écrans : toujours passer par `C.<nom>`.
- * Le thème « Nuit » (PALETTE.dark) est prêt mais pas encore branché.
+ * Thème « Clair » ou « Nuit » : choisi au lancement selon le réglage du téléphone
+ * (ou du navigateur). Les styles étant calculés au chargement, un changement de
+ * réglage s'applique au prochain lancement de l'app.
  */
 
 const light = {
@@ -87,8 +89,18 @@ export const PALETTE = {
   dark: { ...dark, ...brand },
 };
 
-/** Couleurs du thème courant (clair). */
-export const C = PALETTE.light;
+/** Vrai si le téléphone (ou le navigateur) est réglé en mode sombre au lancement. */
+export const IS_DARK = (() => {
+  try {
+    // Appearance peut manquer quand les tests simulent react-native
+    return Appearance?.getColorScheme?.() === 'dark';
+  } catch {
+    return false;
+  }
+})();
+
+/** Couleurs du thème courant : « Clair » ou « Nuit ». */
+export const C = IS_DARK ? PALETTE.dark : PALETTE.light;
 export type ColorName = keyof typeof C;
 
 // ─── Typographie ────────────────────────────────────────────────────────────
@@ -169,10 +181,9 @@ export function shadow(
 }
 
 /** Ombres de la DA : une carte se détache par son ombre, pas par une bordure. */
-export const SHADOW = {
-  card: shadow(0.1, 20, 6, 3),
-  float: shadow(0.22, 32, 12, 8),
-} as const;
+export const SHADOW = IS_DARK
+  ? ({ card: shadow(0.4, 20, 6, 3, '0, 0, 0'), float: shadow(0.55, 32, 12, 8, '0, 0, 0') } as const)
+  : ({ card: shadow(0.1, 20, 6, 3), float: shadow(0.22, 32, 12, 8) } as const);
 
 /** Surface de carte standard (remplace l'ancien effet de verre). */
 export const CARD = {

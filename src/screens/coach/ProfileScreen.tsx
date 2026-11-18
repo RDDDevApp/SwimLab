@@ -63,6 +63,7 @@ export default function ProfileScreen({ navigation }: any) {
       >
         <View style={styles.header}>
           <Avatar.Text
+            color={C.onPrimary}
             size={80}
             label={`${profile?.first_name?.[0] || ''}${profile?.last_name?.[0] || ''}`}
             style={styles.avatar}

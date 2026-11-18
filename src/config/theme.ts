@@ -1,9 +1,8 @@
-import { MD3LightTheme } from 'react-native-paper';
-import { C, FONTS } from './tokens';
+import { MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
+import { C, FONTS, IS_DARK } from './tokens';
 
 /**
  * Thème React Native Paper aligné sur la DA « La vague » (voir tokens.ts).
- * Le thème « Nuit » viendra dans un second temps (PALETTE.dark).
  */
 
 // Titres en Sora, tout le reste en Figtree. Pas de fontWeight : une famille par graisse.
@@ -58,13 +57,15 @@ const colors = {
   },
 };
 
+/** Thème Paper du thème courant (« Clair » ou « Nuit », voir tokens.ts). */
 export const lightTheme = {
-  ...MD3LightTheme,
+  ...(IS_DARK ? MD3DarkTheme : MD3LightTheme),
+  dark: IS_DARK,
   // Boutons MD3 : rayon = 5 × roundness. 5 → 25 px : un galet sur un bouton de 40 à 48 px.
   roundness: 5,
   fonts,
   colors: {
-    ...MD3LightTheme.colors,
+    ...(IS_DARK ? MD3DarkTheme : MD3LightTheme).colors,
     primary: C.primary,
     onPrimary: C.onPrimary,
     primaryContainer: C.primarySoft,

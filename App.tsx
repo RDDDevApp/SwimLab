@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -18,7 +18,20 @@ import { lightTheme } from './src/config/theme';
 import { queryClient, setupFocusManager } from './src/config/queryClient';
 import GlobalSnackbar from './src/components/GlobalSnackbar';
 import BackendStatusBanner from './src/components/BackendStatusBanner';
-import { C } from './src/config/tokens';
+import { C, IS_DARK } from './src/config/tokens';
+
+// Fond de la navigation (visible pendant les transitions) aligné sur la DA
+const navigationTheme = {
+  ...(IS_DARK ? DarkTheme : DefaultTheme),
+  colors: {
+    ...(IS_DARK ? DarkTheme : DefaultTheme).colors,
+    primary: C.primary,
+    background: C.bg,
+    card: C.surface,
+    text: C.ink,
+    border: C.line,
+  },
+};
 
 export default function App() {
   useEffect(() => setupFocusManager(), []);
@@ -42,11 +55,11 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <SafeAreaProvider>
           <PaperProvider theme={lightTheme}>
-            <NavigationContainer>
+            <NavigationContainer theme={navigationTheme}>
               <BackendStatusBanner />
               <AppNavigator />
               <GlobalSnackbar />
-              <StatusBar style="dark" />
+              <StatusBar style={IS_DARK ? 'light' : 'dark'} />
             </NavigationContainer>
           </PaperProvider>
         </SafeAreaProvider>

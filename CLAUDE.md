@@ -74,7 +74,10 @@ Supabase. Vue d'ensemble, stack et commandes : [README.md](./README.md).
 - Polices : Sora (titres, grands chiffres) et Figtree (texte), une famille par
   graisse (`FONTS.*`), jamais `fontWeight` avec elles.
 - Pastilles de type : `WORKOUT_TYPE_COLORS` ; RPE : `getRPEColor` + `getRPETextColor`.
-- Thème « Nuit » prêt dans `PALETTE.dark`, pas encore branché (prochaine étape DA).
+- Thème « Clair » ou « Nuit » choisi au lancement selon le réglage du téléphone
+  (`IS_DARK` dans tokens.ts) ; vérifier chaque nouvel écran dans les deux
+  (Playwright : `colorScheme: 'dark'`). Un changement de réglage s'applique au
+  prochain lancement.
 
 ## Pièges déjà rencontrés
 
@@ -131,8 +134,8 @@ nouveau coach) : tous en `@example.com`. Remise à zéro : `supabase/seed/demo_s
    4. Build natif de test (EAS, APK Android) pour les notifications.
    5. Jour J : `EXPO_PUBLIC_DEMO_MODE` à `false` et suppression de la démo
       (gardée d'ici là pour tester).
-2. DA « La vague » : thème clair appliqué ; reste le thème « Nuit » (suivre le réglage
-   du téléphone, vérifier chaque écran deux fois).
+2. DA « La vague » : thèmes Clair et Nuit appliqués. Reste éventuellement : icônes
+   Material Community Icons (la DA les cite, l'app utilise Ionicons).
 3. Migrer les 14 écrans encore en chargement manuel vers TanStack Query ; générer
    les types depuis la base (`supabase gen types`) pour supprimer les `any`.
 4. Tests des services récents (absences, solo, IA, notifications, bibliothèque) et

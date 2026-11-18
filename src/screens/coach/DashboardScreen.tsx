@@ -85,6 +85,7 @@ export default function CoachDashboardScreen({ navigation }: { navigation: any }
             </Text>
           </View>
           <Avatar.Text
+            color={C.onPrimary}
             size={48}
             label={`${profile?.first_name?.[0] || ''}${profile?.last_name?.[0] || ''}`}
             style={styles.avatar}

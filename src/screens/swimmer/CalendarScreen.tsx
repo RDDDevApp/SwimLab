@@ -344,7 +344,7 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
                     <View key={slot.id} style={styles.slotItemEmpty}>
                       <View style={styles.slotHeader}>
                         <View style={styles.slotNameRow}>
-                          <View style={[styles.statusDot, { backgroundColor: C.surfaceSunken }]} />
+                          <View style={[styles.statusDot, { backgroundColor: C.lineStrong }]} />
                           <Text variant="labelMedium" style={styles.slotName}>
                             {slot.name}
                           </Text>
