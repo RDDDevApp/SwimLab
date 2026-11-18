@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 import { supabase } from '../config/supabase';
 import { FEATURES } from '../config/features';
 
@@ -30,7 +31,17 @@ export const notificationService = {
       return null;
     }
 
-    const tokenData = await Notifications.getExpoPushTokenAsync();
+    // Android 8+ : sans canal, les notifications n'apparaissent pas
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('default', {
+        name: 'SwimLab',
+        importance: Notifications.AndroidImportance.DEFAULT,
+      });
+    }
+
+    // Identifiant du projet Expo (EAS) : obligatoire pour obtenir un jeton dans une app installée
+    const projectId = getEasProjectId();
+    const tokenData = await Notifications.getExpoPushTokenAsync(projectId ? { projectId } : undefined);
     const token = tokenData.data;
 
     // Save token to database
@@ -98,10 +109,16 @@ export const notificationService = {
 
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
-        shouldShowAlert: true,
+        shouldShowBanner: true,
+        shouldShowList: true,
         shouldPlaySound: true,
         shouldSetBadge: true,
       }),
     });
   },
 };
+
+/** projectId EAS écrit dans app.json (extra.eas.projectId) par « eas init », ou fourni par le build. */
+function getEasProjectId(): string | undefined {
+  return Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId ?? undefined;
+}

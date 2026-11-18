@@ -7,3 +7,9 @@ jest.mock('expo-secure-store', () => ({
 
 // Mock react-native-url-polyfill
 jest.mock('react-native-url-polyfill/auto', () => {});
+
+// Mock expo-constants (configuration de l'app : identifiant du projet EAS)
+jest.mock('expo-constants', () => ({
+  __esModule: true,
+  default: { expoConfig: { extra: { eas: { projectId: 'test-project' } } } },
+}));

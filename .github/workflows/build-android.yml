@@ -1,0 +1,63 @@
+name: Application Android
+
+# APK de test, construit entièrement sur GitHub (aucun compte à créer).
+# Lancement : onglet Actions > « Application Android » > « Run workflow ».
+# Résultat : en bas de la page du run, rubrique « Artifacts », fichier « SwimLab-APK »
+# (un .zip qui contient l'APK à installer sur un téléphone Android).
+# Mode d'emploi : docs/guides/BUILD_ANDROID.md
+#
+# Signature de test (clé de débogage) : parfait pour essayer l'app, pas pour le
+# Play Store, qui demandera une vraie clé (EAS) le moment venu.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [chore/build-android]
+
+concurrency:
+  group: build-android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      # Clé « anon » Supabase : publique par conception (protégée par la RLS)
+      EXPO_PUBLIC_SUPABASE_URL: https://kwzghvmwsrodpomtmfjt.supabase.co
+      EXPO_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3emdodm13c3JvZHBvbXRtZmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3NjEzMTMsImV4cCI6MjA4NTMzNzMxM30.SW48Gk_s2tAMWKdWcsBApDK_STdWy6jCm-EldvrehN4
+      EXPO_PUBLIC_WEB_URL: https://rdddevapp.github.io/SwimLab/
+      EXPO_PUBLIC_APP_ENV: preview
+      # Panneau de connexion aux comptes de démo ; passer à 'false' avant le pilote
+      EXPO_PUBLIC_DEMO_MODE: 'true'
+      NODE_ENV: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - run: npm ci
+
+      - name: Générer le projet Android
+        run: npx expo prebuild --platform android --no-install --clean
+
+      # Une seule architecture (arm64, tous les téléphones récents) : build deux fois plus rapide
+      - name: Construire l'APK
+        working-directory: android
+        run: ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a --no-daemon
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SwimLab-APK
+          path: android/app/build/outputs/apk/release/*.apk
+          retention-days: 30
