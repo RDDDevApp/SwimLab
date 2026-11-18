@@ -5,6 +5,7 @@ import GradientScreen from '../../components/GradientScreen';
 import { clubService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 import { clearInviteCodeFromUrl, getInviteCodeFromUrl, normalizeInviteCode } from '../../utils/invite';
+import { C, FONTS } from '../../config/tokens';
 
 interface Props {
   navigation: any;
@@ -151,16 +152,16 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginTop: 24,
   },
   subtitle: {
-    color: '#64748b',
+    color: C.inkMuted,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: 'rgba(255,255,255,0.60)',
+    backgroundColor: C.surface,
   },
   joinBtn: {
     marginTop: 8,
@@ -169,20 +170,18 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   successCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
-    borderLeftWidth: 4,
-    borderLeftColor: 'rgba(255, 255, 255, 0.60)',
+    backgroundColor: C.surface,
     marginTop: 16,
   },
   successContent: {
     gap: 8,
   },
   successTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
   },
   successText: {
-    color: '#64748b',
+    color: C.inkMuted,
   },
   continueBtn: {
     marginTop: 16,

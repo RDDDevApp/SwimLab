@@ -42,6 +42,12 @@ interface SignUpData {
   role: 'coach' | 'swimmer';
   /** Code d'invitation a utiliser a la premiere connexion (voir consumePendingInvite) */
   inviteCode?: string;
+  /** Date de naissance AAAA-MM-JJ (nageurs). */
+  birthDate?: string;
+  /** Email d'un parent, obligatoire sous 15 ans. */
+  parentEmail?: string;
+  parentalConsent?: boolean;
+  termsAccepted?: boolean;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -136,6 +142,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             last_name: userData.lastName,
             role: userData.role,
             pending_club_code: userData.inviteCode || null,
+            // Rangés dans member_consents par un déclencheur (migration 023)
+            birth_date: userData.birthDate || null,
+            parent_email: userData.parentEmail || null,
+            parental_consent: !!userData.parentalConsent,
+            terms_accepted: !!userData.termsAccepted,
           },
         },
       });

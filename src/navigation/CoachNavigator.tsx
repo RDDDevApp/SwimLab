@@ -23,6 +23,7 @@ import GenerateWorkoutScreen from '../screens/shared/GenerateWorkoutScreen';
 import UIKitScreen from '../screens/dev/UIKitScreen';
 import GlassTabBar from '../components/GlassTabBar';
 import { CoachTabParamList, CoachStackParamList } from '../types';
+import LegalScreen from '../screens/shared/LegalScreen';
 
 const Tab = createBottomTabNavigator<CoachTabParamList>();
 const Stack = createNativeStackNavigator<CoachStackParamList>();
@@ -75,6 +76,7 @@ export default function CoachNavigator() {
       <Stack.Screen name="BlockLibrary" component={BlockLibraryScreen} />
       <Stack.Screen name="WorkoutHistory" component={WorkoutHistoryScreen} />
       <Stack.Screen name="GenerateWorkout" component={GenerateWorkoutScreen} />
+      <Stack.Screen name="Legal" component={LegalScreen} />
       {__DEV__ && <Stack.Screen name="UIKit" component={UIKitScreen} />}
     </Stack.Navigator>
   );

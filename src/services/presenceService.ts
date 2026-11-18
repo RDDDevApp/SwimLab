@@ -29,7 +29,7 @@ export const presenceService = {
     status: PresenceStatus,
     reason?: string,
   ): Promise<SessionPresence> {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('session_presence')
       .upsert(
         {
@@ -60,7 +60,7 @@ export const presenceService = {
   ): Promise<SessionPresence[]> {
     if (!assignmentIds.length) return [];
 
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('session_presence')
       .select('*')
       .eq('swimmer_id', swimmerId)
@@ -75,7 +75,7 @@ export const presenceService = {
 
   /** Toutes les declarations d'un assignment (vue coach / emargement) */
   async getByAssignment(assignmentId: string): Promise<SessionPresence[]> {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('session_presence')
       .select('*')
       .eq('workout_assignment_id', assignmentId);

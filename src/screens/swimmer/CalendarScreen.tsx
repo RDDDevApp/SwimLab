@@ -13,7 +13,7 @@ import {
 } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 import { getWeekDates, formatWeekRange, toISODate, formatShortDate, isToday, getDayOfWeek, formatTime } from '../../utils/dateHelpers';
-import { WORKOUT_TYPE_COLORS } from '../../config/tokens';
+import { WORKOUT_TYPE_COLORS, C, FONTS } from '../../config/tokens';
 import AnimatedCountdown from '../../components/AnimatedCountdown';
 import { Ionicons } from '@expo/vector-icons';
 import { formatRevealTime, isSessionRevealed } from '../../utils/workoutVisibility';
@@ -177,18 +177,18 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
     const isPast = new Date(assignment.scheduled_date + 'T23:59:59') < new Date();
 
     if (session?.completed_at) {
-      return { color: '#10B981', label: 'Feedback donné' };       // Green
+      return { color: C.success, label: 'Feedback donné' };       // Green
     }
     if (session?.attended && !session?.completed_at) {
-      return { color: '#F59E0B', label: 'Feedback à donner' };    // Orange
+      return { color: C.warning, label: 'Feedback à donner' };    // Orange
     }
     if (session && !session.attended) {
-      return { color: 'rgba(100,116,139,0.45)', label: 'Absent' };               // Gray
+      return { color: C.inkMuted, label: 'Absent' };               // Gray
     }
     if (isPast && !assignment.attendance_marked) {
-      return { color: 'rgba(100,116,139,0.45)', label: 'Non marqué' };           // Gray
+      return { color: C.inkMuted, label: 'Non marqué' };           // Gray
     }
-    return { color: '#3B82F6', label: 'À venir' };               // Blue
+    return { color: C.primary, label: 'À venir' };               // Blue
   };
 
   const getItemsForDate = (dateStr: string) => {
@@ -298,7 +298,7 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
                         </Text>
                         <View style={styles.titleRow}>
                           {!item.revealed && (
-                            <Ionicons name="lock-closed-outline" size={14} color="#64748b" />
+                            <Ionicons name="lock-closed-outline" size={14} color={C.inkMuted} />
                           )}
                           <Text variant="titleSmall" style={styles.workoutTitle}>
                             {item.workoutTitle}
@@ -331,7 +331,7 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
                           ) : null}
                           {sessionStart && (
                             <View style={[styles.typeChip, styles.countdownChip]}>
-                              <AnimatedCountdown target={sessionStart} color="#ec4899" />
+                              <AnimatedCountdown target={sessionStart} color={C.danger} />
                             </View>
                           )}
                         </View>
@@ -344,12 +344,12 @@ export default function SwimmerCalendarScreen({ navigation }: Props) {
                     <View key={slot.id} style={styles.slotItemEmpty}>
                       <View style={styles.slotHeader}>
                         <View style={styles.slotNameRow}>
-                          <View style={[styles.statusDot, { backgroundColor: 'rgba(100,116,139,0.45)' }]} />
+                          <View style={[styles.statusDot, { backgroundColor: C.lineStrong }]} />
                           <Text variant="labelMedium" style={styles.slotName}>
                             {slot.name}
                           </Text>
                         </View>
-                        <Text style={[styles.statusLabel, { color: 'rgba(100,116,139,0.45)' }]}>
+                        <Text style={[styles.statusLabel, { color: C.inkMuted }]}>
                           Pas de séance
                         </Text>
                       </View>
@@ -376,13 +376,13 @@ const styles = StyleSheet.create({
   header: {
     padding: 16,
     paddingBottom: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
   },
   weekNav: {
     flexDirection: 'row',
@@ -391,20 +391,18 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   weekRange: {
-    color: '#0891b2',
-    fontWeight: '500',
+    color: C.primary,
+    fontFamily: FONTS.textMedium,
   },
   errorBanner: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: C.warningSoft,
     padding: 12,
     marginHorizontal: 12,
     marginTop: 8,
     borderRadius: 8,
-    borderLeftWidth: 4,
-    borderLeftColor: '#F59E0B',
   },
   errorText: {
-    color: '#92400E',
+    color: C.warning,
     fontSize: 13,
   },
   list: {
@@ -412,50 +410,50 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   dayColumn: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderRadius: 10,
     overflow: 'hidden',
     marginBottom: 4,
   },
   todayColumn: {
     borderWidth: 2,
-    borderColor: '#ec4899',
+    borderColor: C.primary,
   },
   dayHeader: {
     padding: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.35)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   todayHeader: {
-    backgroundColor: 'rgba(219, 39, 119, 0.12)',
+    backgroundColor: C.primarySoft,
   },
   dayLabel: {
-    color: '#0891b2',
-    fontWeight: '600',
+    color: C.primary,
+    fontFamily: FONTS.textStrong,
   },
   todayLabel: {
-    color: '#ec4899',
-    fontWeight: 'bold',
+    color: C.onPrimarySoft,
+    fontFamily: FONTS.textBold,
   },
   emptyDay: {
     padding: 12,
   },
   emptyText: {
-    color: '#64748b',
+    color: C.inkMuted,
     fontStyle: 'italic',
   },
   slotItem: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.50)',
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    borderBottomColor: 'transparent',
+    backgroundColor: C.surface,
   },
   slotItemEmpty: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.50)',
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    borderBottomColor: 'transparent',
+    backgroundColor: C.surface,
   },
   slotHeader: {
     flexDirection: 'row',
@@ -473,15 +471,15 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   slotName: {
-    color: '#1e293b',
-    fontWeight: '600',
+    color: C.ink,
+    fontFamily: FONTS.textStrong,
   },
   statusLabel: {
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: FONTS.textStrong,
   },
   slotTime: {
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 2,
   },
   titleRow: {
@@ -490,8 +488,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   workoutTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginTop: 4,
     marginBottom: 4,
   },
@@ -503,14 +501,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.50)',
+    backgroundColor: C.surface,
   },
   typeChipText: {
     fontSize: 11,
-    color: '#0891b2',
-    fontWeight: '500',
+    color: C.primary,
+    fontFamily: FONTS.textMedium,
   },
   countdownChip: {
-    backgroundColor: 'rgba(219, 39, 119, 0.10)',
+    backgroundColor: C.dangerSoft,
   },
 });

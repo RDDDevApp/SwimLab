@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, Menu, TextInput } from 'react-native-paper';
+import { C, FONTS } from '../config/tokens';
 
 interface Option {
   value: string;
@@ -65,14 +66,14 @@ export default function PickerSelect({
 
 const styles = StyleSheet.create({
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.60)',
+    backgroundColor: C.surface,
   },
   menuContent: {
-    backgroundColor: '#F0F7F4',
+    backgroundColor: C.successSoft,
     maxHeight: 300,
   },
   selectedItem: {
-    fontWeight: 'bold',
-    color: '#0891B2',
+    fontFamily: FONTS.textBold,
+    color: C.primary,
   },
 });

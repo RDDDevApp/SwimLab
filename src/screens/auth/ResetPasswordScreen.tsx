@@ -4,6 +4,7 @@ import { TextInput, Button, Text, HelperText } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
 import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
+import { C, FONTS } from '../../config/tokens';
 
 /** Affiché quand l'app est ouverte depuis le lien « mot de passe oublié ». */
 export default function ResetPasswordScreen() {
@@ -93,17 +94,17 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   title: {
-    color: '#0891B2',
-    fontWeight: 'bold',
+    color: C.ink,
+    fontFamily: FONTS.display,
     textAlign: 'center',
   },
   text: {
-    color: '#64748b',
+    color: C.inkMuted,
     fontSize: 14,
     textAlign: 'center',
     marginBottom: 6,
   },
   input: {
-    backgroundColor: 'rgba(255,255,255,0.60)',
+    backgroundColor: C.surface,
   },
 });

@@ -18,7 +18,8 @@ import {
 import { useAuthStore } from '../../stores/authStore';
 import EmptyState from '../../components/EmptyState';
 import { toISODate } from '../../utils/dateHelpers';
-
+import { C, FONTS } from '../../config/tokens';
+import { getRPEColor, getRPETextColor } from '../../config/theme';
 interface HistoryItem {
   assignmentId: string;
   scheduledDate: string;
@@ -149,9 +150,7 @@ export default function WorkoutHistoryScreen({ navigation }: Props) {
   );
 
   function getRpeColor(rpe: number): { bg: string; text: string } {
-    if (rpe <= 12) return { bg: '#D1FAE5', text: '#065F46' };
-    if (rpe <= 15) return { bg: '#FEF3C7', text: '#92400E' };
-    return { bg: '#FEE2E2', text: '#991B1B' };
+    return { bg: getRPEColor(rpe), text: getRPETextColor(rpe) };
   }
 
   return (
@@ -246,9 +245,9 @@ const styles = StyleSheet.create({
   header: {
     padding: 16,
     paddingTop: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   headerRow: {
     flexDirection: 'row',
@@ -256,11 +255,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   countChip: {
-    backgroundColor: 'rgba(14, 116, 144, 0.10)',
+    backgroundColor: C.primarySoft,
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
@@ -271,7 +270,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginBottom: 10,
   },
   cardHeader: {
@@ -281,16 +280,16 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   date: {
-    color: '#64748b',
-    fontWeight: '600',
+    color: C.inkMuted,
+    fontFamily: FONTS.textStrong,
   },
   groupChip: {
-    backgroundColor: '#E0E7FF',
+    backgroundColor: C.primarySoft,
     height: 26,
   },
   workoutTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginBottom: 6,
   },
   chipRow: {
@@ -300,7 +299,7 @@ const styles = StyleSheet.create({
   },
   chip: {
     height: 26,
-    backgroundColor: 'rgba(255, 255, 255, 0.50)',
+    backgroundColor: C.surface,
   },
   rpeChip: {
     height: 26,

@@ -31,7 +31,7 @@ export const soloService = {
     workoutId: string,
     scheduledDate: string,
   ): Promise<SoloSession> {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('solo_sessions')
       .insert({
         swimmer_id: swimmerId,
@@ -52,7 +52,7 @@ export const soloService = {
 
   /** Seances planifiees (a venir + non completees passees), avec titre du workout */
   async getUpcoming(swimmerId: string): Promise<SoloSessionWithWorkout[]> {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('solo_sessions')
       .select('*, workouts!workout_id(title, total_distance)')
       .eq('swimmer_id', swimmerId)
@@ -63,12 +63,12 @@ export const soloService = {
       if (isMissingTableError(error)) return [];
       throw error;
     }
-    return (data as any[]).map(mapWithWorkout);
+    return (data ?? []).map(mapWithWorkout);
   },
 
   /** Historique des seances solo completees */
   async getHistory(swimmerId: string): Promise<SoloSessionWithWorkout[]> {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('solo_sessions')
       .select('*, workouts!workout_id(title, total_distance)')
       .eq('swimmer_id', swimmerId)
@@ -79,7 +79,7 @@ export const soloService = {
       if (isMissingTableError(error)) return [];
       throw error;
     }
-    return (data as any[]).map(mapWithWorkout);
+    return (data ?? []).map(mapWithWorkout);
   },
 
   /** Auto-emargement : marquer la seance faite avec feedback */
@@ -96,7 +96,7 @@ export const soloService = {
       throw new Error('Le score RPE doit être entre 6 et 20');
     }
 
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('solo_sessions')
       .update({
         completed_at: new Date().toISOString(),
@@ -115,7 +115,7 @@ export const soloService = {
 
   /** Supprimer une seance planifiee */
   async deleteSession(sessionId: string): Promise<void> {
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('solo_sessions')
       .delete()
       .eq('id', sessionId);

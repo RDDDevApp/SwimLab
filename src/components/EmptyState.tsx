@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, Icon } from 'react-native-paper';
+import { C } from '../config/tokens';
 
 interface EmptyStateProps {
   icon: string;
@@ -11,7 +12,7 @@ interface EmptyStateProps {
 export default function EmptyState({ icon, title, subtitle }: EmptyStateProps) {
   return (
     <View style={styles.container}>
-      <Icon source={icon} size={48} color="rgba(100,116,139,0.25)" />
+      <Icon source={icon} size={48} color={C.inkMuted} />
       <Text variant="bodyLarge" style={styles.title}>
         {title}
       </Text>
@@ -33,12 +34,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   title: {
-    color: 'rgba(100,116,139,0.55)',
+    color: C.inkMuted,
     textAlign: 'center',
     marginTop: 8,
   },
   subtitle: {
-    color: 'rgba(100,116,139,0.40)',
+    color: C.inkMuted,
     textAlign: 'center',
   },
 });

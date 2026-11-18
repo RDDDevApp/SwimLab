@@ -151,7 +151,7 @@ export const workoutSessionService = {
 
     if (error) throw error;
 
-    return (data as any[]).map((s) => ({
+    return (data ?? []).map((s) => ({
       sessionId: s.id,
       swimmerName: s.profiles
         ? `${s.profiles.first_name || ''} ${s.profiles.last_name || ''}`.trim()
@@ -160,7 +160,7 @@ export const workoutSessionService = {
       feedbackText: s.feedback_text,
       workoutTitle: s.workout_assignments?.workouts?.title || 'Séance',
       scheduledDate: s.workout_assignments?.scheduled_date || '',
-      completedAt: s.completed_at,
+      completedAt: s.completed_at!, // filtré par .not('completed_at', 'is', null)
     }));
   },
 
@@ -185,12 +185,12 @@ export const workoutSessionService = {
 
     if (error) throw error;
 
-    return (data as any[]).map((s) => ({
+    return (data ?? []).map((s) => ({
       swimmerId: s.swimmer_id,
       swimmerName: s.profiles
         ? `${s.profiles.first_name || ''} ${s.profiles.last_name || ''}`.trim()
         : 'Nageur',
-      rpeScore: s.rpe_score,
+      rpeScore: s.rpe_score!, // filtré par .not('rpe_score', 'is', null)
       scheduledDate: s.workout_assignments?.scheduled_date || '',
     }));
   },
@@ -215,7 +215,7 @@ export const workoutSessionService = {
 
     if (error) throw error;
 
-    return (data as any[]).map((s) => {
+    return (data ?? []).map((s) => {
       const { profiles, ...session } = s;
       return {
         ...session,
@@ -249,7 +249,7 @@ export const workoutSessionService = {
 
     const { data, error } = await supabase
       .from('workout_sessions')
-      .update(buildFeedbackPayload(feedback, true) as any)
+      .update(buildFeedbackPayload(feedback, true))
       .eq('id', sessionId)
       .select()
       .single();
@@ -259,7 +259,7 @@ export const workoutSessionService = {
       if (isMissingColumnError(error)) {
         const { data: retryData, error: retryError } = await supabase
           .from('workout_sessions')
-          .update(buildFeedbackPayload(feedback, false) as any)
+          .update(buildFeedbackPayload(feedback, false))
           .eq('id', sessionId)
           .select()
           .single();
@@ -300,7 +300,7 @@ export const workoutSessionService = {
 
     const { data, error } = await supabase
       .from('workout_sessions')
-      .update(buildFeedbackPayload(feedback, true) as any)
+      .update(buildFeedbackPayload(feedback, true))
       .eq('id', sessionId)
       .select()
       .single();
@@ -309,7 +309,7 @@ export const workoutSessionService = {
       if (isMissingColumnError(error)) {
         const { data: retryData, error: retryError } = await supabase
           .from('workout_sessions')
-          .update(buildFeedbackPayload(feedback, false) as any)
+          .update(buildFeedbackPayload(feedback, false))
           .eq('id', sessionId)
           .select()
           .single();
@@ -400,7 +400,7 @@ export const workoutSessionService = {
 
     if (error) throw error;
 
-    return (data as any[]).map((s) => ({
+    return (data ?? []).map((s) => ({
       sessionId: s.id,
       workoutTitle: s.workout_assignments?.workouts?.title || 'Séance',
       scheduledDate: s.workout_assignments?.scheduled_date || '',
@@ -448,7 +448,7 @@ export const workoutSessionService = {
 
     if (error) throw error;
 
-    const clubEntries: SwimmerHistoryEntry[] = (data as any[]).map((s) => {
+    const clubEntries: SwimmerHistoryEntry[] = (data ?? []).map((s) => {
       const a = s.workout_assignments;
       const w = a?.workouts;
       return {

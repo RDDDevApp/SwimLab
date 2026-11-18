@@ -4,7 +4,7 @@ import { Text } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import Animated, { FadeInUp } from 'react-native-reanimated';
-import { shadow } from '../config/tokens';
+import { C, RADIUS, SHADOW, SPACING, TYPE } from '../config/tokens';
 
 interface QuickActionCardProps {
   title: string;
@@ -31,8 +31,8 @@ export default function QuickActionCard({
     onPress();
   };
 
-  const iconBgColor = iconColor + '20'; // 12% opacity
-  const blobColor = iconColor + '30'; // 19% opacity
+  // DA : les raccourcis restent calmes (pas de couleur vive) ; iconColor n'est plus utilisé.
+  void iconColor;
 
   return (
     <Animated.View entering={FadeInUp.duration(500).delay(delay)} style={{ width: CARD_WIDTH }}>
@@ -42,20 +42,18 @@ export default function QuickActionCard({
       >
         {/* Arrow top right */}
         <View style={styles.arrowContainer}>
-          <Ionicons name="arrow-forward-outline" size={16} color={iconColor} style={{ opacity: 0.5 }} />
+          <Ionicons name="arrow-forward-outline" size={16} color={C.inkMuted} />
         </View>
 
         {/* Icon */}
-        <View style={[styles.iconCircle, { backgroundColor: iconBgColor }]}>
-          <Ionicons name={icon as any} size={24} color={iconColor} />
+        <View style={styles.iconCircle}>
+          <Ionicons name={icon as any} size={24} color={C.onPrimarySoft} />
         </View>
 
         {/* Text */}
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.subtitle}>{subtitle}</Text>
 
-        {/* Decorative blob */}
-        <View style={[styles.blob, { backgroundColor: blobColor }]} />
       </Pressable>
     </Animated.View>
   );
@@ -63,48 +61,36 @@ export default function QuickActionCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
-    borderColor: 'rgba(255, 255, 255, 0.60)',
-    borderWidth: 1,
-    borderRadius: 20,
-    padding: 16,
-    overflow: 'hidden',
-    ...shadow(0.05, 16, 4, 3),
+    backgroundColor: C.surface,
+    borderRadius: RADIUS.md,
+    padding: SPACING.lg,
     minHeight: 140,
+    ...SHADOW.card,
   },
   pressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.98 }],
+    transform: [{ scale: 0.97 }],
   },
   arrowContainer: {
     position: 'absolute',
-    top: 12,
-    right: 12,
+    top: SPACING.md,
+    right: SPACING.md,
   },
   iconCircle: {
     width: 48,
     height: 48,
-    borderRadius: 12,
+    borderRadius: RADIUS.pill,
+    backgroundColor: C.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+    marginBottom: SPACING.md,
   },
   title: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#1e293b',
+    ...TYPE.title3,
+    color: C.ink,
     marginBottom: 2,
   },
   subtitle: {
-    fontSize: 12,
-    color: '#64748b',
-  },
-  blob: {
-    position: 'absolute',
-    bottom: -24,
-    right: -24,
-    width: 96,
-    height: 96,
-    borderRadius: 48,
+    ...TYPE.caption,
+    color: C.inkMuted,
   },
 });
