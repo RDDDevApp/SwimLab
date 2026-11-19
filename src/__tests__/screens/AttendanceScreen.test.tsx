@@ -105,4 +105,22 @@ describe("Écran d'émargement (coach)", () => {
     expect(navigation.goBack).not.toHaveBeenCalled();
     expect(mocks.markAttendance).not.toHaveBeenCalled();
   });
+
+  it('ne laisse pas valider un appel vide pendant le chargement', async () => {
+    mocks.getMembers.mockReturnValue(new Promise(() => {}));
+    renderScreen(<AttendanceScreen navigation={makeNavigation()} route={route} />);
+
+    fireEvent.press(screen.getByText("Valider l'émargement (0/0)"));
+    await new Promise((r) => setTimeout(r, 50));
+    expect(mocks.bulkCreateAttendance).not.toHaveBeenCalled();
+  });
+
+  it('explique le problème si le groupe ne se charge pas', async () => {
+    mocks.getMembers.mockRejectedValue(new Error('timeout'));
+    renderScreen(<AttendanceScreen navigation={makeNavigation()} route={route} />);
+
+    expect(
+      await screen.findByText('Impossible de charger le groupe. Reviens en arrière et réessaie.'),
+    ).toBeTruthy();
+  });
 });

@@ -75,9 +75,10 @@ async function fetchCoachHistory(coachId: string): Promise<HistoryItem[]> {
     workouts = new Map(list.map((w) => [w.id, w]));
   } catch {}
 
-  const rpeMap = await workoutSessionService.getAverageRpeByAssignments(
-    pastAssignments.map((a) => a.id),
-  );
+  // Sans RPE moyen, l'historique reste affiché
+  const rpeMap: Record<string, number | null> = await workoutSessionService
+    .getAverageRpeByAssignments(pastAssignments.map((a) => a.id))
+    .catch(() => ({}));
 
   return pastAssignments
     .map((a) => {

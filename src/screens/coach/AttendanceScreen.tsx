@@ -62,10 +62,13 @@ export default function AttendanceScreen({ navigation, route }: Props) {
 
   // Liste du groupe, coachs et présences annoncées : chargés une fois à l'ouverture.
   // Pas de rechargement au retour sur l'écran : il effacerait les cases déjà cochées.
-  const { data } = useQuery({
+  // gcTime 0 : chaque ouverture repart de la base, pour que le pré-remplissage
+  // tienne compte des absences signalées depuis la dernière ouverture.
+  const { data, isLoading: loading, isError } = useQuery({
     queryKey: queryKeys.attendance(assignmentId),
     queryFn: () => fetchAttendanceData(groupId, assignmentId),
     staleTime: 0,
+    gcTime: 0,
   });
   const swimmers = data?.members ?? EMPTY_PROFILES;
   const coaches = data?.coaches ?? EMPTY_COACHES;
@@ -284,16 +287,17 @@ export default function AttendanceScreen({ navigation, route }: Props) {
         >
           Ajouter un nageur invité
         </Button>
-        {error ? (
+        {error || isError ? (
           <HelperText type="error" visible>
-            {error}
+            {error || 'Impossible de charger le groupe. Reviens en arrière et réessaie.'}
           </HelperText>
         ) : null}
         <Button
           mode="contained"
           onPress={handleSubmit}
-          loading={submitting}
-          disabled={submitting}
+          loading={submitting || loading}
+          // Pas d'appel tant que le groupe n'est pas chargé : il serait enregistré vide
+          disabled={submitting || loading || isError || totalCount === 0}
         >
           Valider l'émargement ({presentCount}/{totalCount})
         </Button>
