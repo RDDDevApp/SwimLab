@@ -15,7 +15,7 @@ module.exports = defineConfig([
     },
   },
   {
-    files: ['jest.setup.js', 'src/__tests__/**'],
+    files: ['jest.setup.js', 'jest.screens.setup.js', 'src/__tests__/**'],
     languageOptions: {
       globals: { jest: 'readonly', describe: 'readonly', it: 'readonly', expect: 'readonly', beforeEach: 'readonly' },
     },

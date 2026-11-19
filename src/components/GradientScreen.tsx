@@ -1,8 +1,7 @@
 import React from 'react';
 import { StyleSheet, ViewStyle } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { OCEAN_GRADIENT } from '../config/gradients';
+import { C } from '../config/tokens';
 
 interface Props {
   children: React.ReactNode;
@@ -10,22 +9,18 @@ interface Props {
   style?: ViewStyle;
 }
 
+/**
+ * Fond d'écran de la DA « La vague » : un `bg` uni et calme.
+ * (Le nom est historique : il n'y a plus de dégradé.)
+ */
 export default function GradientScreen({ children, edges = ['top'], style }: Props) {
   return (
-    <LinearGradient
-      colors={[...OCEAN_GRADIENT.colors]}
-      start={OCEAN_GRADIENT.start}
-      end={OCEAN_GRADIENT.end}
-      style={styles.gradient}
-    >
-      <SafeAreaView style={[styles.safe, style]} edges={edges}>
-        {children}
-      </SafeAreaView>
-    </LinearGradient>
+    <SafeAreaView style={[styles.safe, style]} edges={edges}>
+      {children}
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  gradient: { flex: 1 },
-  safe: { flex: 1 },
+  safe: { flex: 1, backgroundColor: C.bg },
 });

@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, Card, Button, Chip, RadioButton, HelperText } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
-import { Workout } from '../../types';
-import { workoutService, workoutAssignmentService } from '../../services';
+import { workoutAssignmentService } from '../../services';
+import { useCoachWorkouts } from '../../hooks';
 import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
+import { C, FONTS } from '../../config/tokens';
 
 interface Props {
   navigation: any;
@@ -17,28 +18,13 @@ export default function AssignWorkoutScreen({ navigation, route }: Props) {
   const showSnackbar = useSnackbarStore((s) => s.show);
   const { slotId, slotName, date } = route.params;
 
-  const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [selectedId, setSelectedId] = useState<string>('');
-  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    loadWorkouts();
-  }, []);
-
-  const loadWorkouts = async () => {
-    if (!user) return;
-    try {
-      const data = await workoutService.getByCoach(user.id);
-      // Only show published workouts
-      setWorkouts(data.filter((w) => w.is_published));
-    } catch (err) {
-      console.error('Error loading workouts:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Seules les séances publiées peuvent être attribuées
+  const { data: allWorkouts = [], isLoading: loading } = useCoachWorkouts(user?.id);
+  const workouts = allWorkouts.filter((w) => w.is_published);
 
   const handleAssign = async () => {
     if (!selectedId) {
@@ -178,13 +164,13 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
@@ -198,12 +184,12 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   workoutCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginBottom: 8,
   },
   selectedCard: {
     borderWidth: 2,
-    borderColor: '#0891B2',
+    borderColor: C.primary,
   },
   cardContent: {
     flexDirection: 'row',
@@ -214,8 +200,8 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   cardTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
   },
   cardMeta: {
     flexDirection: 'row',
@@ -225,14 +211,14 @@ const styles = StyleSheet.create({
   },
   typeChip: {
     height: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: C.surface,
   },
   distance: {
-    color: '#0891B2',
-    fontWeight: '600',
+    color: C.primary,
+    fontFamily: FONTS.textStrong,
   },
   desc: {
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 4,
   },
   emptyState: {
@@ -242,11 +228,11 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   emptyText: {
-    color: '#64748b',
+    color: C.inkMuted,
     textAlign: 'center',
   },
   emptySubtext: {
-    color: '#64748b',
+    color: C.inkMuted,
     textAlign: 'center',
     marginTop: 8,
   },
@@ -255,8 +241,8 @@ const styles = StyleSheet.create({
   },
   footer: {
     padding: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.60)',
+    borderTopColor: 'transparent',
   },
 });

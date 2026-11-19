@@ -1,13 +1,14 @@
-import React, { useState, useCallback } from 'react';
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { View, StyleSheet, ScrollView, Dimensions, RefreshControl } from 'react-native';
 import { Text, Button, ActivityIndicator } from 'react-native-paper';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import GradientScreen from '../../components/GradientScreen';
-import { useFocusEffect } from '@react-navigation/native';
+import { queryKeys, useRefreshOnFocus } from '../../hooks';
+import { WorkoutAssignment } from '../../types';
 import { BarChart, LineChart } from 'react-native-chart-kit';
 import { useAuthStore } from '../../stores/authStore';
-import { shadow } from '../../config/tokens';
+import { C, FONTS, RADIUS, SHADOW, SPACING } from '../../config/tokens';
 import {
   groupService,
   workoutService,
@@ -19,20 +20,23 @@ import {
 const screenWidth = Dimensions.get('window').width - 48;
 
 const chartConfig = {
-  backgroundGradientFrom: 'rgba(255, 255, 255, 0.40)',
-  backgroundGradientTo: 'rgba(255, 255, 255, 0.40)',
+  backgroundGradientFrom: C.surface,
+  backgroundGradientTo: C.surface,
   decimalCount: 0,
-  color: (opacity = 1) => `rgba(6, 182, 212, ${opacity})`,
-  labelColor: () => '#64748b',
+  color: (opacity = 1) => `rgba(1, 178, 192, ${opacity})`,
+  labelColor: () => C.inkMuted,
   barPercentage: 0.6,
+  propsForLabels: {
+    fontFamily: FONTS.text,
+  },
   propsForBackgroundLines: {
-    stroke: 'rgba(203, 213, 225, 0.50)',
+    stroke: C.line,
   },
 };
 
 const rpeChartConfig = {
   ...chartConfig,
-  color: (opacity = 1) => `rgba(236, 72, 153, ${opacity})`,
+  color: (opacity = 1) => `rgba(238, 61, 128, ${opacity})`,
 };
 
 interface StatCardData {
@@ -60,15 +64,15 @@ function StatCardItem({ stat }: { stat: StatCardData }) {
                 styles.trendBadge,
                 {
                   backgroundColor: stat.trend.isPositive
-                    ? 'rgba(16, 185, 129, 0.15)'
-                    : 'rgba(244, 63, 94, 0.15)',
+                    ? C.successSoft
+                    : C.dangerSoft,
                 },
               ]}
             >
               <Text
                 style={[
                   styles.trendText,
-                  { color: stat.trend.isPositive ? '#059669' : '#e11d48' },
+                  { color: stat.trend.isPositive ? C.success : C.danger },
                 ]}
               >
                 {stat.trend.isPositive ? '+' : ''}{stat.trend.value}%
@@ -76,7 +80,7 @@ function StatCardItem({ stat }: { stat: StatCardData }) {
               <Text
                 style={[
                   styles.trendLabel,
-                  { color: stat.trend.isPositive ? '#059669' : '#e11d48' },
+                  { color: stat.trend.isPositive ? C.success : C.danger },
                 ]}
               >
                 {' '}vs mois dernier
@@ -85,10 +89,9 @@ function StatCardItem({ stat }: { stat: StatCardData }) {
           )}
         </View>
         <View style={styles.statIconWrap}>
-          <Ionicons name={stat.icon} size={22} color="#475569" />
+          <Ionicons name={stat.icon} size={22} color={C.inkMuted} />
         </View>
       </View>
-      <View style={[styles.decorativeBlob, { backgroundColor: stat.color }]} />
     </View>
   );
 }
@@ -97,156 +100,153 @@ interface Props {
   navigation: any;
 }
 
+type Series = { labels: string[]; data: number[] };
+
+interface CoachStats {
+  swimmerCount: number;
+  workoutCount: number;
+  groupCount: number;
+  totalKm: number;
+  sessionCount: number;
+  avgRpe: number | null;
+  attendanceRate: number;
+  weeklyVolume: Series;
+  groupDistribution: Series;
+  rpeByWeek: Series;
+}
+
+const EMPTY_SERIES: Series = { labels: [], data: [] };
+
+/** Statistiques des 12 dernières semaines sur tous les groupes du coach. */
+async function fetchCoachStats(coachId: string): Promise<CoachStats> {
+  const [groups, workouts] = await Promise.all([
+    groupService.getByCoach(coachId),
+    workoutService.getByCoach(coachId),
+  ]);
+
+  // Nageurs et répartition par groupe (requêtes en parallèle)
+  const swimmerIds = new Set<string>();
+  const memberLists = await Promise.all(
+    groups.map((g) => groupService.getMembers(g.id).catch(() => null)),
+  );
+  const groupDist: { name: string; count: number }[] = [];
+  groups.forEach((group, i) => {
+    const members = memberLists[i];
+    if (!members) return;
+    members.forEach((m) => swimmerIds.add(m.id));
+    groupDist.push({ name: group.name, count: members.length });
+  });
+
+  // Créneaux de tous les groupes en une requête (anti N+1)
+  let allSlotIds: string[] = [];
+  if (groups.length > 0) {
+    try {
+      allSlotIds = (await trainingSlotService.getByGroups(groups.map((g) => g.id))).map((s) => s.id);
+    } catch {}
+  }
+
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - 84); // 12 semaines
+  const startStr = startDate.toISOString().split('T')[0];
+  const endStr = endDate.toISOString().split('T')[0];
+
+  let assignments: WorkoutAssignment[] = [];
+  if (allSlotIds.length > 0) {
+    try {
+      assignments = await workoutAssignmentService.getByDateRange(allSlotIds, startStr, endStr);
+    } catch {}
+  }
+
+  let totalSessions = 0;
+  let attendedSessions = 0;
+  let rpeSum = 0;
+  let rpeCount = 0;
+  let distanceTotal = 0;
+  const weeklyVolumeMap: Record<string, number> = {};
+  const weeklyRpeMap: Record<string, { sum: number; count: number }> = {};
+
+  // Bilans des séances en parallèle ; une séance en échec est ignorée
+  const allStats = await Promise.all(
+    assignments.map((a) => workoutSessionService.getFeedbackStats(a.id).catch(() => null)),
+  );
+  assignments.forEach((assignment, i) => {
+    const stats = allStats[i];
+    if (!stats) return;
+    totalSessions += stats.total_swimmers;
+    attendedSessions += stats.attended_count;
+    if (stats.average_rpe !== null) {
+      rpeSum += stats.average_rpe * stats.attended_count;
+      rpeCount += stats.attended_count;
+    }
+
+    // Volume par semaine : distance de la séance × nageurs présents
+    const weekStart = getWeekStart(assignment.scheduled_date);
+    const dist =
+      (workouts.find((w) => w.id === assignment.workout_id)?.total_distance || 0) *
+      stats.attended_count;
+    weeklyVolumeMap[weekStart] = (weeklyVolumeMap[weekStart] || 0) + dist;
+    distanceTotal += dist;
+
+    if (stats.average_rpe !== null) {
+      if (!weeklyRpeMap[weekStart]) weeklyRpeMap[weekStart] = { sum: 0, count: 0 };
+      weeklyRpeMap[weekStart].sum += stats.average_rpe;
+      weeklyRpeMap[weekStart].count += 1;
+    }
+  });
+
+  const sortedWeeks = Object.keys(weeklyVolumeMap).sort();
+  const sortedRpeWeeks = Object.keys(weeklyRpeMap).sort();
+
+  return {
+    swimmerCount: swimmerIds.size,
+    workoutCount: workouts.length,
+    groupCount: groups.length,
+    totalKm: Math.round(distanceTotal / 1000),
+    sessionCount: attendedSessions,
+    avgRpe: rpeCount > 0 ? Math.round((rpeSum / rpeCount) * 10) / 10 : null,
+    attendanceRate: totalSessions > 0 ? Math.round((attendedSessions / totalSessions) * 100) : 0,
+    weeklyVolume: {
+      labels: sortedWeeks.map(getWeekLabel),
+      data: sortedWeeks.map((k) => Math.round(weeklyVolumeMap[k] / 1000)),
+    },
+    groupDistribution: {
+      labels: groupDist.map((g) => (g.name.length > 8 ? g.name.substring(0, 8) + '.' : g.name)),
+      data: groupDist.map((g) => g.count),
+    },
+    rpeByWeek: {
+      labels: sortedRpeWeeks.map(getWeekLabel),
+      data: sortedRpeWeeks.map(
+        (k) => Math.round((weeklyRpeMap[k].sum / weeklyRpeMap[k].count) * 10) / 10,
+      ),
+    },
+  };
+}
+
 export default function CoachStatsScreen({ navigation }: Props) {
   const { user } = useAuthStore();
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-
-  // Stats data
-  const [swimmerCount, setSwimmerCount] = useState(0);
-  const [workoutCount, setWorkoutCount] = useState(0);
-  const [groupCount, setGroupCount] = useState(0);
-  const [totalKm, setTotalKm] = useState(0);
-  const [sessionCount, setSessionCount] = useState(0);
-  const [avgRpe, setAvgRpe] = useState<number | null>(null);
-  const [attendanceRate, setAttendanceRate] = useState(0);
-
-  // Chart data
-  const [weeklyVolume, setWeeklyVolume] = useState<{ labels: string[]; data: number[] }>({ labels: [], data: [] });
-  const [groupDistribution, setGroupDistribution] = useState<{ labels: string[]; data: number[] }>({ labels: [], data: [] });
-  const [rpeByWeek, setRpeByWeek] = useState<{ labels: string[]; data: number[] }>({ labels: [], data: [] });
-
-  const loadData = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
-    try {
-      const [groups, workouts] = await Promise.all([
-        groupService.getByCoach(user.id),
-        workoutService.getByCoach(user.id),
-      ]);
-
-      setGroupCount(groups.length);
-      setWorkoutCount(workouts.length);
-
-      // Collect swimmers and group distribution
-      const swimmerIds = new Set<string>();
-      const groupDist: { name: string; count: number }[] = [];
-      for (const group of groups) {
-        try {
-          const members = await groupService.getMembers(group.id);
-          members.forEach((m) => swimmerIds.add(m.id));
-          groupDist.push({ name: group.name, count: members.length });
-        } catch {}
-      }
-      setSwimmerCount(swimmerIds.size);
-      setGroupDistribution({
-        labels: groupDist.map((g) => g.name.length > 8 ? g.name.substring(0, 8) + '.' : g.name),
-        data: groupDist.map((g) => g.count),
-      });
-
-      // Get slots for assignments
-      const allSlotIds: string[] = [];
-      for (const group of groups) {
-        try {
-          const slots = await trainingSlotService.getByGroup(group.id);
-          slots.forEach((s) => allSlotIds.push(s.id));
-        } catch {}
-      }
-
-      // Get assignments for recent period (last 12 weeks)
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - 84); // 12 weeks
-      const startStr = startDate.toISOString().split('T')[0];
-      const endStr = endDate.toISOString().split('T')[0];
-
-      let assignments: any[] = [];
-      if (allSlotIds.length > 0) {
-        try {
-          assignments = await workoutAssignmentService.getByDateRange(
-            allSlotIds,
-            startStr,
-            endStr,
-          );
-        } catch {}
-      }
-
-      // Get feedback stats and compute metrics
-      let totalSessions = 0;
-      let attendedSessions = 0;
-      let rpeSum = 0;
-      let rpeCount = 0;
-      let distanceTotal = 0;
-
-      const weeklyVolumeMap: Record<string, number> = {};
-      const weeklyRpeMap: Record<string, { sum: number; count: number }> = {};
-
-      for (const assignment of assignments) {
-        try {
-          const stats = await workoutSessionService.getFeedbackStats(assignment.id);
-          totalSessions += stats.total_swimmers;
-          attendedSessions += stats.attended_count;
-          if (stats.average_rpe !== null) {
-            rpeSum += stats.average_rpe * stats.attended_count;
-            rpeCount += stats.attended_count;
-          }
-
-          // Weekly volume from workout distance
-          const weekStart = getWeekStart(assignment.scheduled_date);
-          const weekLabel = getWeekLabel(assignment.scheduled_date);
-          const dist = assignment.workout_id
-            ? (workouts.find((w) => w.id === assignment.workout_id)?.total_distance || 0) * stats.attended_count
-            : 0;
-          weeklyVolumeMap[weekStart] = (weeklyVolumeMap[weekStart] || 0) + dist;
-          distanceTotal += dist;
-
-          // Weekly RPE
-          if (stats.average_rpe !== null) {
-            if (!weeklyRpeMap[weekStart]) weeklyRpeMap[weekStart] = { sum: 0, count: 0 };
-            weeklyRpeMap[weekStart].sum += stats.average_rpe;
-            weeklyRpeMap[weekStart].count += 1;
-          }
-        } catch {}
-      }
-
-      setSessionCount(attendedSessions);
-      setTotalKm(Math.round(distanceTotal / 1000));
-      setAttendanceRate(totalSessions > 0 ? Math.round((attendedSessions / totalSessions) * 100) : 0);
-      setAvgRpe(rpeCount > 0 ? Math.round((rpeSum / rpeCount) * 10) / 10 : null);
-
-      // Build weekly volume chart data
-      const sortedWeeks = Object.keys(weeklyVolumeMap).sort();
-      setWeeklyVolume({
-        labels: sortedWeeks.map(getWeekLabel),
-        data: sortedWeeks.map((k) => Math.round(weeklyVolumeMap[k] / 1000)),
-      });
-
-      // Build RPE by week chart data
-      const sortedRpeWeeks = Object.keys(weeklyRpeMap).sort();
-      setRpeByWeek({
-        labels: sortedRpeWeeks.map(getWeekLabel),
-        data: sortedRpeWeeks.map((k) =>
-          Math.round((weeklyRpeMap[k].sum / weeklyRpeMap[k].count) * 10) / 10,
-        ),
-      });
-    } catch (err) {
-      console.error('Error loading coach stats:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await loadData();
-    setRefreshing(false);
-  }, [loadData]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadData();
-    }, [loadData]),
-  );
+  const { data, isLoading: loading, isRefetching, refetch } = useQuery({
+    queryKey: queryKeys.coachStats(user?.id ?? ''),
+    queryFn: () => fetchCoachStats(user!.id),
+    enabled: !!user,
+  });
+  useRefreshOnFocus(refetch);
+  const refreshing = isRefetching;
+  const onRefresh = () => {
+    refetch();
+  };
+  const {
+    swimmerCount = 0,
+    workoutCount = 0,
+    groupCount = 0,
+    totalKm = 0,
+    sessionCount = 0,
+    avgRpe = null,
+    attendanceRate = 0,
+    weeklyVolume = EMPTY_SERIES,
+    groupDistribution = EMPTY_SERIES,
+    rpeByWeek = EMPTY_SERIES,
+  } = data ?? {};
 
   const now = new Date();
   const currentMonth = now.toLocaleDateString('fr-FR', {
@@ -260,28 +260,28 @@ export default function CoachStatsScreen({ navigation }: Props) {
       value: `${swimmerCount}`,
       subtitle: 'Total dans le club',
       icon: 'people-outline',
-      color: 'rgba(6, 182, 212, 0.30)',
+      color: C.primary,
     },
     {
       title: 'Séances réalisées',
       value: `${sessionCount}`,
       subtitle: 'Ce trimestre',
       icon: 'water-outline',
-      color: 'rgba(99, 102, 241, 0.30)',
+      color: C.primary,
     },
     {
       title: 'Km totaux',
       value: `${totalKm.toLocaleString()}`,
       subtitle: 'Distance parcourue',
       icon: 'trending-up-outline',
-      color: 'rgba(234, 179, 8, 0.30)',
+      color: C.warning,
     },
     {
       title: 'Entraînements',
       value: `${workoutCount}`,
       subtitle: 'Séances créées',
       icon: 'clipboard-outline',
-      color: 'rgba(236, 72, 153, 0.30)',
+      color: C.danger,
     },
   ];
 
@@ -290,21 +290,21 @@ export default function CoachStatsScreen({ navigation }: Props) {
       title: 'Km moyen / nageur',
       value: swimmerCount > 0 ? `${Math.round(totalKm / swimmerCount)} km` : '0 km',
       icon: 'trophy-outline',
-      color: 'rgba(6, 182, 212, 0.30)',
+      color: C.primary,
     },
     {
       title: 'RPE moyen',
       value: avgRpe !== null ? `${avgRpe}/20` : '-',
       subtitle: 'Ressenti des athlètes',
       icon: 'pulse-outline',
-      color: 'rgba(236, 72, 153, 0.30)',
+      color: C.danger,
     },
     {
       title: 'Assiduité',
       value: `${attendanceRate}%`,
       subtitle: 'Présence moyenne',
       icon: 'checkmark-circle-outline',
-      color: 'rgba(234, 179, 8, 0.30)',
+      color: C.warning,
     },
   ];
 
@@ -323,7 +323,7 @@ export default function CoachStatsScreen({ navigation }: Props) {
             Suivi des performances et statistiques du club
           </Text>
           <View style={styles.datePill}>
-            <Ionicons name="calendar-outline" size={16} color="#0891b2" />
+            <Ionicons name="calendar-outline" size={16} color={C.primary} />
             <Text style={styles.datePillText}>
               {currentMonth.charAt(0).toUpperCase() + currentMonth.slice(1)}
             </Text>
@@ -358,12 +358,9 @@ export default function CoachStatsScreen({ navigation }: Props) {
                       )}
                     </View>
                     <View style={styles.statIconWrap}>
-                      <Ionicons name={stat.icon} size={20} color="#475569" />
+                      <Ionicons name={stat.icon} size={20} color={C.inkMuted} />
                     </View>
                   </View>
-                  <View
-                    style={[styles.decorativeBlob, { backgroundColor: stat.color }]}
-                  />
                 </View>
               ))}
             </View>
@@ -405,7 +402,7 @@ export default function CoachStatsScreen({ navigation }: Props) {
                   yAxisLabel=""
                   chartConfig={{
                     ...chartConfig,
-                    color: (opacity = 1) => `rgba(99, 102, 241, ${opacity})`,
+                    color: (opacity = 1) => `rgba(4, 79, 179, ${opacity})`,
                   }}
                   style={styles.chart}
                   fromZero
@@ -436,13 +433,7 @@ export default function CoachStatsScreen({ navigation }: Props) {
             )}
 
             {/* Insight Card */}
-            <LinearGradient
-              colors={['#0891b2', '#1d4ed8']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.insightCard}
-            >
-              <View style={styles.insightBlobDecor} />
+            <View style={styles.insightCard}>
               <Text style={styles.insightTitle}>En résumé</Text>
               <Text style={styles.insightText}>
                 {swimmerCount > 0
@@ -463,7 +454,7 @@ export default function CoachStatsScreen({ navigation }: Props) {
               >
                 Retour au tableau de bord
               </Button>
-            </LinearGradient>
+            </View>
           </>
         )}
       </ScrollView>
@@ -497,21 +488,21 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 32,
-    fontWeight: '800',
-    color: '#0891b2',
+    fontFamily: FONTS.display,
+    color: C.ink,
     letterSpacing: -0.5,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#475569',
+    color: C.inkMuted,
     marginTop: 4,
   },
   datePill: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
-    borderColor: 'rgba(255, 255, 255, 0.50)',
+    backgroundColor: C.surface,
+    borderColor: 'transparent',
     borderWidth: 1,
     borderRadius: 20,
     paddingHorizontal: 14,
@@ -521,8 +512,8 @@ const styles = StyleSheet.create({
   },
   datePillText: {
     fontSize: 13,
-    fontWeight: '500',
-    color: '#475569',
+    fontFamily: FONTS.textMedium,
+    color: C.inkMuted,
   },
   statsGrid: {
     flexDirection: 'row',
@@ -531,34 +522,32 @@ const styles = StyleSheet.create({
   },
   statCard: {
     width: (screenWidth - 12) / 2,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
-    borderColor: 'rgba(255, 255, 255, 0.60)',
-    borderWidth: 1,
-    borderRadius: 16,
+    backgroundColor: C.surface,
+    borderRadius: RADIUS.md,
     padding: 16,
     overflow: 'hidden',
-    ...shadow(0.05, 12, 4, 3),
+    ...SHADOW.card,
   },
   statCardInner: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    position: 'relative',
   },
   statCardTitle: {
     fontSize: 12,
-    fontWeight: '500',
-    color: '#475569',
+    lineHeight: 16,
+    fontFamily: FONTS.textStrong,
+    color: C.inkMuted,
     marginBottom: 4,
+    paddingRight: 24,
   },
   statCardValue: {
     fontSize: 24,
-    fontWeight: '700',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     letterSpacing: -0.5,
   },
   statCardSubtitle: {
     fontSize: 11,
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 2,
   },
   trendBadge: {
@@ -572,27 +561,17 @@ const styles = StyleSheet.create({
   },
   trendText: {
     fontSize: 11,
-    fontWeight: '700',
+    fontFamily: FONTS.textBold,
   },
   trendLabel: {
     fontSize: 10,
-    fontWeight: '400',
+    fontFamily: FONTS.text,
     opacity: 0.7,
   },
   statIconWrap: {
-    backgroundColor: 'rgba(255, 255, 255, 0.60)',
-    borderColor: 'rgba(255, 255, 255, 0.50)',
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 10,
-  },
-  decorativeBlob: {
     position: 'absolute',
-    bottom: -16,
-    right: -16,
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    top: 0,
+    right: 0,
   },
   secondaryGrid: {
     flexDirection: 'row',
@@ -600,64 +579,50 @@ const styles = StyleSheet.create({
   },
   secondaryCard: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
-    borderColor: 'rgba(255, 255, 255, 0.60)',
-    borderWidth: 1,
-    borderRadius: 16,
+    backgroundColor: C.surface,
+    borderRadius: RADIUS.md,
     padding: 12,
     overflow: 'hidden',
-    ...shadow(0.05, 12, 4, 3),
+    ...SHADOW.card,
   },
   chartCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
-    borderColor: 'rgba(255, 255, 255, 0.60)',
-    borderWidth: 1,
-    borderRadius: 16,
+    backgroundColor: C.surface,
+    borderRadius: RADIUS.md,
     padding: 16,
-    ...shadow(0.05, 12, 4, 3),
+    ...SHADOW.card,
   },
   chartTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#1e293b',
+    fontFamily: FONTS.displaySemi,
+    color: C.ink,
     marginBottom: 16,
   },
   chart: {
     borderRadius: 8,
   },
   insightCard: {
-    borderRadius: 16,
-    padding: 20,
-    overflow: 'hidden',
-    ...shadow(0.3, 16, 8, 6, '8, 145, 178'),
-  },
-  insightBlobDecor: {
-    position: 'absolute',
-    right: -30,
-    top: -30,
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: C.surface,
+    borderRadius: RADIUS.md,
+    padding: SPACING.lg,
+    ...SHADOW.card,
   },
   insightTitle: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginBottom: 8,
   },
   insightText: {
     fontSize: 14,
-    color: 'rgba(219, 234, 254, 0.90)',
+    color: C.ink,
     lineHeight: 22,
     marginBottom: 16,
   },
   insightButton: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    backgroundColor: C.primarySoft,
   },
   insightButtonLabel: {
-    color: '#1d4ed8',
-    fontWeight: '700',
+    color: C.onPrimarySoft,
+    fontFamily: FONTS.textStrong,
   },
 });

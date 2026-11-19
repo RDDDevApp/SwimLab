@@ -3,13 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { Text, Card, Chip } from 'react-native-paper';
 import { Workout, WorkoutBlock, BLOCK_TYPE_LABELS } from '../../types';
 import { migrateWorkoutContent } from '../../utils';
-
-const blockTypeColors: Record<string, string> = {
-  warmup: '#059669',
-  main: '#0891B2',
-  cooldown: '#7C3AED',
-  other: '#4B5563',
-};
+import { C, FONTS, WORKOUT_TYPE_COLORS } from '../../config/tokens';
 
 interface Props {
   workout: Workout;
@@ -34,7 +28,7 @@ export default function WorkoutContentView({ workout }: Props) {
       ) : null}
 
       {blocks.map((block, bIndex) => {
-        const color = blockTypeColors[block.type] || '#4B5563';
+        const typeColors = WORKOUT_TYPE_COLORS[block.type] ?? WORKOUT_TYPE_COLORS.other;
         const blockDistance = block.sub_blocks.reduce(
           (sum, sb) => sum + sb.distance * sb.repetitions,
           0,
@@ -43,12 +37,12 @@ export default function WorkoutContentView({ workout }: Props) {
         return (
           <Card
             key={block.id || bIndex}
-            style={[styles.blockCard, { borderLeftColor: color }]}
+            style={styles.blockCard}
           >
             <Card.Content>
               <View style={styles.blockHeader}>
-                <Chip compact style={[styles.blockTypeChip, { backgroundColor: color + '18' }]}>
-                  <Text style={{ color, fontWeight: '600', fontSize: 11 }}>
+                <Chip compact style={[styles.blockTypeChip, { backgroundColor: typeColors.bg }]}>
+                  <Text style={{ color: typeColors.color, fontFamily: FONTS.textStrong, fontSize: 12 }}>
                     {BLOCK_TYPE_LABELS[block.type as keyof typeof BLOCK_TYPE_LABELS] || block.type}
                   </Text>
                 </Chip>
@@ -98,16 +92,15 @@ export default function WorkoutContentView({ workout }: Props) {
 
 const styles = StyleSheet.create({
   descCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginBottom: 12,
   },
   descText: {
-    color: 'rgba(100,116,139,0.65)',
+    color: C.inkMuted,
   },
   blockCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginBottom: 12,
-    borderLeftWidth: 4,
   },
   blockHeader: {
     flexDirection: 'row',
@@ -119,31 +112,31 @@ const styles = StyleSheet.create({
     height: 26,
   },
   blockName: {
-    fontWeight: '600',
-    color: '#1e293b',
+    fontFamily: FONTS.textStrong,
+    color: C.ink,
     flex: 1,
   },
   blockDistance: {
-    color: '#0891B2',
-    fontWeight: 'bold',
+    color: C.primary,
+    fontFamily: FONTS.textBold,
   },
   subBlock: {
     marginTop: 8,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.50)',
+    borderTopColor: 'transparent',
   },
   subBlockTitle: {
-    fontWeight: '600',
-    color: '#1e293b',
+    fontFamily: FONTS.displaySemi,
+    color: C.ink,
     marginBottom: 2,
   },
   departure: {
-    color: '#64748b',
+    color: C.inkMuted,
     marginBottom: 2,
   },
   description: {
-    color: '#64748b',
+    color: C.inkMuted,
     fontStyle: 'italic',
   },
 });

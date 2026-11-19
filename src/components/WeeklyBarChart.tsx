@@ -9,6 +9,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import GlassCard from './GlassCard';
+import { C, FONTS } from '../config/tokens';
 
 interface WeeklyBarChartProps {
   data: number[];
@@ -42,7 +43,7 @@ function AnimatedBar({ height, color, delay }: { height: number; color: string; 
 
 export default function WeeklyBarChart({
   data,
-  activeColor = '#06B6D4',
+  activeColor = C.primary,
   title = 'Ma semaine',
   label,
 }: WeeklyBarChartProps) {
@@ -55,7 +56,7 @@ export default function WeeklyBarChart({
         </View>
         <View style={styles.dots}>
           <View style={[styles.dot, { backgroundColor: activeColor }]} />
-          <View style={[styles.dot, { backgroundColor: '#cbd5e1' }]} />
+          <View style={[styles.dot, { backgroundColor: C.line }]} />
         </View>
       </View>
 
@@ -85,12 +86,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
   },
   label: {
     fontSize: 13,
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 2,
   },
   dots: {
@@ -117,7 +118,7 @@ const styles = StyleSheet.create({
   barBackground: {
     width: '100%',
     height: BAR_HEIGHT,
-    backgroundColor: 'rgba(148, 163, 184, 0.10)',
+    backgroundColor: C.surfaceSunken,
     borderRadius: 8,
     overflow: 'hidden',
     justifyContent: 'flex-end',
@@ -130,7 +131,7 @@ const styles = StyleSheet.create({
   },
   dayLabel: {
     fontSize: 11,
-    fontWeight: '600',
-    color: '#64748b',
+    fontFamily: FONTS.textStrong,
+    color: C.inkMuted,
   },
 });

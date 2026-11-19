@@ -6,6 +6,7 @@ import DemoAccountSwitcher from '../../components/DemoAccountSwitcher';
 import InviteLinkActions from '../../components/InviteLinkActions';
 import { clubService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
+import { C, FONTS } from '../../config/tokens';
 
 interface Props {
   navigation: any;
@@ -174,24 +175,22 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginTop: 24,
   },
   subtitle: {
-    color: '#64748b',
+    color: C.inkMuted,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: 'rgba(255,255,255,0.60)',
+    backgroundColor: C.surface,
   },
   createBtn: {
     marginTop: 8,
   },
   successCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
-    borderLeftWidth: 4,
-    borderLeftColor: 'rgba(255, 255, 255, 0.60)',
+    backgroundColor: C.surface,
     marginTop: 16,
   },
   successContent: {
@@ -199,32 +198,32 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   successTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     fontSize: 20,
   },
   successText: {
-    color: '#64748b',
+    color: C.inkMuted,
     textAlign: 'center',
   },
   codeChip: {
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: C.surface,
     paddingHorizontal: 12,
     paddingVertical: 4,
   },
   codeChipCoach: {
-    backgroundColor: 'rgba(139, 92, 246, 0.15)',
+    backgroundColor: C.primarySoft,
     paddingHorizontal: 12,
     paddingVertical: 4,
   },
   codeText: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontFamily: FONTS.display,
     letterSpacing: 2,
-    color: '#0891B2',
+    color: C.primary,
   },
   hint: {
-    color: '#64748b',
+    color: C.inkMuted,
     textAlign: 'center',
     marginTop: 4,
   },

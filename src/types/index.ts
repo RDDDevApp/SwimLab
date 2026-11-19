@@ -15,6 +15,7 @@ export type AuthStackParamList = {
   Login: undefined;
   Register: undefined;
   ForgotPassword: undefined;
+  Legal: undefined;
 };
 
 export type OnboardingStackParamList = {
@@ -51,6 +52,7 @@ export type CoachStackParamList = {
   BlockLibrary: undefined;
   WorkoutHistory: undefined;
   GenerateWorkout: undefined;
+  Legal: undefined;
   UIKit: undefined;
 };
 
@@ -70,6 +72,7 @@ export type SwimmerStackParamList = {
   JoinClub: undefined;
   CreateWorkout: { workout?: any; prefill?: { title: string; description: string; content: any } } | undefined;
   GenerateWorkout: undefined;
+  Legal: undefined;
   UIKit: undefined;
 };
 

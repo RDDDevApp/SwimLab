@@ -1,13 +1,14 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, FAB, Card, Chip, IconButton, Portal, Dialog, Button, Paragraph } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
-import { useFocusEffect } from '@react-navigation/native';
+import { useRefreshOnFocus, useCoachGroups } from '../../hooks';
 import { Group, GROUP_LEVELS } from '../../types';
 import { groupService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
 import EmptyState from '../../components/EmptyState';
+import { C, FONTS } from '../../config/tokens';
 
 interface Props {
   navigation: any;
@@ -16,28 +17,10 @@ interface Props {
 export default function GroupsScreen({ navigation }: Props) {
   const { user } = useAuthStore();
   const showSnackbar = useSnackbarStore((s) => s.show);
-  const [groups, setGroups] = useState<Group[]>([]);
-  const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<Group | null>(null);
 
-  const loadGroups = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
-    try {
-      const data = await groupService.getByCoach(user.id);
-      setGroups(data);
-    } catch (err) {
-      console.error('Error loading groups:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadGroups();
-    }, [loadGroups]),
-  );
+  const { data: groups = [], isLoading: loading, isFetching, refetch: loadGroups } = useCoachGroups(user?.id);
+  useRefreshOnFocus(loadGroups);
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -70,7 +53,7 @@ export default function GroupsScreen({ navigation }: Props) {
           data={groups}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
-          refreshing={loading}
+          refreshing={isFetching}
           onRefresh={loadGroups}
           renderItem={({ item }) => (
             <Card
@@ -87,7 +70,7 @@ export default function GroupsScreen({ navigation }: Props) {
                   <IconButton
                     icon="delete"
                     size={20}
-                    iconColor="#EF4444"
+                    iconColor={C.danger}
                     onPress={() => setDeleteTarget(item)}
                   />
                 </View>
@@ -97,7 +80,13 @@ export default function GroupsScreen({ navigation }: Props) {
                       {GROUP_LEVELS[item.level as keyof typeof GROUP_LEVELS]}
                     </Chip>
                   )}
-                  <Chip compact icon="clock-outline" style={styles.chip}>
+                  <Chip
+                    compact
+                    icon="clock-outline"
+                    style={styles.chip}
+                    onPress={() => navigation.navigate('Slots', { groupId: item.id })}
+                    accessibilityLabel={`Voir les créneaux du groupe ${item.name}`}
+                  >
                     Voir créneaux
                   </Chip>
                 </View>
@@ -114,6 +103,7 @@ export default function GroupsScreen({ navigation }: Props) {
 
       <FAB
         icon="plus"
+        color={C.onPrimary}
         style={styles.fab}
         onPress={() => navigation.navigate('CreateGroup')}
       />
@@ -128,7 +118,7 @@ export default function GroupsScreen({ navigation }: Props) {
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setDeleteTarget(null)}>Annuler</Button>
-            <Button onPress={handleDelete} textColor="#EF4444">
+            <Button onPress={handleDelete} textColor={C.danger}>
               Supprimer
             </Button>
           </Dialog.Actions>
@@ -145,13 +135,13 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
   },
   list: {
     padding: 16,
@@ -163,16 +153,16 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   emptyText: {
-    color: '#64748b',
+    color: C.inkMuted,
     textAlign: 'center',
   },
   emptySubtext: {
-    color: '#64748b',
+    color: C.inkMuted,
     textAlign: 'center',
     marginTop: 8,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginBottom: 10,
   },
   cardHeader: {
@@ -181,8 +171,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   cardTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     flex: 1,
   },
   chipRow: {
@@ -195,7 +185,7 @@ const styles = StyleSheet.create({
     height: 26,
   },
   desc: {
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 8,
   },
   fab: {
@@ -203,6 +193,7 @@ const styles = StyleSheet.create({
     margin: 16,
     right: 0,
     bottom: 0,
-    backgroundColor: '#0891B2',
+    backgroundColor: C.primary,
+    borderRadius: 999,
   },
 });

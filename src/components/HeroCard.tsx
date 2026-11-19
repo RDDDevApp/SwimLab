@@ -1,13 +1,14 @@
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text } from 'react-native-paper';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInUp } from 'react-native-reanimated';
-import { shadow } from '../config/tokens';
+import { C, FONTS, RADIUS, SHADOW, SPACING, TABULAR, TOUCH_MIN, TYPE } from '../config/tokens';
+import Waves from './Waves';
 
 interface HeroCardProps {
-  gradientColors: readonly string[];
+  /** Ancien dégradé : ignoré, la carte vedette est toujours `abysse`. */
+  gradientColors?: readonly string[];
   badge: { icon: string; text: string };
   title: string;
   subtitle: string;
@@ -17,7 +18,6 @@ interface HeroCardProps {
 }
 
 export default function HeroCard({
-  gradientColors,
   badge,
   title,
   subtitle,
@@ -26,19 +26,12 @@ export default function HeroCard({
   secondaryAction,
 }: HeroCardProps) {
   return (
-    <Animated.View entering={FadeInUp.duration(700).delay(300)}>
-      <LinearGradient
-        colors={gradientColors as unknown as [string, string, ...string[]]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.container}
-      >
-        {/* Decorative blob */}
-        <View style={styles.blob} />
+    <Animated.View entering={FadeInUp.duration(300)} style={styles.container}>
+      <View style={styles.content}>
 
         {/* Badge */}
         <View style={styles.badge}>
-          <Ionicons name={badge.icon as any} size={12} color="#FDE68A" />
+          <Ionicons name={badge.icon as any} size={14} color={C.onVif} />
           <Text style={styles.badgeText}>{badge.text}</Text>
         </View>
 
@@ -62,138 +55,128 @@ export default function HeroCard({
         {(primaryAction || secondaryAction) && (
           <View style={styles.actionsRow}>
             {primaryAction && (
-              <Pressable style={styles.primaryButton} onPress={primaryAction.onPress}>
+              <Pressable
+                accessibilityRole="button"
+                style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}
+                onPress={primaryAction.onPress}
+              >
                 {primaryAction.icon && (
-                  <Ionicons name={primaryAction.icon as any} size={18} color={gradientColors[0] as string} />
+                  <Ionicons name={primaryAction.icon as any} size={18} color={C.onVif} />
                 )}
-                <Text style={[styles.primaryButtonText, { color: gradientColors[0] as string }]}>
+                <Text style={styles.primaryButtonText}>
                   {primaryAction.label}
                 </Text>
               </Pressable>
             )}
             {secondaryAction && (
-              <Pressable style={styles.secondaryButton} onPress={secondaryAction.onPress}>
+              <Pressable
+                accessibilityRole="button"
+                style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+                onPress={secondaryAction.onPress}
+              >
                 {secondaryAction.icon && (
-                  <Ionicons name={secondaryAction.icon as any} size={16} color="#fff" />
+                  <Ionicons name={secondaryAction.icon as any} size={16} color={C.onAbysse} />
                 )}
                 <Text style={styles.secondaryButtonText}>{secondaryAction.label}</Text>
               </Pressable>
             )}
           </View>
         )}
-      </LinearGradient>
+      </View>
+      {/* Vagues en bas : jamais sous le texte */}
+      <Waves height={56} />
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 24,
-    padding: 24,
+    backgroundColor: C.abysse,
+    borderRadius: RADIUS.lg,
     overflow: 'hidden',
-    ...shadow(0.2, 20, 8, 8, '30, 58, 95'),
+    ...SHADOW.float,
   },
-  blob: {
-    position: 'absolute',
-    right: -80,
-    top: -80,
-    width: 320,
-    height: 320,
-    borderRadius: 160,
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+  content: {
+    padding: SPACING.xl,
+    paddingBottom: SPACING.md,
   },
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.20)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.10)',
-    marginBottom: 12,
+    gap: SPACING.xs,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.xs,
+    borderRadius: RADIUS.pill,
+    backgroundColor: C.soleil,
+    marginBottom: SPACING.md,
   },
   badgeText: {
-    color: '#fff',
-    fontSize: 11,
-    fontWeight: '800',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    ...TYPE.label,
+    color: C.onVif,
   },
   title: {
-    color: '#fff',
-    fontSize: 26,
-    fontWeight: '800',
-    marginBottom: 4,
+    ...TYPE.title1,
+    color: C.onAbysse,
+    marginBottom: SPACING.xs,
   },
   subtitle: {
-    color: 'rgba(255, 255, 255, 0.75)',
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 16,
+    ...TYPE.caption,
+    color: C.onAbysse,
+    marginBottom: SPACING.lg,
   },
   statsRow: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 20,
+    gap: SPACING.xl,
+    marginBottom: SPACING.lg,
   },
   statBox: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.10)',
-    minWidth: 100,
+    minWidth: 80,
   },
   statLabel: {
-    color: 'rgba(255, 255, 255, 0.65)',
-    fontSize: 10,
-    fontWeight: '700',
-    textTransform: 'uppercase',
+    ...TYPE.label,
+    color: C.onAbysse,
     marginBottom: 2,
   },
   statValue: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '800',
+    ...TYPE.title2,
+    fontFamily: FONTS.display,
+    color: C.onAbysse,
+    ...TABULAR,
   },
   actionsRow: {
     flexDirection: 'column',
-    gap: 10,
+    gap: SPACING.sm,
   },
   primaryButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    ...shadow(0.1, 8, 4, 4, '0, 0, 0'),
+    gap: SPACING.sm,
+    minHeight: TOUCH_MIN,
+    backgroundColor: C.soleil,
+    borderRadius: RADIUS.pill,
+    paddingHorizontal: SPACING.xl,
   },
   primaryButtonText: {
-    fontSize: 15,
-    fontWeight: '800',
+    ...TYPE.bodyStrong,
+    color: C.onVif,
   },
   secondaryButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    borderRadius: 14,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.20)',
+    gap: SPACING.sm,
+    minHeight: TOUCH_MIN,
+    backgroundColor: C.ocean,
+    borderRadius: RADIUS.pill,
+    paddingHorizontal: SPACING.xl,
   },
   secondaryButtonText: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: '800',
+    ...TYPE.bodyStrong,
+    color: C.onAbysse,
+  },
+  pressed: {
+    transform: [{ scale: 0.97 }],
   },
 });

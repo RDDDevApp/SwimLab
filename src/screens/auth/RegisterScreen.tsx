@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Pressable } from 'react-native';
-import { TextInput, Button, Text, HelperText } from 'react-native-paper';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Pressable, Image } from 'react-native';
+import { TextInput, Button, Text, HelperText, Checkbox } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import GradientScreen from '../../components/GradientScreen';
 import GlassCard from '../../components/GlassCard';
 import { useAuthStore } from '../../stores/authStore';
 import { getInviteCodeFromUrl, normalizeInviteCode } from '../../utils/invite';
+import { parseBirthDate, needsParentalConsent } from '../../utils/age';
+import { C, FONTS } from '../../config/tokens';
 
 type Step = 0 | 1 | 2 | 3;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const STEP_LABELS = ['Rôle', 'Club', 'Identité', 'Sécurité'];
 
 /** Inscription multi-etapes : role -> club -> identite -> mot de passe, avec stepper. */
@@ -20,6 +23,11 @@ export default function RegisterScreen({ navigation }: any) {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
+  // Nageurs : date de naissance, et sous 15 ans l'accord d'un parent (migration 023)
+  const [birthDateText, setBirthDateText] = useState('');
+  const [parentEmail, setParentEmail] = useState('');
+  const [parentalConsent, setParentalConsent] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -33,15 +41,38 @@ export default function RegisterScreen({ navigation }: any) {
     setStep(1);
   };
 
+  const isSwimmer = role !== 'coach';
+  const birthDate = parseBirthDate(birthDateText);
+  const isMinor = isSwimmer && !!birthDate && needsParentalConsent(birthDate);
+
   const validateIdentity = () => {
     if (!firstName.trim() || !lastName.trim()) {
       setError('Indique ton prénom et ton nom.');
       return;
     }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-    if (!emailRegex.test(email)) {
+    if (!EMAIL_REGEX.test(email)) {
       setError('Saisis une adresse email valide.');
       return;
+    }
+    if (isSwimmer) {
+      if (!birthDate) {
+        setError('Indique ta date de naissance au format JJ/MM/AAAA.');
+        return;
+      }
+      if (isMinor) {
+        if (!EMAIL_REGEX.test(parentEmail)) {
+          setError("Indique l'adresse email d'un de tes parents.");
+          return;
+        }
+        if (parentEmail.trim().toLowerCase() === email.trim().toLowerCase()) {
+          setError("L'adresse du parent doit être différente de la tienne.");
+          return;
+        }
+        if (!parentalConsent) {
+          setError("Avant 15 ans, un de tes parents doit être d'accord. Coche la case quand c'est le cas.");
+          return;
+        }
+      }
     }
     setError('');
     setStep(3);
@@ -58,6 +89,10 @@ export default function RegisterScreen({ navigation }: any) {
   };
 
   const handleRegister = async () => {
+    if (!termsAccepted) {
+      setError('Lis et accepte les conditions pour créer ton compte.');
+      return;
+    }
     if (password.length < 6) {
       setError('Le mot de passe doit contenir au moins 6 caractères.');
       return;
@@ -73,6 +108,10 @@ export default function RegisterScreen({ navigation }: any) {
       lastName: lastName.trim(),
       role: role || 'swimmer',
       inviteCode: clubCode.trim() ? normalizeInviteCode(clubCode) : undefined,
+      birthDate: isSwimmer ? birthDate ?? undefined : undefined,
+      parentEmail: isMinor ? parentEmail.trim().toLowerCase() : undefined,
+      parentalConsent: isMinor ? parentalConsent : undefined,
+      termsAccepted,
     });
 
     if (signUpError) {
@@ -101,7 +140,7 @@ export default function RegisterScreen({ navigation }: any) {
           {awaitingConfirmation ? (
             <GlassCard elevated>
               <View style={styles.confirmBody}>
-                <Ionicons name="mail-unread-outline" size={36} color="#0891B2" />
+                <Ionicons name="mail-unread-outline" size={36} color={C.primary} />
                 <Text style={styles.roleTitle}>Vérifie ta boîte mail</Text>
                 <Text style={styles.roleDesc}>
                   Un lien de confirmation a été envoyé à {email}. Clique dessus, puis connecte-toi.
@@ -115,6 +154,12 @@ export default function RegisterScreen({ navigation }: any) {
           ) : (
           <>
           <View style={styles.header}>
+            <Image
+              source={require('../../../assets/vague-swimlab.webp')}
+              style={styles.illustration}
+              accessibilityIgnoresInvertColors
+              alt=""
+            />
             <Text variant="displaySmall" style={styles.title}>
               SwimLab
             </Text>
@@ -135,7 +180,7 @@ export default function RegisterScreen({ navigation }: any) {
                   ]}
                 >
                   {i < step ? (
-                    <Ionicons name="checkmark" size={14} color="#fff" />
+                    <Ionicons name="checkmark" size={14} color={C.onPrimary} />
                   ) : (
                     <Text style={[styles.stepNum, i === step && styles.stepNumActive]}>
                       {i + 1}
@@ -157,8 +202,8 @@ export default function RegisterScreen({ navigation }: any) {
               </Text>
               <Pressable onPress={() => selectRole('swimmer')}>
                 <GlassCard elevated style={styles.roleCard}>
-                  <View style={[styles.roleIcon, { backgroundColor: 'rgba(8, 145, 178, 0.12)' }]}>
-                    <Ionicons name="water" size={28} color="#0891B2" />
+                  <View style={[styles.roleIcon, { backgroundColor: C.primarySoft }]}>
+                    <Ionicons name="water" size={28} color={C.primary} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.roleTitle}>Nageur / Nageuse</Text>
@@ -166,13 +211,13 @@ export default function RegisterScreen({ navigation }: any) {
                       Je rejoins mon club, je vois mes séances et je donne mes ressentis.
                     </Text>
                   </View>
-                  <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
+                  <Ionicons name="chevron-forward" size={20} color={C.inkMuted} />
                 </GlassCard>
               </Pressable>
               <Pressable onPress={() => selectRole('coach')}>
                 <GlassCard elevated style={styles.roleCard}>
-                  <View style={[styles.roleIcon, { backgroundColor: 'rgba(99, 102, 241, 0.12)' }]}>
-                    <Ionicons name="megaphone" size={26} color="#6366F1" />
+                  <View style={[styles.roleIcon, { backgroundColor: C.primarySoft }]}>
+                    <Ionicons name="megaphone" size={26} color={C.primary} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.roleTitle}>Coach</Text>
@@ -180,7 +225,7 @@ export default function RegisterScreen({ navigation }: any) {
                       Je crée mon club, je gère mes groupes et je planifie les entraînements.
                     </Text>
                   </View>
-                  <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
+                  <Ionicons name="chevron-forward" size={20} color={C.inkMuted} />
                 </GlassCard>
               </Pressable>
             </View>
@@ -252,6 +297,54 @@ export default function RegisterScreen({ navigation }: any) {
                 autoComplete="email"
                 style={styles.input}
               />
+              {isSwimmer && (
+                <>
+                  <TextInput
+                    label="Date de naissance"
+                    placeholder="JJ/MM/AAAA"
+                    value={birthDateText}
+                    onChangeText={setBirthDateText}
+                    mode="outlined"
+                    keyboardType="numbers-and-punctuation"
+                    maxLength={10}
+                    style={styles.input}
+                  />
+                  <HelperText type="info" visible style={styles.help}>
+                    Elle reste privée : toi seul peux la voir.
+                  </HelperText>
+                </>
+              )}
+              {isMinor && (
+                <View style={styles.parentBox}>
+                  <Text style={styles.parentTitle}>Tu as moins de 15 ans</Text>
+                  <Text style={styles.parentText}>
+                    Un de tes parents doit être d'accord pour que tu utilises SwimLab. Il recevra un email
+                    qui lui explique l'app.
+                  </Text>
+                  <TextInput
+                    label="Email d'un de tes parents"
+                    value={parentEmail}
+                    onChangeText={setParentEmail}
+                    mode="outlined"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    style={styles.input}
+                  />
+                  <Pressable
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: parentalConsent }}
+                    onPress={() => setParentalConsent(!parentalConsent)}
+                    style={styles.checkRow}
+                  >
+                    <Checkbox.Android
+                      status={parentalConsent ? 'checked' : 'unchecked'}
+                      onPress={() => setParentalConsent(!parentalConsent)}
+                      color={C.primary}
+                    />
+                    <Text style={styles.checkText}>Un de mes parents est d'accord</Text>
+                  </Pressable>
+                </View>
+              )}
               {error ? (
                 <HelperText type="error" visible>
                   {error}
@@ -291,6 +384,23 @@ export default function RegisterScreen({ navigation }: any) {
                 secureTextEntry={!showPassword}
                 style={styles.input}
               />
+              <View style={styles.checkRow}>
+                <Checkbox.Android
+                  status={termsAccepted ? 'checked' : 'unchecked'}
+                  onPress={() => setTermsAccepted(!termsAccepted)}
+                  color={C.primary}
+                />
+                <Text style={styles.checkText}>
+                  J'accepte les{' '}
+                  <Text
+                    style={styles.link}
+                    accessibilityRole="link"
+                    onPress={() => navigation.navigate('Legal')}
+                  >
+                    conditions et la gestion de mes données
+                  </Text>
+                </Text>
+              </View>
               {error ? (
                 <HelperText type="error" visible>
                   {error}
@@ -320,9 +430,51 @@ export default function RegisterScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
+  help: {
+    marginTop: -8,
+  },
+  parentBox: {
+    backgroundColor: C.warningSoft,
+    borderRadius: 20,
+    padding: 16,
+    gap: 8,
+  },
+  parentTitle: {
+    fontFamily: FONTS.textBold,
+    fontSize: 16,
+    color: C.warning,
+  },
+  parentText: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: C.ink,
+  },
+  checkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: 48,
+    gap: 4,
+  },
+  checkText: {
+    flex: 1,
+    fontSize: 15,
+    lineHeight: 21,
+    color: C.ink,
+  },
+  link: {
+    color: C.link,
+    fontFamily: FONTS.textStrong,
+    textDecorationLine: 'underline',
+  },
+  illustration: {
+    width: 120,
+    height: 120,
+    borderRadius: 20,
+    marginBottom: 16,
+  },
   stepHint: {
     fontSize: 13,
-    color: '#64748b',
+    color: C.inkMuted,
     lineHeight: 19,
     marginTop: -8,
   },
@@ -344,11 +496,11 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   title: {
-    color: '#0891B2',
-    fontWeight: 'bold',
+    color: C.ink,
+    fontFamily: FONTS.display,
   },
   subtitle: {
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 8,
   },
   // Stepper
@@ -366,39 +518,39 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: 'rgba(148, 163, 184, 0.25)',
+    backgroundColor: C.surfaceSunken,
     alignItems: 'center',
     justifyContent: 'center',
   },
   stepDotActive: {
-    backgroundColor: '#0891B2',
+    backgroundColor: C.primary,
   },
   stepDotDone: {
-    backgroundColor: '#059669',
+    backgroundColor: C.success,
   },
   stepNum: {
     fontSize: 13,
-    fontWeight: '700',
-    color: '#64748b',
+    fontFamily: FONTS.textBold,
+    color: C.inkMuted,
   },
   stepNumActive: {
-    color: '#fff',
+    color: C.onPrimary,
   },
   stepLabel: {
     fontSize: 11,
-    fontWeight: '600',
-    color: '#94a3b8',
+    fontFamily: FONTS.textStrong,
+    color: C.inkMuted,
   },
   stepLabelActive: {
-    color: '#0891B2',
+    color: C.primary,
   },
   // Form
   form: {
     gap: 16,
   },
   stepTitle: {
-    color: '#1e293b',
-    fontWeight: '700',
+    color: C.ink,
+    fontFamily: FONTS.display,
   },
   roleCard: {
     flexDirection: 'row',
@@ -414,17 +566,17 @@ const styles = StyleSheet.create({
   },
   roleTitle: {
     fontSize: 16,
-    fontWeight: '700',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
   },
   roleDesc: {
     fontSize: 12,
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 2,
     lineHeight: 17,
   },
   input: {
-    backgroundColor: 'rgba(255,255,255,0.60)',
+    backgroundColor: C.surface,
   },
   button: {
     marginTop: 8,
