@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import {
   Text,
@@ -10,11 +10,11 @@ import {
   Paragraph,
 } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
-import { useFocusEffect } from '@react-navigation/native';
-import { Workout } from '../../types';
+import { useRefreshOnFocus, useWorkout } from '../../hooks';
 import { workoutService } from '../../services';
 import { useSnackbarStore } from '../../stores/snackbarStore';
 import WorkoutContentView from '../../components/workout/WorkoutContentView';
+import { C, FONTS } from '../../config/tokens';
 
 interface Props {
   navigation: any;
@@ -25,26 +25,9 @@ export default function WorkoutDetailScreen({ navigation, route }: Props) {
   const { workoutId } = route.params;
   const showSnackbar = useSnackbarStore((s) => s.show);
 
-  const [workout, setWorkout] = useState<Workout | null>(null);
-  const [loading, setLoading] = useState(true);
   const [showDelete, setShowDelete] = useState(false);
-
-  const loadWorkout = useCallback(async () => {
-    try {
-      const data = await workoutService.getById(workoutId);
-      setWorkout(data);
-    } catch (err) {
-      console.error('Error loading workout:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [workoutId]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadWorkout();
-    }, [loadWorkout]),
-  );
+  const { data: workout, isLoading: loading, refetch: loadWorkout } = useWorkout(workoutId);
+  useRefreshOnFocus(loadWorkout);
 
   const togglePublish = async () => {
     if (!workout) return;
@@ -114,7 +97,7 @@ export default function WorkoutDetailScreen({ navigation, route }: Props) {
             <IconButton
               icon="delete"
               size={22}
-              iconColor="#EF4444"
+              iconColor={C.danger}
               onPress={() => setShowDelete(true)}
             />
           </View>
@@ -162,7 +145,7 @@ export default function WorkoutDetailScreen({ navigation, route }: Props) {
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setShowDelete(false)}>Annuler</Button>
-            <Button onPress={handleDelete} textColor="#EF4444">
+            <Button onPress={handleDelete} textColor={C.danger}>
               Supprimer
             </Button>
           </Dialog.Actions>
@@ -179,9 +162,9 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   headerTop: {
     flexDirection: 'row',
@@ -192,8 +175,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     paddingHorizontal: 16,
   },
   chipRow: {
@@ -204,15 +187,15 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   distanceChip: {
-    backgroundColor: 'rgba(14, 116, 144, 0.10)',
+    backgroundColor: C.primarySoft,
     height: 26,
   },
   publishedChip: {
-    backgroundColor: '#D1FAE5',
+    backgroundColor: C.successSoft,
     height: 26,
   },
   draftChip: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: C.warningSoft,
     height: 26,
   },
   content: {
@@ -221,7 +204,7 @@ const styles = StyleSheet.create({
   },
   editBtn: {
     marginTop: 16,
-    backgroundColor: '#0891B2',
+    backgroundColor: C.primary,
   },
   loading: {
     flex: 1,
@@ -229,6 +212,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingText: {
-    color: '#64748b',
+    color: C.inkMuted,
   },
 });

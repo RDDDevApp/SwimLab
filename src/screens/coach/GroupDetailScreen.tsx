@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import {
   Text,
@@ -13,12 +13,14 @@ import {
   Checkbox,
 } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
-import { useFocusEffect } from '@react-navigation/native';
-import { Profile, Group, GROUP_LEVELS } from '../../types';
+import { useQuery } from '@tanstack/react-query';
+import { queryKeys, useRefreshOnFocus } from '../../hooks';
+import { Profile, GROUP_LEVELS } from '../../types';
 import { groupService, groupCoachService, profileService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 import { useSnackbarStore } from '../../stores/snackbarStore';
 import EmptyState from '../../components/EmptyState';
+import { C, FONTS } from '../../config/tokens';
 
 interface Props {
   navigation: any;
@@ -29,11 +31,6 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
   const { groupId } = route.params;
   const { user, clubId } = useAuthStore();
   const showSnackbar = useSnackbarStore((s) => s.show);
-
-  const [group, setGroup] = useState<Group | null>(null);
-  const [members, setMembers] = useState<Profile[]>([]);
-  const [coaches, setCoaches] = useState<(Profile & { is_creator: boolean })[]>([]);
-  const [loading, setLoading] = useState(true);
 
   // Add swimmer modal
   const [showAddModal, setShowAddModal] = useState(false);
@@ -50,29 +47,26 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
   // Remove member
   const [removeTarget, setRemoveTarget] = useState<Profile | null>(null);
 
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [groupData, memberData, coachData] = await Promise.all([
+  const {
+    data,
+    isLoading: loading,
+    isFetching,
+    refetch: loadData,
+  } = useQuery({
+    queryKey: queryKeys.groupDetail(groupId),
+    queryFn: async () => {
+      const [group, members, coaches] = await Promise.all([
         groupService.getById(groupId),
         groupService.getMembers(groupId),
         groupCoachService.getCoachProfiles(groupId),
       ]);
-      setGroup(groupData);
-      setMembers(memberData);
-      setCoaches(coachData);
-    } catch (err) {
-      console.error('Error loading group detail:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [groupId]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadData();
-    }, [loadData]),
-  );
+      return { group, members, coaches };
+    },
+  });
+  useRefreshOnFocus(loadData);
+  const group = data?.group ?? null;
+  const members = data?.members ?? [];
+  const coaches = data?.coaches ?? [];
 
   const openAddModal = async () => {
     if (!clubId) return;
@@ -108,7 +102,7 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
         await groupService.addMember(groupId, swimmerId);
       }
       setShowAddModal(false);
-      showSnackbar(`${selectedIds.size} nageur(s) ajoute(s)`, 'success');
+      showSnackbar(`${selectedIds.size} nageur(s) ajouté(s)`, 'success');
       loadData();
     } catch (err) {
       showSnackbar('Erreur lors de l\'ajout', 'error');
@@ -163,7 +157,7 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
         await groupCoachService.addCoach(groupId, coachId);
       }
       setShowAddCoachModal(false);
-      showSnackbar(`${selectedCoachIds.size} coach(es) ajoute(s)`, 'success');
+      showSnackbar(`${selectedCoachIds.size} coach(s) ajouté(s)`, 'success');
       loadData();
     } catch (err: any) {
       showSnackbar(err.message || "Erreur lors de l'ajout", 'error');
@@ -220,7 +214,7 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
               <IconButton
                 icon="close"
                 size={16}
-                iconColor="#EF4444"
+                iconColor={C.danger}
                 onPress={() => handleRemoveCoach(coach.id)}
               />
             )}
@@ -253,7 +247,7 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
           data={members}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
-          refreshing={loading}
+          refreshing={isFetching}
           onRefresh={loadData}
           renderItem={({ item }) => (
             <Card style={styles.memberCard}>
@@ -266,7 +260,7 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
                 <IconButton
                   icon="close"
                   size={18}
-                  iconColor="#EF4444"
+                  iconColor={C.danger}
                   onPress={() => setRemoveTarget(item)}
                 />
               </Card.Content>
@@ -341,7 +335,7 @@ export default function GroupDetailScreen({ navigation, route }: Props) {
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setRemoveTarget(null)}>Annuler</Button>
-            <Button onPress={handleRemove} textColor="#EF4444">
+            <Button onPress={handleRemove} textColor={C.danger}>
               Retirer
             </Button>
           </Dialog.Actions>
@@ -404,13 +398,13 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     paddingHorizontal: 16,
   },
   levelChip: {
@@ -420,9 +414,9 @@ const styles = StyleSheet.create({
   },
   coachSection: {
     padding: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   coachHeader: {
     flexDirection: 'row',
@@ -430,7 +424,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sectionLabel: {
-    color: '#0891b2',
+    color: C.primary,
   },
   coachRow: {
     flexDirection: 'row',
@@ -439,23 +433,23 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   coachName: {
-    color: '#1e293b',
+    color: C.ink,
     flex: 1,
   },
   creatorChip: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: C.warningSoft,
   },
   statsBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   statChip: {
-    backgroundColor: '#DBEAFE',
+    backgroundColor: C.primarySoft,
   },
   list: {
     padding: 12,
@@ -467,16 +461,16 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   emptyText: {
-    color: '#64748b',
+    color: C.inkMuted,
     textAlign: 'center',
   },
   emptySubtext: {
-    color: '#64748b',
+    color: C.inkMuted,
     textAlign: 'center',
     marginTop: 8,
   },
   memberCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginBottom: 6,
   },
   memberRow: {
@@ -488,8 +482,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   memberName: {
-    color: '#1e293b',
-    fontWeight: '600',
+    color: C.ink,
+    fontFamily: FONTS.textStrong,
   },
   slotsBtn: {
     margin: 16,
@@ -502,7 +496,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
   },
   noSwimmers: {
-    color: '#64748b',
+    color: C.inkMuted,
     textAlign: 'center',
     padding: 16,
   },
@@ -513,7 +507,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   checkboxLabel: {
-    color: '#1e293b',
+    color: C.ink,
     marginLeft: 8,
   },
 });

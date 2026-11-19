@@ -1,9 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, IconButton } from 'react-native-paper';
 import SegmentedToggle from '../../components/SegmentedToggle';
 import GradientScreen from '../../components/GradientScreen';
-import { useFocusEffect } from '@react-navigation/native';
+import { queryKeys, useRefreshOnFocus } from '../../hooks';
 import { TrainingSlot, WorkoutAssignment } from '../../types';
 import { trainingSlotService, workoutAssignmentService, workoutService, workoutSessionService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
@@ -11,6 +12,7 @@ import { getWeekDates, formatWeekRange, toISODate, getMonthCalendarDates, format
 import WeekView from '../../components/calendar/WeekView';
 import MonthView from '../../components/calendar/MonthView';
 import EmptyState from '../../components/EmptyState';
+import { C, FONTS } from '../../config/tokens';
 
 interface Props {
   navigation: any;
@@ -18,87 +20,66 @@ interface Props {
 
 type ViewMode = 'week' | 'month';
 
+interface CoachCalendarData {
+  slots: TrainingSlot[];
+  assignments: WorkoutAssignment[];
+  rpeMap: Record<string, number | null>;
+  workoutTitles: Record<string, string>;
+}
+
+/** Créneaux du coach, séances de la période, titres et RPE moyen des séances émargées. */
+async function fetchCoachCalendar(
+  coachId: string,
+  startDate: string,
+  endDate: string,
+): Promise<CoachCalendarData> {
+  const slots = await trainingSlotService.getByCoach(coachId);
+  if (slots.length === 0) return { slots, assignments: [], rpeMap: {}, workoutTitles: {} };
+
+  const assignments = await workoutAssignmentService.getByDateRange(
+    slots.map((s) => s.id),
+    startDate,
+    endDate,
+  );
+
+  // Titres des séances en une requête (anti N+1) ; un échec n'empêche pas l'affichage
+  const workoutTitles: Record<string, string> = {};
+  try {
+    const workouts = await workoutService.getByIds([...new Set(assignments.map((a) => a.workout_id))]);
+    for (const w of workouts) workoutTitles[w.id] = w.title;
+  } catch {}
+
+  let rpeMap: Record<string, number | null> = {};
+  const markedIds = assignments.filter((a) => a.attendance_marked).map((a) => a.id);
+  if (markedIds.length > 0) {
+    try {
+      rpeMap = await workoutSessionService.getAverageRpeByAssignments(markedIds);
+    } catch {}
+  }
+  return { slots, assignments, rpeMap, workoutTitles };
+}
+
 export default function CalendarScreen({ navigation }: Props) {
   const { user } = useAuthStore();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>('week');
-  const [slots, setSlots] = useState<TrainingSlot[]>([]);
-  const [assignments, setAssignments] = useState<WorkoutAssignment[]>([]);
-  const [rpeMap, setRpeMap] = useState<Record<string, number | null>>({});
-  const [workoutTitles, setWorkoutTitles] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(true);
 
   const weekDates = getWeekDates(currentDate);
   const monthDates = getMonthCalendarDates(currentDate);
 
-  const loadData = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
-    try {
-      const coachSlots = await trainingSlotService.getByCoach(user.id);
-      setSlots(coachSlots);
+  const { startDate, endDate } =
+    viewMode === 'month'
+      ? getMonthDateRange(currentDate)
+      : { startDate: toISODate(weekDates[0]), endDate: toISODate(weekDates[6]) };
 
-      if (coachSlots.length > 0) {
-        const slotIds = coachSlots.map((s) => s.id);
-
-        let startDate: string;
-        let endDate: string;
-        if (viewMode === 'month') {
-          const range = getMonthDateRange(currentDate);
-          startDate = range.startDate;
-          endDate = range.endDate;
-        } else {
-          const dates = getWeekDates(currentDate);
-          startDate = toISODate(dates[0]);
-          endDate = toISODate(dates[6]);
-        }
-
-        const rangeAssignments = await workoutAssignmentService.getByDateRange(
-          slotIds,
-          startDate,
-          endDate,
-        );
-        setAssignments(rangeAssignments);
-
-        // Titres des workouts en 1 requete (anti N+1)
-        const uniqueWorkoutIds = [...new Set(rangeAssignments.map((a) => a.workout_id))];
-        const titles: Record<string, string> = {};
-        try {
-          const workouts = await workoutService.getByIds(uniqueWorkoutIds);
-          for (const w of workouts) {
-            titles[w.id] = w.title;
-          }
-        } catch {}
-        setWorkoutTitles(titles);
-
-        const markedIds = rangeAssignments
-          .filter((a) => a.attendance_marked)
-          .map((a) => a.id);
-        if (markedIds.length > 0) {
-          try {
-            const rpeData = await workoutSessionService.getAverageRpeByAssignments(markedIds);
-            setRpeMap(rpeData);
-          } catch {}
-        } else {
-          setRpeMap({});
-        }
-      } else {
-        setAssignments([]);
-        setRpeMap({});
-        setWorkoutTitles({});
-      }
-    } catch (err) {
-      console.error('Error loading calendar:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [user, currentDate, viewMode]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadData();
-    }, [loadData]),
-  );
+  const { data, isLoading: loading, refetch } = useQuery({
+    queryKey: queryKeys.coachCalendar(user?.id ?? '', startDate, endDate),
+    queryFn: () => fetchCoachCalendar(user!.id, startDate, endDate),
+    enabled: !!user,
+    placeholderData: keepPreviousData,
+  });
+  useRefreshOnFocus(refetch);
+  const { slots = [], assignments = [], rpeMap = {}, workoutTitles = {} } = data ?? {};
 
   const goToPrev = () => {
     const d = new Date(currentDate);
@@ -215,9 +196,9 @@ const styles = StyleSheet.create({
   header: {
     padding: 16,
     paddingBottom: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.60)',
+    borderBottomColor: 'transparent',
   },
   titleRow: {
     flexDirection: 'row',
@@ -225,8 +206,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
   },
   segmented: {
     width: 170,
@@ -238,7 +219,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   weekRange: {
-    color: '#0891b2',
-    fontWeight: '500',
+    color: C.primary,
+    fontFamily: FONTS.textMedium,
   },
 });

@@ -126,7 +126,7 @@ export const gamificationService = {
 
   /** Attributions stockees du nageur (renvoie [] si migration 015 absente). */
   async getAwardedBadges(swimmerId: string): Promise<AwardedBadge[]> {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('swimmer_badges')
       .select('badge_id, awarded_at')
       .eq('swimmer_id', swimmerId);
@@ -160,7 +160,7 @@ export const gamificationService = {
     const toAward = earned.filter((b) => !existingIds.has(b.id));
     if (!toAward.length) return [];
 
-    const { error } = await (supabase as any).from('swimmer_badges').upsert(
+    const { error } = await supabase.from('swimmer_badges').upsert(
       toAward.map((b) => ({ swimmer_id: swimmerId, badge_id: b.id })),
       { onConflict: 'swimmer_id,badge_id', ignoreDuplicates: true },
     );

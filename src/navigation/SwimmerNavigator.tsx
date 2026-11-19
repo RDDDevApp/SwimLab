@@ -15,6 +15,7 @@ import GenerateWorkoutScreen from '../screens/shared/GenerateWorkoutScreen';
 import UIKitScreen from '../screens/dev/UIKitScreen';
 import GlassTabBar from '../components/GlassTabBar';
 import { SwimmerTabParamList, SwimmerStackParamList } from '../types';
+import LegalScreen from '../screens/shared/LegalScreen';
 
 const Tab = createBottomTabNavigator<SwimmerTabParamList>();
 const Stack = createNativeStackNavigator<SwimmerStackParamList>();
@@ -65,6 +66,7 @@ export default function SwimmerNavigator() {
       <Stack.Screen name="JoinClub" component={JoinClubScreen} />
       <Stack.Screen name="CreateWorkout" component={CreateWorkoutScreen} />
       <Stack.Screen name="GenerateWorkout" component={GenerateWorkoutScreen} />
+      <Stack.Screen name="Legal" component={LegalScreen} />
       {__DEV__ && <Stack.Screen name="UIKit" component={UIKitScreen} />}
     </Stack.Navigator>
   );

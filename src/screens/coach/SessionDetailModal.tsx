@@ -1,11 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { View, StyleSheet, ScrollView, Pressable, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { Text, Button, Card, Chip, RadioButton, IconButton } from 'react-native-paper';
-import { useFocusEffect } from '@react-navigation/native';
-import {
-  Workout,
-  WorkoutAssignment,
-} from '../../types';
+import { queryKeys, useCoachWorkouts, useRefreshOnFocus } from '../../hooks';
+import { WorkoutAssignment } from '../../types';
 import {
   groupService,
   workoutService,
@@ -18,77 +16,69 @@ import { useSnackbarStore } from '../../stores/snackbarStore';
 import { formatTime } from '../../utils/dateHelpers';
 import WorkoutContentView from '../../components/workout/WorkoutContentView';
 
+import { Ionicons } from '@expo/vector-icons';
+import { C, FONTS } from '../../config/tokens';
+import { getRPEColor, getRPETextColor } from '../../config/theme';
 interface Props {
   navigation: any;
   route: any;
 }
 
-const getRpeColor = (rpe: number) => {
-  if (rpe <= 12) return { bg: '#D1FAE5', text: '#065F46' };
-  if (rpe <= 15) return { bg: '#FEF3C7', text: '#92400E' };
-  return { bg: '#FEE2E2', text: '#991B1B' };
-};
+const getRpeColor = (rpe: number) => ({
+  bg: getRPEColor(rpe),
+  text: getRPETextColor(rpe),
+});
+
+/** Séance, état de l'émargement et bilan des ressentis d'une séance attribuée. */
+async function fetchAssignmentDetail(assignmentId: string, workoutId: string) {
+  const [workout, assignment] = await Promise.all([
+    workoutService.getById(workoutId).catch(() => null),
+    workoutAssignmentService.getById(assignmentId).catch(() => null),
+  ]);
+  let feedbackStats: GroupFeedbackStats | null = null;
+  if (assignment?.attendance_marked) {
+    feedbackStats = await workoutSessionService.getFeedbackStats(assignmentId).catch(() => null);
+  }
+  return { workout, assignment, feedbackStats };
+}
 
 export default function SessionDetailModal({ navigation, route }: Props) {
   const { slot, date, assignment: initialAssignment, workoutTitle: initialTitle } = route.params;
   const { user } = useAuthStore();
   const showSnackbar = useSnackbarStore((s) => s.show);
+  const queryClient = useQueryClient();
 
-  const [assignment, setAssignment] = useState<WorkoutAssignment | null>(initialAssignment);
-  const [groupName, setGroupName] = useState('');
-  const [workout, setWorkout] = useState<Workout | null>(null);
-  const [publishedWorkouts, setPublishedWorkouts] = useState<Workout[]>([]);
+  // Séance attribuée au créneau ce jour-là : celle reçue en ouvrant, ou celle qu'on vient d'attribuer
+  const [current, setCurrent] = useState<WorkoutAssignment | null>(initialAssignment);
   const [selectedWorkoutId, setSelectedWorkoutId] = useState('');
-  const [feedbackStats, setFeedbackStats] = useState<GroupFeedbackStats | null>(null);
-  const [loading, setLoading] = useState(true);
   const [assigning, setAssigning] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
 
-  const loadData = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
-    try {
-      // Load group name
-      const group = await groupService.getById(slot.group_id);
-      setGroupName(group.name);
+  const groupQuery = useQuery({
+    queryKey: queryKeys.group(slot.group_id),
+    queryFn: () => groupService.getById(slot.group_id),
+  });
+  const groupName = groupQuery.data?.name ?? '';
 
-      if (assignment) {
-        // Load full workout details
-        try {
-          const w = await workoutService.getById(assignment.workout_id);
-          setWorkout(w);
-        } catch {}
+  // Détail de la séance attribuée : séance, émargement à jour et bilan des ressentis
+  const detailQuery = useQuery({
+    queryKey: queryKeys.sessionDetail(current?.id ?? ''),
+    queryFn: () => fetchAssignmentDetail(current!.id, current!.workout_id),
+    enabled: !!current,
+  });
+  // refetch() ignore « enabled » : ne rien relancer quand le créneau est vide
+  useRefreshOnFocus(() => {
+    if (current) detailQuery.refetch();
+  });
 
-        // Re-fetch assignment to check if attendance_marked changed
-        try {
-          const fresh = await workoutAssignmentService.getById(assignment.id);
-          setAssignment(fresh);
+  // Séances publiées, pour en attribuer une quand le créneau est vide
+  const workoutsQuery = useCoachWorkouts(current ? undefined : user?.id);
+  const publishedWorkouts = (workoutsQuery.data ?? []).filter((w) => w.is_published);
 
-          // Load feedback stats if marked
-          if (fresh.attendance_marked) {
-            try {
-              const stats = await workoutSessionService.getFeedbackStats(fresh.id);
-              setFeedbackStats(stats);
-            } catch {}
-          }
-        } catch {}
-      } else {
-        // Load published workouts for assignment picker
-        const allWorkouts = await workoutService.getByCoach(user.id);
-        setPublishedWorkouts(allWorkouts.filter((w) => w.is_published));
-      }
-    } catch (err) {
-      console.error('Error loading session detail:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [user, slot, assignment?.id]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadData();
-    }, [loadData]),
-  );
+  const assignment = current ? (detailQuery.data?.assignment ?? current) : null;
+  const workout = current ? (detailQuery.data?.workout ?? null) : null;
+  const feedbackStats = current ? (detailQuery.data?.feedbackStats ?? null) : null;
+  const loading = current ? detailQuery.isLoading : workoutsQuery.isLoading;
 
   const handleDismiss = () => {
     navigation.goBack();
@@ -103,10 +93,9 @@ export default function SessionDetailModal({ navigation, route }: Props) {
         training_slot_id: slot.id,
         scheduled_date: date,
       });
-      setAssignment(newAssignment);
-      const w = await workoutService.getById(selectedWorkoutId);
-      setWorkout(w);
-      setPublishedWorkouts([]);
+      setCurrent(newAssignment);
+      // Calendrier, tableau de bord et statistiques du coach à jour au retour
+      queryClient.invalidateQueries({ queryKey: ['coach'] });
       showSnackbar('Séance assignée', 'success');
     } catch (err: any) {
       showSnackbar(err.message || 'Erreur lors de l\'attribution', 'error');
@@ -119,15 +108,9 @@ export default function SessionDetailModal({ navigation, route }: Props) {
     if (!assignment) return;
     try {
       await workoutAssignmentService.delete(assignment.id);
-      setAssignment(null);
-      setWorkout(null);
-      setFeedbackStats(null);
+      setCurrent(null);
       setShowPicker(true);
-      // Load published workouts for picker
-      if (user) {
-        const allWorkouts = await workoutService.getByCoach(user.id);
-        setPublishedWorkouts(allWorkouts.filter((w) => w.is_published));
-      }
+      queryClient.invalidateQueries({ queryKey: ['coach'] });
       showSnackbar('Assignation supprimée', 'info');
     } catch (err: any) {
       showSnackbar(err.message || 'Erreur', 'error');
@@ -210,7 +193,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
               /* No assignment - show empty state with assign button */
               <View style={styles.emptySlotView}>
                 <View style={styles.emptySlotIcon}>
-                  <Text style={styles.emptySlotIconText}>📋</Text>
+                  <Ionicons name="clipboard-outline" size={28} color={C.onPrimarySoft} />
                 </View>
                 <Text variant="titleMedium" style={styles.emptySlotTitle}>
                   Aucune séance assignée
@@ -410,13 +393,13 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: C.scrim,
   },
   sheetWrapper: {
     justifyContent: 'flex-end',
   },
   sheet: {
-    backgroundColor: '#F0F7F4',
+    backgroundColor: C.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '92%',
@@ -425,7 +408,7 @@ const styles = StyleSheet.create({
   handleBar: {
     width: 40,
     height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.60)',
+    backgroundColor: C.surface,
     borderRadius: 2,
     alignSelf: 'center',
     marginTop: 12,
@@ -439,17 +422,17 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.50)',
+    borderBottomColor: 'transparent',
   },
   headerLeft: {
     flex: 1,
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
   },
   subtitle: {
-    color: '#64748b',
+    color: C.inkMuted,
     marginTop: 2,
   },
   infoRow: {
@@ -459,7 +442,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   infoChip: {
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: C.surface,
   },
   closeBtn: {
     margin: -4,
@@ -470,8 +453,8 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   sectionTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginBottom: 12,
   },
   // Empty slot view
@@ -483,21 +466,18 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: C.primarySoft,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
   },
-  emptySlotIconText: {
-    fontSize: 28,
-  },
   emptySlotTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginBottom: 4,
   },
   emptySlotSubtitle: {
-    color: '#64748b',
+    color: C.inkMuted,
     textAlign: 'center',
     marginBottom: 20,
   },
@@ -513,17 +493,17 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   emptyText: {
-    color: '#64748b',
+    color: C.inkMuted,
   },
   workoutCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.40)',
+    backgroundColor: C.surface,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.60)',
+    borderColor: 'transparent',
   },
   selectedCard: {
     borderWidth: 2,
-    borderColor: '#0891B2',
+    borderColor: C.primary,
   },
   cardContent: {
     flexDirection: 'row',
@@ -534,8 +514,8 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   cardTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
   },
   cardMeta: {
     flexDirection: 'row',
@@ -545,15 +525,15 @@ const styles = StyleSheet.create({
   },
   typeChip: {
     height: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: C.surface,
   },
   distanceChip: {
     height: 24,
-    backgroundColor: 'rgba(14, 116, 144, 0.10)',
+    backgroundColor: C.primarySoft,
   },
   distance: {
-    color: '#0891B2',
-    fontWeight: '600',
+    color: C.primary,
+    fontFamily: FONTS.textStrong,
   },
   assignBtn: {
     marginTop: 12,
@@ -571,15 +551,15 @@ const styles = StyleSheet.create({
   },
   lockedBadge: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: C.surface,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: 8,
   },
   lockedText: {
-    color: '#64748b',
-    fontWeight: '600',
+    color: C.inkMuted,
+    fontFamily: FONTS.textStrong,
     fontSize: 13,
   },
   // Stats
@@ -590,18 +570,18 @@ const styles = StyleSheet.create({
   },
   statItem: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.35)',
+    backgroundColor: C.surface,
     borderRadius: 10,
     padding: 12,
     alignItems: 'center',
   },
   statLabel: {
-    color: '#64748b',
-    fontWeight: '500',
+    color: C.inkMuted,
+    fontFamily: FONTS.textMedium,
   },
   statValue: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.textBold,
+    color: C.ink,
     marginTop: 2,
   },
   // Workout recap
@@ -612,8 +592,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   recapTitle: {
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
     marginBottom: 6,
   },
   recapChips: {

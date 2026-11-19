@@ -1,447 +1,50 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[];
+/**
+ * Types de la base pour l'app.
+ *
+ * Le schéma vient de `supabase.generated.ts` (généré depuis la vraie base : à
+ * régénérer après chaque migration). Ici, on y superpose seulement les précisions
+ * que la base ne sait pas exprimer : rôles, niveaux, plateforme et contenu des
+ * séances (JSON structuré).
+ */
+import type { Database as GeneratedDatabase, Json } from './supabase.generated';
 
-export type Database = {
-  public: {
-    Tables: {
-      profiles: {
-        Row: {
-          id: string;
-          first_name: string;
-          last_name: string;
-          avatar_url: string | null;
-          role: 'coach' | 'swimmer';
-          notification_feedback: boolean;
-          notification_reminder: boolean;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id: string;
-          first_name: string;
-          last_name: string;
-          avatar_url?: string | null;
-          role: 'coach' | 'swimmer';
-          notification_feedback?: boolean;
-          notification_reminder?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          first_name?: string;
-          last_name?: string;
-          avatar_url?: string | null;
-          role?: 'coach' | 'swimmer';
-          notification_feedback?: boolean;
-          notification_reminder?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [];
-      };
-      clubs: {
-        Row: {
-          id: string;
-          name: string;
-          description: string | null;
-          logo_url: string | null;
-          invitation_code: string;
-          invitation_code_coach: string;
-          owner_id: string;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          description?: string | null;
-          logo_url?: string | null;
-          invitation_code?: string;
-          invitation_code_coach?: string;
-          owner_id: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          description?: string | null;
-          logo_url?: string | null;
-          invitation_code?: string;
-          invitation_code_coach?: string;
-          owner_id?: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [];
-      };
-      club_members: {
-        Row: {
-          id: string;
-          club_id: string;
-          user_id: string;
-          role: 'coach' | 'swimmer';
-          joined_at: string;
-        };
-        Insert: {
-          id?: string;
-          club_id: string;
-          user_id: string;
-          role: 'coach' | 'swimmer';
-          joined_at?: string;
-        };
-        Update: {
-          id?: string;
-          club_id?: string;
-          user_id?: string;
-          role?: 'coach' | 'swimmer';
-          joined_at?: string;
-        };
-        Relationships: [];
-      };
-      groups: {
-        Row: {
-          id: string;
-          club_id: string;
-          name: string;
-          description: string | null;
-          level: 'beginner' | 'intermediate' | 'advanced' | 'competition' | null;
-          schedule_info: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          club_id: string;
-          name: string;
-          description?: string | null;
-          level?: 'beginner' | 'intermediate' | 'advanced' | 'competition' | null;
-          schedule_info?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          club_id?: string;
-          name?: string;
-          description?: string | null;
-          level?: 'beginner' | 'intermediate' | 'advanced' | 'competition' | null;
-          schedule_info?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [];
-      };
-      group_coaches: {
-        Row: {
-          id: string;
-          group_id: string;
-          coach_id: string;
-          is_creator: boolean;
-          joined_at: string;
-        };
-        Insert: {
-          id?: string;
-          group_id: string;
-          coach_id: string;
-          is_creator?: boolean;
-          joined_at?: string;
-        };
-        Update: {
-          id?: string;
-          group_id?: string;
-          coach_id?: string;
-          is_creator?: boolean;
-          joined_at?: string;
-        };
-        Relationships: [];
-      };
-      group_members: {
-        Row: {
-          id: string;
-          group_id: string;
-          user_id: string;
-          joined_at: string;
-        };
-        Insert: {
-          id?: string;
-          group_id: string;
-          user_id: string;
-          joined_at?: string;
-        };
-        Update: {
-          id?: string;
-          group_id?: string;
-          user_id?: string;
-          joined_at?: string;
-        };
-        Relationships: [];
-      };
-      training_slots: {
-        Row: {
-          id: string;
-          group_id: string;
-          name: string;
-          day_of_week: number;
-          start_time: string;
-          duration_minutes: number;
-          location: string | null;
-          is_active: boolean;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          group_id: string;
-          name: string;
-          day_of_week: number;
-          start_time: string;
-          duration_minutes: number;
-          location?: string | null;
-          is_active?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          group_id?: string;
-          name?: string;
-          day_of_week?: number;
-          start_time?: string;
-          duration_minutes?: number;
-          location?: string | null;
-          is_active?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [];
-      };
-      workouts: {
-        Row: {
-          id: string;
-          club_id: string | null;
-          coach_id: string;
-          title: string;
-          type: string | null;
-          description: string | null;
-          content: WorkoutContent;
-          total_distance: number | null;
-          estimated_duration: number | null;
-          is_published: boolean;
-          show_before_session?: boolean;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          club_id: string | null;
-          coach_id: string;
-          title: string;
-          type?: string | null;
-          description?: string | null;
-          content?: WorkoutContent;
-          total_distance?: number | null;
-          estimated_duration?: number | null;
-          is_published?: boolean;
-          show_before_session?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          club_id?: string;
-          coach_id?: string;
-          title?: string;
-          type?: string | null;
-          description?: string | null;
-          content?: WorkoutContent;
-          total_distance?: number | null;
-          estimated_duration?: number | null;
-          is_published?: boolean;
-          show_before_session?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [];
-      };
-      workout_assignments: {
-        Row: {
-          id: string;
-          workout_id: string;
-          training_slot_id: string;
-          scheduled_date: string;
-          coach_id: string | null;
-          is_completed: boolean;
-          attendance_marked: boolean;
-          assigned_at: string;
-        };
-        Insert: {
-          id?: string;
-          workout_id: string;
-          training_slot_id: string;
-          scheduled_date: string;
-          coach_id?: string | null;
-          is_completed?: boolean;
-          attendance_marked?: boolean;
-          assigned_at?: string;
-        };
-        Update: {
-          id?: string;
-          workout_id?: string;
-          training_slot_id?: string;
-          scheduled_date?: string;
-          coach_id?: string | null;
-          is_completed?: boolean;
-          attendance_marked?: boolean;
-          assigned_at?: string;
-        };
-        Relationships: [];
-      };
-      workout_sessions: {
-        Row: {
-          id: string;
-          workout_assignment_id: string;
-          swimmer_id: string;
-          is_guest: boolean;
-          attended: boolean;
-          rpe_score: number | null;
-          feedback_text: string | null;
-          performances: Json;
-          completed_at: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          workout_assignment_id: string;
-          swimmer_id: string;
-          is_guest?: boolean;
-          attended?: boolean;
-          rpe_score?: number | null;
-          feedback_text?: string | null;
-          performances?: Json;
-          completed_at?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          workout_assignment_id?: string;
-          swimmer_id?: string;
-          is_guest?: boolean;
-          attended?: boolean;
-          rpe_score?: number | null;
-          feedback_text?: string | null;
-          performances?: Json;
-          completed_at?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [];
-      };
-      block_library: {
-        Row: {
-          id: string;
-          club_id: string;
-          coach_id: string;
-          name: string;
-          type: string;
-          content: Json;
-          total_distance: number;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          club_id: string;
-          coach_id: string;
-          name: string;
-          type: string;
-          content: Json;
-          total_distance: number;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          club_id?: string;
-          coach_id?: string;
-          name?: string;
-          type?: string;
-          content?: Json;
-          total_distance?: number;
-          created_at?: string;
-        };
-        Relationships: [];
-      };
-      push_tokens: {
-        Row: {
-          id: string;
-          user_id: string;
-          token: string;
-          platform: 'ios' | 'android' | 'web';
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          user_id: string;
-          token: string;
-          platform: 'ios' | 'android' | 'web';
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          user_id?: string;
-          token?: string;
-          platform?: 'ios' | 'android' | 'web';
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [];
-      };
-    };
-    Views: {};
-    Functions: {};
+export type { Json };
+
+type Generated = GeneratedDatabase['public']['Tables'];
+type Override<T, R> = Omit<T, keyof R> & R;
+
+/** Remplace les colonnes données dans Row, Insert et Update d'une table générée. */
+type Refine<
+  Name extends keyof Generated,
+  Row extends Partial<Generated[Name]['Row']> | Record<string, unknown>,
+> = {
+  Row: Override<Generated[Name]['Row'], Row>;
+  Insert: Override<Generated[Name]['Insert'], Partial<Row>>;
+  Update: Override<Generated[Name]['Update'], Partial<Row>>;
+  Relationships: Generated[Name]['Relationships'];
+};
+
+export type UserRole = 'coach' | 'swimmer';
+export type GroupLevelKey = 'beginner' | 'intermediate' | 'advanced' | 'competition';
+
+type RefinedTables = {
+  profiles: Refine<'profiles', { role: UserRole }>;
+  club_members: Refine<'club_members', { role: UserRole }>;
+  groups: Refine<'groups', { level: GroupLevelKey | null }>;
+  workouts: Refine<'workouts', { content: WorkoutContent }>;
+  push_tokens: Refine<'push_tokens', { platform: 'ios' | 'android' | 'web' }>;
+  block_library: Refine<'block_library', { type: BlockType; content: SubBlock[] }>;
+};
+
+export type Database = Omit<GeneratedDatabase, 'public'> & {
+  public: Omit<GeneratedDatabase['public'], 'Tables'> & {
+    Tables: Omit<Generated, keyof RefinedTables> & RefinedTables;
   };
 };
 
-// ---- V0.5 Tables (Sprint 7) ----
-
-// Block Library (replaces exercise_library and workout_templates)
-export interface BlockLibraryRow {
-  id: string;
-  club_id: string;
-  coach_id: string;
-  name: string;
-  type: BlockType;
-  content: SubBlock[];
-  total_distance: number;
-  created_at: string;
-}
-
-export interface BlockLibraryInsert {
-  id?: string;
-  club_id: string;
-  coach_id: string;
-  name: string;
-  type: BlockType;
-  content: SubBlock[];
-  total_distance: number;
-  created_at?: string;
-}
-
-export interface BlockLibraryUpdate {
-  name?: string;
-  type?: BlockType;
-  content?: SubBlock[];
-  total_distance?: number;
-}
+export type BlockLibraryRow = Database['public']['Tables']['block_library']['Row'];
+export type BlockLibraryInsert = Database['public']['Tables']['block_library']['Insert'];
+export type BlockLibraryUpdate = Database['public']['Tables']['block_library']['Update'];
 
 // Workout Content Types
 export interface WorkoutContent {
@@ -499,6 +102,12 @@ export type TrainingSlot = Database['public']['Tables']['training_slots']['Row']
 export type Workout = Database['public']['Tables']['workouts']['Row'];
 export type WorkoutAssignment = Database['public']['Tables']['workout_assignments']['Row'];
 export type WorkoutSession = Database['public']['Tables']['workout_sessions']['Row'];
+
+export type SoloSessionRow = Database['public']['Tables']['solo_sessions']['Row'];
+export type SessionPresenceRow = Database['public']['Tables']['session_presence']['Row'];
+export type SwimmerBadgeRow = Database['public']['Tables']['swimmer_badges']['Row'];
+export type PersonalRecordRow = Database['public']['Tables']['personal_records']['Row'];
+export type MemberConsentRow = Database['public']['Tables']['member_consents']['Row'];
 
 // Insert types
 export type ProfileInsert = Database['public']['Tables']['profiles']['Insert'];

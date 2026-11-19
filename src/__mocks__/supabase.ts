@@ -17,6 +17,8 @@ export function createMockQueryBuilder(result: MockResult = { data: null, error:
     eq: jest.fn().mockReturnThis(),
     neq: jest.fn().mockReturnThis(),
     in: jest.fn().mockReturnThis(),
+    is: jest.fn().mockReturnThis(),
+    not: jest.fn().mockReturnThis(),
     gte: jest.fn().mockReturnThis(),
     lte: jest.fn().mockReturnThis(),
     order: jest.fn().mockReturnThis(),

@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import GradientScreen from '../../components/GradientScreen';
 import GlassCard from '../../components/GlassCard';
 import { useAuthStore } from '../../stores/authStore';
+import { C, FONTS } from '../../config/tokens';
 
 export default function ForgotPasswordScreen({ navigation }: any) {
   const { requestPasswordReset } = useAuthStore();
@@ -47,7 +48,7 @@ export default function ForgotPasswordScreen({ navigation }: any) {
           {sent ? (
             <GlassCard elevated>
               <View style={styles.sentBody}>
-                <Ionicons name="mail-unread-outline" size={36} color="#0891B2" />
+                <Ionicons name="mail-unread-outline" size={36} color={C.primary} />
                 <Text style={styles.sentTitle}>Vérifie ta boîte mail</Text>
                 <Text style={styles.text}>
                   Si un compte existe pour {email.trim()}, tu vas recevoir un lien pour choisir un
@@ -101,21 +102,21 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   title: {
-    color: '#0891B2',
-    fontWeight: 'bold',
+    color: C.ink,
+    fontFamily: FONTS.display,
     textAlign: 'center',
   },
   form: {
     gap: 14,
   },
   text: {
-    color: '#64748b',
+    color: C.inkMuted,
     fontSize: 14,
     lineHeight: 20,
     textAlign: 'center',
   },
   input: {
-    backgroundColor: 'rgba(255,255,255,0.60)',
+    backgroundColor: C.surface,
   },
   sentBody: {
     alignItems: 'center',
@@ -124,7 +125,7 @@ const styles = StyleSheet.create({
   },
   sentTitle: {
     fontSize: 16,
-    fontWeight: '800',
-    color: '#1e293b',
+    fontFamily: FONTS.display,
+    color: C.ink,
   },
 });

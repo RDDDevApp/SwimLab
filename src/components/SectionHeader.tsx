@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
-import { TEXT_COLORS } from '../config/tokens';
+import { TEXT_COLORS, C, FONTS } from '../config/tokens';
 
 interface Props {
   title: string;
@@ -18,7 +18,7 @@ export default function SectionHeader({ title, actionLabel = 'Voir tout', onActi
       {onAction && (
         <Pressable style={styles.action} onPress={onAction} hitSlop={8}>
           <Text style={styles.actionText}>{actionLabel}</Text>
-          <Ionicons name="chevron-forward-outline" size={14} color="#0891B2" />
+          <Ionicons name="chevron-forward-outline" size={14} color={C.primary} />
         </Pressable>
       )}
     </View>
@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: FONTS.display,
     color: TEXT_COLORS.primary,
   },
   action: {
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
   },
   actionText: {
     fontSize: 13,
-    fontWeight: '600',
-    color: '#0891B2',
+    fontFamily: FONTS.textStrong,
+    color: C.primary,
   },
 });

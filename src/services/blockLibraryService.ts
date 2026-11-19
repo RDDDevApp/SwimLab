@@ -14,18 +14,18 @@ export const blockLibraryService = {
       .order('name', { ascending: true });
 
     if (error) throw error;
-    return data as unknown as BlockLibraryRow[];
+    return data;
   },
 
   async create(data: BlockLibraryInsert): Promise<BlockLibraryRow> {
     const { data: block, error } = await supabase
       .from('block_library')
-      .insert(data as any)
+      .insert(data)
       .select()
       .single();
 
     if (error) throw error;
-    return block as unknown as BlockLibraryRow;
+    return block;
   },
 
   async update(
@@ -34,13 +34,13 @@ export const blockLibraryService = {
   ): Promise<BlockLibraryRow> {
     const { data: block, error } = await supabase
       .from('block_library')
-      .update(data as any)
+      .update(data)
       .eq('id', id)
       .select()
       .single();
 
     if (error) throw error;
-    return block as unknown as BlockLibraryRow;
+    return block;
   },
 
   async delete(id: string): Promise<void> {

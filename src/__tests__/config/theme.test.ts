@@ -1,77 +1,59 @@
-import { lightTheme, darkTheme, getRPEColor, RPE_LABELS } from '../../config/theme';
+import { lightTheme, getRPEColor, getRPETextColor, RPE_LABELS } from '../../config/theme';
+import { C, FONTS } from '../../config/tokens';
 
-describe('Theme', () => {
+describe('Theme (DA « La vague »)', () => {
   describe('lightTheme', () => {
-    it('should have SwimLab primary color', () => {
-      expect(lightTheme.colors.primary).toBe('#0891B2');
+    it('uses the DA colors', () => {
+      expect(lightTheme.colors.primary).toBe('#044fb3');
+      expect(lightTheme.colors.background).toBe('#f1f7fc');
+      expect(lightTheme.colors.surface).toBe('#ffffff');
+      expect(lightTheme.colors.onSurface).toBe('#06184a');
+      expect(lightTheme.colors.error).toBe(C.danger);
     });
 
-    it('should have white surface', () => {
-      expect(lightTheme.colors.surface).toBe('#FFFFFF');
+    it('keeps cards white: no MD3 elevation tint', () => {
+      expect(lightTheme.colors.elevation.level1).toBe(C.surface);
+      expect(lightTheme.colors.elevation.level3).toBe(C.surface);
     });
 
-    it('should have custom colors attached', () => {
-      expect(lightTheme.custom).toBeDefined();
-      expect(lightTheme.custom.primary.turquoise).toBe('#0891B2');
-      expect(lightTheme.custom.primary.teal).toBe('#0e7490');
+    it('sets titles in Sora and text in Figtree', () => {
+      expect(lightTheme.fonts.headlineMedium.fontFamily).toBe(FONTS.display);
+      expect(lightTheme.fonts.titleMedium.fontFamily).toBe(FONTS.displaySemi);
+      expect(lightTheme.fonts.bodyMedium.fontFamily).toBe(FONTS.text);
+      expect(lightTheme.fonts.labelLarge.fontFamily).toBe(FONTS.textStrong);
     });
 
-    it('should have secondary colors', () => {
-      expect(lightTheme.colors.secondary).toBe('#ec4899');
-      expect(lightTheme.colors.tertiary).toBe('#D97706');
-    });
-  });
-
-  describe('darkTheme', () => {
-    it('should have same primary color as light theme', () => {
-      expect(darkTheme.colors.primary).toBe(lightTheme.colors.primary);
-    });
-
-    it('should have dark surface', () => {
-      expect(darkTheme.colors.surface).toBe('#1E293B');
-    });
-
-    it('should have dark background', () => {
-      expect(darkTheme.colors.background).toBe('#0f172a');
+    it('makes buttons pill-shaped (roundness × 5 ≥ 24)', () => {
+      expect(lightTheme.roundness * 5).toBeGreaterThanOrEqual(24);
     });
   });
 });
 
 describe('getRPEColor', () => {
-  it('should return veryEasy color for RPE 6-8', () => {
-    expect(getRPEColor(6)).toBe('#15803D');
-    expect(getRPEColor(7)).toBe('#15803D');
-    expect(getRPEColor(8)).toBe('#15803D');
+  it('goes from clear water to dark plum', () => {
+    expect(getRPEColor(6)).toBe(C.rpe1);
+    expect(getRPEColor(8)).toBe(C.rpe1);
+    expect(getRPEColor(9)).toBe(C.rpe2);
+    expect(getRPEColor(10)).toBe(C.rpe2);
+    expect(getRPEColor(11)).toBe(C.rpe3);
+    expect(getRPEColor(12)).toBe(C.rpe3);
+    expect(getRPEColor(13)).toBe(C.rpe4);
+    expect(getRPEColor(14)).toBe(C.rpe4);
+    expect(getRPEColor(15)).toBe(C.rpe5);
+    expect(getRPEColor(16)).toBe(C.rpe5);
+    expect(getRPEColor(17)).toBe(C.rpe6);
+    expect(getRPEColor(18)).toBe(C.rpe6);
+    expect(getRPEColor(19)).toBe(C.rpe7);
+    expect(getRPEColor(20)).toBe(C.rpe7);
   });
+});
 
-  it('should return easy color for RPE 9-10', () => {
-    expect(getRPEColor(9)).toBe('#4D7C0F');
-    expect(getRPEColor(10)).toBe('#4D7C0F');
-  });
-
-  it('should return light color for RPE 11-12', () => {
-    expect(getRPEColor(11)).toBe('#65A30D');
-    expect(getRPEColor(12)).toBe('#65A30D');
-  });
-
-  it('should return moderate color for RPE 13-14', () => {
-    expect(getRPEColor(13)).toBe('#CA8A04');
-    expect(getRPEColor(14)).toBe('#CA8A04');
-  });
-
-  it('should return hard color for RPE 15-16', () => {
-    expect(getRPEColor(15)).toBe('#EA580C');
-    expect(getRPEColor(16)).toBe('#EA580C');
-  });
-
-  it('should return veryHard color for RPE 17-18', () => {
-    expect(getRPEColor(17)).toBe('#DC2626');
-    expect(getRPEColor(18)).toBe('#DC2626');
-  });
-
-  it('should return maximal color for RPE 19-20', () => {
-    expect(getRPEColor(19)).toBe('#991B1B');
-    expect(getRPEColor(20)).toBe('#991B1B');
+describe('getRPETextColor', () => {
+  it('writes the number in night blue up to 14, white above', () => {
+    expect(getRPETextColor(6)).toBe(C.onVif);
+    expect(getRPETextColor(14)).toBe(C.onVif);
+    expect(getRPETextColor(15)).toBe(C.onAbysse);
+    expect(getRPETextColor(20)).toBe(C.onAbysse);
   });
 });
 

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Image } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import GradientScreen from '../../components/GradientScreen';
 import DemoAccountSwitcher from '../../components/DemoAccountSwitcher';
 import { useAuthStore } from '../../stores/authStore';
+import { C, FONTS } from '../../config/tokens';
 
 export default function LoginScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
@@ -58,10 +59,20 @@ export default function LoginScreen({ navigation }: any) {
       >
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
+          {/* « La vague » : l'image de la marque, toujours en grand et sans texte dessus */}
+          <Image
+            source={require('../../../assets/vague-swimlab.webp')}
+            style={styles.illustration}
+            accessibilityIgnoresInvertColors
+            alt=""
+          />
           <Text variant="displaySmall" style={styles.title}>
             SwimLab
           </Text>
-          <Text variant="bodyLarge" style={styles.subtitle}>
+          <Text variant="bodyLarge" style={styles.tagline}>
+            Chaque longueur compte.
+          </Text>
+          <Text variant="titleMedium" style={styles.subtitle}>
             Connexion
           </Text>
         </View>
@@ -155,30 +166,38 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    color: '#0891B2',
-    fontWeight: 'bold',
+    color: C.ink,
+    fontFamily: FONTS.display,
+  },
+  illustration: {
+    width: 200,
+    height: 200,
+    borderRadius: 28,
+    marginBottom: 24,
+  },
+  tagline: {
+    color: C.inkMuted,
+    marginTop: 4,
   },
   subtitle: {
-    color: '#64748b',
-    marginTop: 8,
+    color: C.ink,
+    marginTop: 24,
   },
   form: {
     gap: 16,
   },
   input: {
-    backgroundColor: 'rgba(255,255,255,0.60)',
+    backgroundColor: C.surface,
   },
   errorBanner: {
-    backgroundColor: '#FEE2E2',
+    backgroundColor: C.dangerSoft,
     borderRadius: 8,
     padding: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: '#EF4444',
   },
   errorText: {
-    color: '#991B1B',
+    color: C.danger,
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: FONTS.textMedium,
   },
   button: {
     marginTop: 8,
