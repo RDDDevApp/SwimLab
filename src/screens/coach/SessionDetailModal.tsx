@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { View, StyleSheet, ScrollView, Pressable, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { Text, Button, Card, Chip, RadioButton, IconButton } from 'react-native-paper';
 import { queryKeys, useCoachWorkouts, useRefreshOnFocus } from '../../hooks';
@@ -46,6 +46,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
   const { slot, date, assignment: initialAssignment, workoutTitle: initialTitle } = route.params;
   const { user } = useAuthStore();
   const showSnackbar = useSnackbarStore((s) => s.show);
+  const queryClient = useQueryClient();
 
   // Séance attribuée au créneau ce jour-là : celle reçue en ouvrant, ou celle qu'on vient d'attribuer
   const [current, setCurrent] = useState<WorkoutAssignment | null>(initialAssignment);
@@ -65,7 +66,10 @@ export default function SessionDetailModal({ navigation, route }: Props) {
     queryFn: () => fetchAssignmentDetail(current!.id, current!.workout_id),
     enabled: !!current,
   });
-  useRefreshOnFocus(detailQuery.refetch);
+  // refetch() ignore « enabled » : ne rien relancer quand le créneau est vide
+  useRefreshOnFocus(() => {
+    if (current) detailQuery.refetch();
+  });
 
   // Séances publiées, pour en attribuer une quand le créneau est vide
   const workoutsQuery = useCoachWorkouts(current ? undefined : user?.id);
@@ -90,6 +94,8 @@ export default function SessionDetailModal({ navigation, route }: Props) {
         scheduled_date: date,
       });
       setCurrent(newAssignment);
+      // Calendrier, tableau de bord et statistiques du coach à jour au retour
+      queryClient.invalidateQueries({ queryKey: ['coach'] });
       showSnackbar('Séance assignée', 'success');
     } catch (err: any) {
       showSnackbar(err.message || 'Erreur lors de l\'attribution', 'error');
@@ -104,6 +110,7 @@ export default function SessionDetailModal({ navigation, route }: Props) {
       await workoutAssignmentService.delete(assignment.id);
       setCurrent(null);
       setShowPicker(true);
+      queryClient.invalidateQueries({ queryKey: ['coach'] });
       showSnackbar('Assignation supprimée', 'info');
     } catch (err: any) {
       showSnackbar(err.message || 'Erreur', 'error');
